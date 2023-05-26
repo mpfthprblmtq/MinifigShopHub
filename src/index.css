@@ -1,0 +1,8 @@
+@font-face {
+    font-family: 'Didact Gothic';
+    src: local('Didact Gothic'), url(../public/assets/fonts/didact-gothic.ttf) format('truetype');
+}
+
+html {
+    font-family: 'Didact Gothic', serif;
+}

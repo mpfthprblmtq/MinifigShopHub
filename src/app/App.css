@@ -1,0 +1,7 @@
+.App {
+  padding: 1%;
+}
+
+.clickable :hover {
+  cursor: pointer;
+}
