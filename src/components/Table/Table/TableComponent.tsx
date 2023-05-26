@@ -2,7 +2,7 @@ import React, {FunctionComponent, useState} from "react";
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField} from "@mui/material";
 import NewUsedToggleButton from "../NewUsedToggleButton/NewUsedToggleButton";
 import {formatCurrency} from "../../../utils/CurrencyUtils";
-import {FixedWidthTableCell} from "./TableComponent.styles";
+import {FixedWidthColumnHeading} from "./TableComponent.styles";
 import {Item} from "../../../model/item/Item";
 import {Condition} from "../../../model/shared/Condition";
 import ManualAdjustmentSlider from "../ManualAdjustmentSlider/ManualAdjustmentSlider";
@@ -62,30 +62,37 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                 <Table size="small">
                     <TableHead>
                         <TableRow>
-                            <FixedWidthTableCell width={80} />
-                            <FixedWidthTableCell width={80}>ID</FixedWidthTableCell>
-                            <FixedWidthTableCell width={150}>Name</FixedWidthTableCell>
-                            <FixedWidthTableCell width={50}>Year</FixedWidthTableCell>
-                            <FixedWidthTableCell width={100}>Condition</FixedWidthTableCell>
+                            <FixedWidthColumnHeading width={80} />
+                            <FixedWidthColumnHeading width={80}>ID</FixedWidthColumnHeading>
+                            <FixedWidthColumnHeading width={150}>Name</FixedWidthColumnHeading>
+                            <FixedWidthColumnHeading width={50}>Year</FixedWidthColumnHeading>
+                            <FixedWidthColumnHeading width={100}>Condition</FixedWidthColumnHeading>
                             {storeMode && (
                                 <>
-                                    <FixedWidthTableCell width={100}>New Sales</FixedWidthTableCell>
-                                    <FixedWidthTableCell width={100}>Used Sales</FixedWidthTableCell>
+                                    <FixedWidthColumnHeading width={100}>New Sales</FixedWidthColumnHeading>
+                                    <FixedWidthColumnHeading width={100}>Used Sales</FixedWidthColumnHeading>
                                 </>
                             )}
-                            <FixedWidthTableCell width={100}>Trade-In Value</FixedWidthTableCell>
-                            {storeMode && <FixedWidthTableCell width={200}>Manual Adjustment</FixedWidthTableCell>}
-                            <TableCell>Notes/Comments</TableCell>
+                            <FixedWidthColumnHeading width={100}>Trade-In Value</FixedWidthColumnHeading>
+                            {storeMode && <FixedWidthColumnHeading width={200}>Manual Adjustment</FixedWidthColumnHeading>}
+                            <FixedWidthColumnHeading width={200}>Notes/Comments</FixedWidthColumnHeading>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {items.map(item => (
                             <TableRow key={item.id}>
-                                <TableCell className={"clickable"}><img alt="bricklink-set-img" src={item.thumbnail_url} onClick={() => {
-                                    setImageUrl(item.image_url);
-                                    setImageModalOpen(true);
-                                }}/></TableCell>
-                                <TableCell>{item.no}</TableCell>
+                                <TableCell className={"clickable"}>
+                                    <img alt="bricklink-set-img" src={item.thumbnail_url} onClick={() => {
+                                        setImageUrl(item.image_url);
+                                        setImageModalOpen(true);
+                                    }}/>
+                                </TableCell>
+                                <TableCell>
+                                    <a
+                                        href={`https://www.bricklink.com/v2/catalog/catalogitem.page?S=${item.no}#T=P`}
+                                        target="_blank" rel="noreferrer">{item.no}
+                                    </a>
+                                </TableCell>
                                 <TableCell>{item.name}</TableCell>
                                 <TableCell>{item.year_released}</TableCell>
                                 <TableCell>
@@ -112,7 +119,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                                     </TableCell>
                                 )}
                                 <TableCell>
-                                    <TextField value={item.notes} />
+                                    <TextField rows={2} value={item.notes} />
                                 </TableCell>
                             </TableRow>
                         ))}
