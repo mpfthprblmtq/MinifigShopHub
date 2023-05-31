@@ -12,6 +12,7 @@ export interface Item {
     condition: Condition;
     baseValue: number;
     value: number;
+    valueDisplay: string;
     valueAdjustment: number;
     notes: string;
     newStock?: SalesHistory;

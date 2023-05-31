@@ -17,8 +17,13 @@ const ManualAdjustmentSlider: FunctionComponent<ManualAdjustmentSliderParams> = 
         { value: 50, label: "+50%" }
     ];
 
+    /**
+     * Helper function to set the slider value label to a clean value.  If there's a decimal, then fixes the digits
+     * after the decimal to 2, else just return the number, so we don't get something like 21.00% every time.
+     * @param value the value to format
+     */
     const formatSliderLabel = (value: number): string => {
-        return value + "%";
+        return (value - Math.floor(value) === 0 ? value : value.toFixed(2)) + "%";
     };
 
     return (

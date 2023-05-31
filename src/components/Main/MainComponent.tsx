@@ -5,12 +5,14 @@ import {
     Box,
     Button,
     CircularProgress, FormControlLabel, Switch,
-    TextField
+    TextField, Typography
 } from "@mui/material";
 import {green} from "@mui/material/colors";
 import {SetNameStyledTypography} from "./MainComponent.styles";
 import TableComponent from "../Table/Table/TableComponent";
 import {Condition} from "../../model/shared/Condition";
+import {generateId} from "../../utils/ArrayUtils";
+import {formatCurrency} from "../../utils/CurrencyUtils";
 
 const MainComponent: FunctionComponent = () => {
 
@@ -35,23 +37,17 @@ const MainComponent: FunctionComponent = () => {
             });
     };
 
-    const generateId = (): number => {
-        if (items.length === 0) {
-            return 0;
-        }
-        return Math.max(...items.map(i => i.id)) + 1;
-    };
-
     const addToList = async () => {
         if (item) {
             setLoading(true);
             getAllSalesHistory(item).then(response => {
                 // generate an id and some other default goodies
                 // by default, set the condition to used and use the average sold value for the value attribute
-                item.id = generateId();
+                item.id = generateId(items);
                 item.condition = Condition.USED;
                 item.value = response.usedSold?.avg_price ?
                     +response.usedSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE! : 0;
+                item.valueDisplay = formatCurrency(item.value)!.toString().substring(1);
                 item.baseValue = item.value;
                 item.valueAdjustment = 0;
 
@@ -119,12 +115,14 @@ const MainComponent: FunctionComponent = () => {
             </Box>
             <Box>
                 {item ? <SetNameStyledTypography style={{fontFamily: "Didact Gothic"}}>[{item.year_released}] {item.name}</SetNameStyledTypography> : <SetNameStyledTypography style={{fontFamily: "Didact Gothic"}}>&nbsp;</SetNameStyledTypography>}
-
             </Box>
             <Box>
                 <TableComponent items={items} setItems={setItems} storeMode={storeMode} />
             </Box>
             <FormControlLabel control={<Switch checked={storeMode} onChange={handleStoreModeChange} />} label={"Store Mode"} />
+            {items.map(item => (
+                <Typography key={item.id}>{item.id}: {item.no} - {item.value} / {item.valueDisplay}</Typography>
+            ))}
 
         </div>
     );

@@ -4,4 +4,8 @@ export const formatCurrency = (s: string | number | undefined) => {
         currency: 'USD'
     });
     return s ? formatter.format(+s) : s;
-}
+};
+
+export const launderMoney = (s: string): number => {
+    return +s.replace(",", "");
+};

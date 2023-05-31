@@ -1,12 +1,24 @@
 import React, {FunctionComponent, useState} from "react";
-import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField} from "@mui/material";
+import {
+    InputAdornment,
+    OutlinedInput,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TextField
+} from "@mui/material";
 import NewUsedToggleButton from "../NewUsedToggleButton/NewUsedToggleButton";
-import {formatCurrency} from "../../../utils/CurrencyUtils";
+import {formatCurrency, launderMoney} from "../../../utils/CurrencyUtils";
 import {FixedWidthColumnHeading} from "./TableComponent.styles";
 import {Item} from "../../../model/item/Item";
 import {Condition} from "../../../model/shared/Condition";
 import ManualAdjustmentSlider from "../ManualAdjustmentSlider/ManualAdjustmentSlider";
 import ImageDialog from "../../ImageDialog/ImageDialog";
+import {Delete} from "@mui/icons-material";
+import {getItemWithId} from "../../../utils/ArrayUtils";
 
 interface TableComponentParams {
     items: Item[];
@@ -16,29 +28,74 @@ interface TableComponentParams {
 
 const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setItems, storeMode }) => {
 
-    const [imageModalOpen, setImageModalOpen] = useState<boolean>(false);
     const [imageUrl, setImageUrl] = useState<string>('');
 
+    /**
+     * Event handler for the change event on the value adjustment slider
+     * @param condition the condition value to set
+     * @param id the id of the item to modify
+     */
     const handleConditionChange = (condition: Condition, id: number) => {
         const newItems = [...items];
-        const item = newItems.at(id);
+        const item = getItemWithId(newItems, id);
         if (item) {
             item.condition = condition;
             calculatePrice(item);
         }
         setItems(newItems);
-    }
+    };
 
+    /**
+     * Event handler for the change event on the value adjustment slider
+     * @param event the event to capture
+     * @param id the id of the item to modify
+     */
     const handleSliderChange = (event: any, id: number) => {
         const newItems = [...items];
-        const item = newItems.at(id);
+        const item = getItemWithId(newItems, id);
         if (item) {
             item.valueAdjustment = event.target.value;
             calculatePrice(item);
         }
         setItems(newItems);
-    }
+    };
 
+    /**
+     * Event handler for the change event on the value text field, just sets the value
+     * @param event the event to capture
+     * @param id the id of the item to modify
+     */
+    const handleValueChange = (event: any, id: number) => {
+        const newItems = [...items];
+        const item = getItemWithId(newItems, id);
+        if (item) {
+            item.value = launderMoney(event.target.value);
+            item.valueDisplay = event.target.value;
+        }
+        setItems(newItems);
+    };
+
+    /**
+     * Event handler for the blur event on the value text field, just cleans up the value display mostly
+     * @param event the event to capture
+     * @param id the id of the item to modify
+     */
+    const handleValueBlur = (event: any, id: number) => {
+        const newItems = [...items];
+        const item = getItemWithId(newItems, id);
+        if (item) {
+            item.value = launderMoney(event.target.value);
+            item.valueDisplay = formatCurrency(event.target.value)!.toString().substring(1);
+            calculateAdjustment(item);
+        }
+        setItems(newItems);
+    };
+
+    /**
+     * Helper function that calculates the price based on the condition and value adjustment.  Calculates the value,
+     * baseValue, and valueDisplay.
+     * @param item the item to check
+     */
     const calculatePrice = (item: Item) => {
         if (item.condition === Condition.USED) {
             item.value = item.usedSold?.avg_price ?
@@ -54,7 +111,21 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
         } else {
             item.value = item.baseValue + (item.baseValue * (item.valueAdjustment/100));
         }
-    }
+        item.valueDisplay = formatCurrency(item.value)!.toString().substring(1);
+    };
+
+    /**
+     * Helper function that calculates the value adjustment by taking the value and baseValue and returning a percentage
+     * of the difference between the two
+     * @param item the item to check
+     */
+    const calculateAdjustment = (item: Item) => {
+        if (item.value < item.baseValue) {
+            item.valueAdjustment = -100 + ((item.value / item.baseValue) * 100);
+        } else if (item.value > item.baseValue) {
+            item.valueAdjustment = 100 - ((item.value / item.baseValue) * 100);
+        }
+    };
 
     return (
         <>
@@ -73,9 +144,10 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                                     <FixedWidthColumnHeading width={100}>Used Sales</FixedWidthColumnHeading>
                                 </>
                             )}
-                            <FixedWidthColumnHeading width={100}>Trade-In Value</FixedWidthColumnHeading>
+                            <FixedWidthColumnHeading width={120}>Trade-In Value</FixedWidthColumnHeading>
                             {storeMode && <FixedWidthColumnHeading width={200}>Manual Adjustment</FixedWidthColumnHeading>}
                             <FixedWidthColumnHeading width={200}>Notes/Comments</FixedWidthColumnHeading>
+                            <FixedWidthColumnHeading width={50} />
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -84,7 +156,6 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                                 <TableCell className={"clickable"}>
                                     <img alt="bricklink-set-img" src={item.thumbnail_url} onClick={() => {
                                         setImageUrl(item.image_url);
-                                        setImageModalOpen(true);
                                     }}/>
                                 </TableCell>
                                 <TableCell>
@@ -112,7 +183,15 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                                         </TableCell>
                                     </>
                                 )}
-                                <TableCell>{formatCurrency(item.value)}</TableCell>
+                                <TableCell>
+                                    <OutlinedInput
+                                        startAdornment={<InputAdornment position="start">$</InputAdornment>}
+                                        value={item.valueDisplay}
+                                        inputProps={{ inputMode: 'numeric', pattern: '[0-9,\\.]'}}
+                                        onChange={(event) => handleValueChange(event, item.id)}
+                                        onBlur={(event) => handleValueBlur(event, item.id)}
+                                    />
+                                </TableCell>
                                 {storeMode && (
                                     <TableCell>
                                         <ManualAdjustmentSlider item={item} handleSliderChange={handleSliderChange}/>
@@ -121,13 +200,15 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                                 <TableCell>
                                     <TextField rows={2} value={item.notes} />
                                 </TableCell>
+                                <TableCell>
+                                    <Delete />
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
             </TableContainer>
-            <ImageDialog open={imageModalOpen} imageUrl={imageUrl} onClose={() => {
-                setImageModalOpen(false);
+            <ImageDialog open={imageUrl !== ''} imageUrl={imageUrl} onClose={() => {
                 setImageUrl('');
             }}/>
         </>
