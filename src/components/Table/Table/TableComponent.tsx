@@ -7,8 +7,7 @@ import {
     TableCell,
     TableContainer,
     TableHead,
-    TableRow,
-    TextField
+    TableRow
 } from "@mui/material";
 import NewUsedToggleButton from "../NewUsedToggleButton/NewUsedToggleButton";
 import {formatCurrency, launderMoney} from "../../../utils/CurrencyUtils";
@@ -16,9 +15,11 @@ import {FixedWidthColumnHeading} from "./TableComponent.styles";
 import {Item} from "../../../model/item/Item";
 import {Condition} from "../../../model/shared/Condition";
 import ManualAdjustmentSlider from "../ManualAdjustmentSlider/ManualAdjustmentSlider";
-import ImageDialog from "../../ImageDialog/ImageDialog";
+import ImageDialog from "../../Dialog/ImageDialog/ImageDialog";
 import {Delete} from "@mui/icons-material";
 import {getItemWithId} from "../../../utils/ArrayUtils";
+import ItemComment from "../ItemComment/ItemComment";
+import ConfirmDialog from "../../Dialog/ConfirmDialog/ConfirmDialog";
 
 interface TableComponentParams {
     items: Item[];
@@ -29,6 +30,7 @@ interface TableComponentParams {
 const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setItems, storeMode }) => {
 
     const [imageUrl, setImageUrl] = useState<string>('');
+    const [itemToDelete, setItemToDelete] = useState<Item>();
 
     /**
      * Event handler for the change event on the value adjustment slider
@@ -127,6 +129,15 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
         }
     };
 
+    const handleCommentChange = (event: any, id: number) => {
+        const newItems = [...items];
+        const item = getItemWithId(newItems, id);
+        if (item) {
+            item.comment = event.target.value;
+        }
+        setItems(newItems);
+    }
+
     return (
         <>
             <TableContainer>
@@ -198,10 +209,12 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                                     </TableCell>
                                 )}
                                 <TableCell>
-                                    <TextField rows={2} value={item.notes} />
+                                    <ItemComment item={item} storeMode={storeMode} handleCommentChange={handleCommentChange}/>
                                 </TableCell>
-                                <TableCell>
-                                    <Delete />
+                                <TableCell className={"clickable"}>
+                                    {storeMode && (
+                                        <Delete color={"error"} onClick={() => setItemToDelete(item)} />
+                                    )}
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -211,6 +224,14 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
             <ImageDialog open={imageUrl !== ''} imageUrl={imageUrl} onClose={() => {
                 setImageUrl('');
             }}/>
+            <ConfirmDialog
+                open={itemToDelete !== undefined}
+                item={itemToDelete}
+                onCancel={() => setItemToDelete(undefined)}
+                deleteRow={(id: number) => {
+                    setItems([...items].filter(item => item.id !== id));
+                    setItemToDelete(undefined);
+                }} />
         </>
     );
 }

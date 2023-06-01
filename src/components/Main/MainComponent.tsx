@@ -121,7 +121,10 @@ const MainComponent: FunctionComponent = () => {
             </Box>
             <FormControlLabel control={<Switch checked={storeMode} onChange={handleStoreModeChange} />} label={"Store Mode"} />
             {items.map(item => (
-                <Typography key={item.id}>{item.id}: {item.no} - {item.value} / {item.valueDisplay}</Typography>
+                <div key={item.id}>
+                    <Typography>{item.id}: {item.no} - {item.value} / {item.valueDisplay}</Typography>
+                    <Typography>{item.comment}</Typography>
+                </div>
             ))}
 
         </div>

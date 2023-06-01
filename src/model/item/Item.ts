@@ -14,7 +14,7 @@ export interface Item {
     value: number;
     valueDisplay: string;
     valueAdjustment: number;
-    notes: string;
+    comment: string;
     newStock?: SalesHistory;
     usedStock?: SalesHistory;
     newSold?: SalesHistory;
