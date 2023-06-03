@@ -1,20 +1,22 @@
 import {SalesHistory} from "../salesHistory/SalesHistory";
 import {Condition} from "../shared/Condition";
+import {Source} from "../shared/Source";
 
 export interface Item {
     id: number;
-    no: string;
+    no?: string;
     name: string;
-    category_id: number;
-    image_url: string;
-    thumbnail_url: string;
-    year_released: number;
+    category_id?: number;
+    image_url?: string;
+    thumbnail_url?: string;
+    year_released?: number;
     condition: Condition;
     baseValue: number;
     value: number;
-    valueDisplay: string;
+    valueDisplay?: string;
     valueAdjustment: number;
-    comment: string;
+    comment?: string;
+    source: Source;
     newStock?: SalesHistory;
     usedStock?: SalesHistory;
     newSold?: SalesHistory;

@@ -1,5 +1,12 @@
 .App {
   padding: 1%;
+  width: auto;
+}
+
+@media only screen and (max-width: 600px) {
+  .App {
+    width: max-content;
+  }
 }
 
 .clickable :hover {

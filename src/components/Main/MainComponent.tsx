@@ -2,7 +2,8 @@ import React, {FunctionComponent, useState} from "react";
 import {Item} from "../../model/item/Item";
 import {Box, FormControlLabel, Switch, Typography} from "@mui/material";
 import TableComponent from "../Table/Table/TableComponent";
-import SetSearchCard from "../SetSearchCard/SetSearchCard";
+import SetSearchCard from "../Cards/SetSearchCard/SetSearchCard";
+import CustomItemCard from "../Cards/CustomItemCard/CustomItemCard";
 
 const MainComponent: FunctionComponent = () => {
 
@@ -16,11 +17,16 @@ const MainComponent: FunctionComponent = () => {
     return (
         <div className={"App"}>
             <h1>QuoteBuilder</h1>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Box sx={{ m: 1, position: 'relative' }}>
-                    <SetSearchCard items={items} setItems={setItems} />
+            {storeMode && (
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ m: 1, position: 'relative' }}>
+                        <SetSearchCard items={items} setItems={setItems} />
+                    </Box>
+                    <Box sx={{ m: 1, position: 'relative' }}>
+                        <CustomItemCard items={items} setItems={setItems}/>
+                    </Box>
                 </Box>
-            </Box>
+            )}
             <Box style={{marginTop: 20}}>
                 <TableComponent items={items} setItems={setItems} storeMode={storeMode} />
             </Box>

@@ -63,17 +63,19 @@ export const useBrickLinkService = (): BrickLinkHooks => {
 
     const getAllSalesHistory = async (item: Item): Promise<AllSalesHistory> => {
         let allSalesHistory: AllSalesHistory = {};
-        await Promise.all([
-            getSalesHistory(item.no, "sold", "U"),
-            getSalesHistory(item.no, "stock", "U"),
-            getSalesHistory(item.no, "sold", "N"),
-            getSalesHistory(item.no, "stock", "N")
-        ]).then(responses => {
-            allSalesHistory.usedSold = responses[0];
-            allSalesHistory.usedStock = responses[1];
-            allSalesHistory.newSold = responses[2];
-            allSalesHistory.newStock = responses[3];
-        });
+        if (item.no) {
+            await Promise.all([
+                getSalesHistory(item.no, "sold", "U"),
+                getSalesHistory(item.no, "stock", "U"),
+                getSalesHistory(item.no, "sold", "N"),
+                getSalesHistory(item.no, "stock", "N")
+            ]).then(responses => {
+                allSalesHistory.usedSold = responses[0];
+                allSalesHistory.usedStock = responses[1];
+                allSalesHistory.newSold = responses[2];
+                allSalesHistory.newStock = responses[3];
+            });
+        }
         return allSalesHistory;
     };
 

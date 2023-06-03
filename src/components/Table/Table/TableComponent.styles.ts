@@ -5,4 +5,10 @@ export const FixedWidthColumnHeading = styled(TableCell)`
   max-width: ${props => props.width}px;
   width: ${props => props.width}px;
   font-size: 18px !important;
+  font-family: 'Didact Gothic', sans-serif !important;
+  font-weight: bold !important;
+`;
+
+export const StyledTableCell = styled(TableCell)`
+  font-family: 'Arial', sans-serif !important;
 `;

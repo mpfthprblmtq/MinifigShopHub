@@ -14,7 +14,7 @@ const ConfirmDialog: FunctionComponent<ConfirmDialogParams> = ({open, item, onCa
     return (
         <Dialog open={open} maxWidth="sm" fullWidth>
             <DialogTitle>Confirm Row Deletion</DialogTitle>
-            <Box position="absolute" top={0} right={0}>
+            <Box position="absolute" top={0} right={0} onClick={onCancel}>
                 <IconButton>
                     <Close />
                 </IconButton>

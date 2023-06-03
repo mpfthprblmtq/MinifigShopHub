@@ -4,14 +4,13 @@ import {
     OutlinedInput,
     Table,
     TableBody,
-    TableCell,
     TableContainer,
     TableHead,
     TableRow
 } from "@mui/material";
 import NewUsedToggleButton from "../NewUsedToggleButton/NewUsedToggleButton";
-import {formatCurrency, launderMoney} from "../../../utils/CurrencyUtils";
-import {FixedWidthColumnHeading} from "./TableComponent.styles";
+import {formatCurrency, isNumeric, launderMoney} from "../../../utils/CurrencyUtils";
+import {FixedWidthColumnHeading, StyledTableCell} from "./TableComponent.styles";
 import {Item} from "../../../model/item/Item";
 import {Condition} from "../../../model/shared/Condition";
 import ManualAdjustmentSlider from "../ManualAdjustmentSlider/ManualAdjustmentSlider";
@@ -20,6 +19,7 @@ import {Delete} from "@mui/icons-material";
 import {getItemWithId} from "../../../utils/ArrayUtils";
 import ItemComment from "../ItemComment/ItemComment";
 import ConfirmDialog from "../../Dialog/ConfirmDialog/ConfirmDialog";
+import {Source} from "../../../model/shared/Source";
 
 interface TableComponentParams {
     items: Item[];
@@ -68,13 +68,15 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
      * @param id the id of the item to modify
      */
     const handleValueChange = (event: any, id: number) => {
-        const newItems = [...items];
-        const item = getItemWithId(newItems, id);
-        if (item) {
-            item.value = launderMoney(event.target.value);
-            item.valueDisplay = event.target.value;
+        if (isNumeric(event.target.value)) {
+            const newItems = [...items];
+            const item = getItemWithId(newItems, id);
+            if (item) {
+                item.value = launderMoney(event.target.value);
+                item.valueDisplay = event.target.value;
+            }
+            setItems(newItems);
         }
-        setItems(newItems);
     };
 
     /**
@@ -99,14 +101,15 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
      * @param item the item to check
      */
     const calculatePrice = (item: Item) => {
-        if (item.condition === Condition.USED) {
+        if (item.condition === Condition.USED && item.usedSold) {
             item.value = item.usedSold?.avg_price ?
                 +item.usedSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE! : 0;
-        } else {
+            item.baseValue = item.value;
+        } else if (item.condition === Condition.NEW && item.newSold) {
             item.value = item.newSold?.avg_price ?
                 +item.newSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE! : 0;
+            item.baseValue = item.value;
         }
-        item.baseValue = item.value;
 
         if (item.valueAdjustment === 0) {
             item.value = item.baseValue;
@@ -140,12 +143,12 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
 
     return (
         <>
-            <TableContainer>
+            <TableContainer style={{width: "100%"}}>
                 <Table size="small">
                     <TableHead>
                         <TableRow>
                             <FixedWidthColumnHeading width={80} />
-                            <FixedWidthColumnHeading width={80}>ID</FixedWidthColumnHeading>
+                            <FixedWidthColumnHeading width={80}>Set No.</FixedWidthColumnHeading>
                             <FixedWidthColumnHeading width={150}>Name</FixedWidthColumnHeading>
                             <FixedWidthColumnHeading width={50}>Year</FixedWidthColumnHeading>
                             <FixedWidthColumnHeading width={100}>Condition</FixedWidthColumnHeading>
@@ -164,58 +167,68 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                     <TableBody>
                         {items.map(item => (
                             <TableRow key={item.id}>
-                                <TableCell className={"clickable"}>
-                                    <img alt="bricklink-set-img" src={item.thumbnail_url} onClick={() => {
-                                        setImageUrl(item.image_url);
-                                    }}/>
-                                </TableCell>
-                                <TableCell>
+                                <StyledTableCell className={"clickable"}>
+                                    {item.thumbnail_url && item.image_url && (
+                                        <img alt="bricklink-set-img" src={item.thumbnail_url} onClick={() => {
+                                            setImageUrl(item.image_url ?? '');
+                                        }}/>
+                                    )}
+                                </StyledTableCell>
+                                <StyledTableCell>
                                     <a
                                         href={`https://www.bricklink.com/v2/catalog/catalogitem.page?S=${item.no}#T=P`}
                                         target="_blank" rel="noreferrer">{item.no}
                                     </a>
-                                </TableCell>
-                                <TableCell>{item.name}</TableCell>
-                                <TableCell>{item.year_released}</TableCell>
-                                <TableCell>
+                                </StyledTableCell>
+                                <StyledTableCell>{item.name}</StyledTableCell>
+                                <StyledTableCell>{item.year_released}</StyledTableCell>
+                                <StyledTableCell>
                                     <NewUsedToggleButton item={item} handleConditionChange={handleConditionChange} />
-                                </TableCell>
+                                </StyledTableCell>
                                 {storeMode && (
                                     <>
-                                        <TableCell>
-                                            Min: {formatCurrency(item.newSold?.min_price)}<br/>
-                                            <strong>Avg: {formatCurrency(item.newSold?.avg_price)}</strong><br/>
-                                            Max: {formatCurrency(item.newSold?.max_price)}
-                                        </TableCell>
-                                        <TableCell>
-                                            Min: {formatCurrency(item.usedSold?.min_price)}<br/>
-                                            <strong>Avg: {formatCurrency(item.usedSold?.avg_price)}</strong><br/>
-                                            Max: {formatCurrency(item.usedSold?.max_price)}
-                                        </TableCell>
+                                        <StyledTableCell>
+                                            {item.source === Source.BRICKLINK && (
+                                                <>
+                                                    Min: {formatCurrency(item.newSold?.min_price)}<br/>
+                                                    <strong>Avg: {formatCurrency(item.newSold?.avg_price)}</strong><br/>
+                                                    Max: {formatCurrency(item.newSold?.max_price)}
+                                                </>
+                                            )}
+                                        </StyledTableCell>
+                                        <StyledTableCell>
+                                            {item.source === Source.BRICKLINK && (
+                                                <>
+                                                    Min: {formatCurrency(item.usedSold?.min_price)}<br/>
+                                                    <strong>Avg: {formatCurrency(item.usedSold?.avg_price)}</strong><br/>
+                                                    Max: {formatCurrency(item.usedSold?.max_price)}
+                                                </>
+                                            )}
+                                        </StyledTableCell>
                                     </>
                                 )}
-                                <TableCell>
+                                <StyledTableCell>
                                     <OutlinedInput
                                         startAdornment={<InputAdornment position="start">$</InputAdornment>}
                                         value={item.valueDisplay}
-                                        inputProps={{ inputMode: 'numeric', pattern: '[0-9,\\.]'}}
+                                        inputProps={{inputMode: "numeric", pattern: "[\\d,\\.]*gi"}}
                                         onChange={(event) => handleValueChange(event, item.id)}
                                         onBlur={(event) => handleValueBlur(event, item.id)}
                                     />
-                                </TableCell>
+                                </StyledTableCell>
                                 {storeMode && (
-                                    <TableCell>
+                                    <StyledTableCell>
                                         <ManualAdjustmentSlider item={item} handleSliderChange={handleSliderChange}/>
-                                    </TableCell>
+                                    </StyledTableCell>
                                 )}
-                                <TableCell>
+                                <StyledTableCell>
                                     <ItemComment item={item} storeMode={storeMode} handleCommentChange={handleCommentChange}/>
-                                </TableCell>
-                                <TableCell className={"clickable"}>
+                                </StyledTableCell>
+                                <StyledTableCell className={"clickable"}>
                                     {storeMode && (
                                         <Delete color={"error"} onClick={() => setItemToDelete(item)} />
                                     )}
-                                </TableCell>
+                                </StyledTableCell>
                             </TableRow>
                         ))}
                     </TableBody>

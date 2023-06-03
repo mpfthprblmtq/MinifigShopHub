@@ -1,13 +1,15 @@
 import React, {FunctionComponent, useState} from "react";
-import {Box, Button, Card, CircularProgress, TextField} from "@mui/material";
+import {Box, Button, CircularProgress, TextField} from "@mui/material";
 import {green} from "@mui/material/colors";
-import {SetNameStyledTypography} from "../Main/MainComponent.styles";
-import {Item} from "../../model/item/Item";
-import {generateId} from "../../utils/ArrayUtils";
-import {Condition} from "../../model/shared/Condition";
-import {formatCurrency} from "../../utils/CurrencyUtils";
-import {useBrickLinkService} from "../../services/useBrickLinkService";
+import {SetNameStyledTypography} from "../../Main/MainComponent.styles";
+import {Item} from "../../../model/item/Item";
+import {generateId} from "../../../utils/ArrayUtils";
+import {Condition} from "../../../model/shared/Condition";
+import {formatCurrency} from "../../../utils/CurrencyUtils";
+import {useBrickLinkService} from "../../../services/useBrickLinkService";
 import {Clear} from "@mui/icons-material";
+import {StyledCard} from "../Cards.styles";
+import {Source} from "../../../model/shared/Source";
 
 interface SetSearchCardParams {
     items: Item[];
@@ -48,6 +50,7 @@ const SetSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems}
                 item.valueDisplay = formatCurrency(item.value)!.toString().substring(1);
                 item.baseValue = item.value;
                 item.valueAdjustment = 0;
+                item.source = Source.BRICKLINK;
 
                 // add the item with sales data to existing state
                 setItems([...items, { ...item, ...response }]);
@@ -63,12 +66,14 @@ const SetSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems}
     };
 
     return (
-        <Card variant="outlined" sx={{maxWidth: 400}}>
+        <StyledCard variant="outlined" sx={{maxWidth: 400}}>
+            <SetNameStyledTypography>Add Set</SetNameStyledTypography>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Box sx={{ m: 1, position: 'relative' }}>
                     <TextField
                         label="Set Number"
                         variant="outlined"
+                        sx={{backgroundColor: "white"}}
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                             setSetNumber(event.target.value);
                         }}
@@ -126,7 +131,7 @@ const SetSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems}
                     <SetNameStyledTypography>[{item.year_released}] {item.name}</SetNameStyledTypography> :
                     <SetNameStyledTypography>&nbsp;</SetNameStyledTypography>}
             </Box>
-        </Card>
+        </StyledCard>
     )
 };
 
