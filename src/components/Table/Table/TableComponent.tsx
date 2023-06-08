@@ -13,7 +13,7 @@ import {formatCurrency, isNumeric, launderMoney} from "../../../utils/CurrencyUt
 import {FixedWidthColumnHeading, StyledTableCell} from "./TableComponent.styles";
 import {Item} from "../../../model/item/Item";
 import {Condition} from "../../../model/shared/Condition";
-import ManualAdjustmentSlider from "../ManualAdjustmentSlider/ManualAdjustmentSlider";
+import ManualValueAdjustmentSlider from "../ManualValueAdjustmentSlider/ManualValueAdjustmentSlider";
 import ImageDialog from "../../Dialog/ImageDialog/ImageDialog";
 import {Delete} from "@mui/icons-material";
 import {getItemWithId} from "../../../utils/ArrayUtils";
@@ -89,7 +89,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
         const item = getItemWithId(newItems, id);
         if (item) {
             item.value = launderMoney(event.target.value);
-            item.valueDisplay = formatCurrency(event.target.value)!.toString().substring(1);
+            item.valueDisplay = formatCurrency(event.target.value).toString().substring(1);
             calculateAdjustment(item);
         }
         setItems(newItems);
@@ -126,9 +126,13 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
      */
     const calculateAdjustment = (item: Item) => {
         if (item.value < item.baseValue) {
-            item.valueAdjustment = -100 + ((item.value / item.baseValue) * 100);
+            item.valueAdjustment = ((item.value / item.baseValue) - 1) * 100;
         } else if (item.value > item.baseValue) {
-            item.valueAdjustment = 100 - ((item.value / item.baseValue) * 100);
+            item.valueAdjustment = ((item.value - item.baseValue) / item.baseValue) * 100;
+        }
+        // account for tiny values because math is dumb
+        if (item.valueAdjustment < 0.001 && item.valueAdjustment > -0.001) {
+            item.valueAdjustment = 0;
         }
     };
 
@@ -211,14 +215,13 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                                     <OutlinedInput
                                         startAdornment={<InputAdornment position="start">$</InputAdornment>}
                                         value={item.valueDisplay}
-                                        inputProps={{inputMode: "numeric", pattern: "[\\d,\\.]*gi"}}
                                         onChange={(event) => handleValueChange(event, item.id)}
                                         onBlur={(event) => handleValueBlur(event, item.id)}
                                     />
                                 </StyledTableCell>
                                 {storeMode && (
                                     <StyledTableCell>
-                                        <ManualAdjustmentSlider item={item} handleSliderChange={handleSliderChange}/>
+                                        <ManualValueAdjustmentSlider item={item} handleSliderChange={handleSliderChange}/>
                                     </StyledTableCell>
                                 )}
                                 <StyledTableCell>

@@ -3,7 +3,7 @@ export const formatCurrency = (s: string | number | undefined) => {
         style: 'currency',
         currency: 'USD'
     });
-    return s ? formatter.format(+s) : s;
+    return s ? formatter.format(+s) : '';
 };
 
 export const launderMoney = (s: string): number => {

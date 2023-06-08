@@ -16,7 +16,7 @@ interface SetSearchCardParams {
     setItems: (items: Item[]) => void;
 }
 
-const SetSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems}) => {
+const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems}) => {
 
     const [setNumber, setSetNumber] = useState<string>('');
     const [item, setItem] = useState<Item>();
@@ -135,4 +135,4 @@ const SetSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems}
     )
 };
 
-export default SetSearchCard;
+export default ItemSearchCard;

@@ -1,14 +1,13 @@
 import React, {FunctionComponent} from "react";
 import {Slider} from "@mui/material";
-import {Item} from "../../../model/item/Item";
 
-interface ManualAdjustmentSliderParams {
-    item: Item;
-    handleSliderChange: (event: Event, id: number) => void;
+interface ManualTotalAdjustmentSliderParams {
+    value: number;
+    handleSliderChange: (event: any) => void;
+    handleSliderChangeCommitted: (event: any) => void;
 }
 
-const ManualAdjustmentSlider: FunctionComponent<ManualAdjustmentSliderParams> = ({item, handleSliderChange}) => {
-
+const ManualTotalAdjustmentSlider: FunctionComponent<ManualTotalAdjustmentSliderParams> = ({value, handleSliderChange, handleSliderChangeCommitted}) => {
     const marks = [
         { value: 0, label: "|" },
         { value: -100, label: "-100%" },
@@ -23,20 +22,23 @@ const ManualAdjustmentSlider: FunctionComponent<ManualAdjustmentSliderParams> = 
      * @param value the value to format
      */
     const formatSliderLabel = (value: number): string => {
-        return (value - Math.floor(value) === 0 ? value : value.toFixed(2)) + "%";
+        const label = value.toFixed(2);
+        return label.replace(".00", "") + "%";
+        // return (value - Math.floor(value) === 0 ? value : value.toFixed(2)) + "%";
     };
 
     return (
         <Slider
-            onChange={(event) => handleSliderChange(event, item.id)}
+            onChange={handleSliderChange}
+            onChangeCommitted={handleSliderChangeCommitted}
             valueLabelFormat={formatSliderLabel}
             defaultValue={0}
             marks={marks}
             valueLabelDisplay="auto"
             min={-100}
             max={100}
-            value={item.valueAdjustment} />
+            value={value} />
     );
 };
 
-export default ManualAdjustmentSlider;
+export default ManualTotalAdjustmentSlider;

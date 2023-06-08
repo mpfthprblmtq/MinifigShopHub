@@ -2,8 +2,9 @@ import React, {FunctionComponent, useState} from "react";
 import {Item} from "../../model/item/Item";
 import {Box, FormControlLabel, Switch, Typography} from "@mui/material";
 import TableComponent from "../Table/Table/TableComponent";
-import SetSearchCard from "../Cards/SetSearchCard/SetSearchCard";
+import ItemSearchCard from "../Cards/ItemSearchCard/ItemSearchCard";
 import CustomItemCard from "../Cards/CustomItemCard/CustomItemCard";
+import Totals from "../Totals/Totals";
 
 const MainComponent: FunctionComponent = () => {
 
@@ -20,7 +21,7 @@ const MainComponent: FunctionComponent = () => {
             {storeMode && (
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Box sx={{ m: 1, position: 'relative' }}>
-                        <SetSearchCard items={items} setItems={setItems} />
+                        <ItemSearchCard items={items} setItems={setItems} />
                     </Box>
                     <Box sx={{ m: 1, position: 'relative' }}>
                         <CustomItemCard items={items} setItems={setItems}/>
@@ -30,14 +31,18 @@ const MainComponent: FunctionComponent = () => {
             <Box style={{marginTop: 20}}>
                 <TableComponent items={items} setItems={setItems} storeMode={storeMode} />
             </Box>
+            {items.length > 0 && (
+                <Totals items={items} storeMode={storeMode} />
+            )}
             <FormControlLabel control={<Switch checked={storeMode} onChange={handleStoreModeChange} />} label={"Store Mode"} />
-            {items.map(item => (
-                <div key={item.id}>
-                    <Typography>{item.id}: {item.no} - {item.value} / {item.valueDisplay}</Typography>
-                    <Typography>{item.comment}</Typography>
-                </div>
-            ))}
-
+            <div style={{float: "left"}}>
+                {items.map(item => (
+                    <div key={item.id}>
+                        <Typography>{item.id}: {item.no} - {item.value} / {item.valueDisplay}</Typography>
+                        <Typography>{item.comment}</Typography>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };
