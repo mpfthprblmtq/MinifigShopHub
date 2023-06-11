@@ -98,8 +98,10 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({items, storeMode}) => {
     };
 
     return (
-        // <div style={{float: "right"}}>
-        <div>
+        <>
+            {/*<div style={{position: 'absolute', marginTop: "20px"}}>*/}
+            {/*    <ConfigurationCard storeMode={storeMode} setStoreMode={}*/}
+            {/*</div>*/}
             <TableContainer style={{width: "100%", paddingTop: "40px"}}>
                 <Table size="small"
                     sx={{
@@ -172,10 +174,7 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({items, storeMode}) => {
                     </TableBody>
                 </Table>
             </TableContainer>
-            <br/>
-            {value} : {valueDisplay}<br/>
-            {baseValue} - {valueAdjustment}
-        </div>
+        </>
     );
 }
 

@@ -23,3 +23,9 @@ input[type=number]::-webkit-outer-spin-button {
   size: landscape;
   margin: 1%;
 }
+
+@media print {
+  .hide-in-print-preview {
+    display: none;
+  }
+}
