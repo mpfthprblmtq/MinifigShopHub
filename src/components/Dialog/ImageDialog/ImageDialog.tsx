@@ -1,17 +1,18 @@
 import {FunctionComponent} from "react";
 import {Dialog} from "@mui/material";
+import {Item} from "../../../model/item/Item";
 
 interface ImageDialogParams {
     open: boolean;
     onClose: () => void;
-    imageUrl: string;
+    item?: Item;
 }
 
-const ImageDialog: FunctionComponent<ImageDialogParams> = ({open, onClose, imageUrl}) => {
+const ImageDialog: FunctionComponent<ImageDialogParams> = ({open, onClose, item}) => {
 
     return (
         <Dialog open={open} onClose={onClose}>
-            <img src={imageUrl} alt="bricklink-img" />
+            <img src={item?.image_url} alt="bricklink-img" />
         </Dialog>
     )
 }

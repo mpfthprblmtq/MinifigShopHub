@@ -5,12 +5,15 @@ import {Item} from "../model/item/Item";
 import {SalesHistory} from "../model/salesHistory/SalesHistory";
 import {SalesHistoryResponse} from "../model/salesHistory/SalesHistoryResponse";
 import {AllSalesHistory} from "../model/salesHistory/AllSalesHistory";
+import {Category} from "../model/category/Category";
+import {CategoryResponse} from "../model/category/CategoryResponse";
 
 const baseUrl: string = "https://api.bricklink.com/api/store/v1";
 
 export interface BrickLinkHooks {
     getItem: (id: string) => Promise<Item>;
     getAllSalesHistory: (item: Item) => Promise<AllSalesHistory>;
+    getCategory: (id: number) => Promise<Category>;
 }
 
 export const useBrickLinkService = (): BrickLinkHooks => {
@@ -79,6 +82,21 @@ export const useBrickLinkService = (): BrickLinkHooks => {
         return allSalesHistory;
     };
 
-    return { getItem, getAllSalesHistory };
+    const getCategory = async (id: number): Promise<Category> => {
+        // build the request and authorization header
+        const request = {
+            url: `${baseUrl}/categories/${id}`,
+            method: 'GET'
+        };
+        const authHeader = getAuthHeader(request);
+
+        // make the request
+        return (await brickLinkAxiosInstance.get<CategoryResponse>(
+            `api/store/v1/categories/${id}`,
+            {headers: authHeader}
+        )).data.data;
+    }
+
+    return { getItem, getAllSalesHistory, getCategory };
 };
 

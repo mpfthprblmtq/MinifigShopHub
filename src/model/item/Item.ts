@@ -7,6 +7,7 @@ export interface Item {
     no?: string;
     name: string;
     category_id?: number;
+    category_name?: string;
     image_url?: string;
     thumbnail_url?: string;
     year_released?: number;

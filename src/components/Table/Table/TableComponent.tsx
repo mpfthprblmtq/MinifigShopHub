@@ -15,11 +15,12 @@ import {Item} from "../../../model/item/Item";
 import {Condition} from "../../../model/shared/Condition";
 import ManualValueAdjustmentSlider from "../ManualValueAdjustmentSlider/ManualValueAdjustmentSlider";
 import ImageDialog from "../../Dialog/ImageDialog/ImageDialog";
-import {Delete} from "@mui/icons-material";
+import {Delete, PlaylistAdd} from "@mui/icons-material";
 import {getItemWithId} from "../../../utils/ArrayUtils";
 import ItemComment from "../ItemComment/ItemComment";
 import ConfirmDialog from "../../Dialog/ConfirmDialog/ConfirmDialog";
 import {Source} from "../../../model/shared/Source";
+import MoreInformationDialog from "../../Dialog/MoreInformationDialog/MoreInformationDialog";
 
 interface TableComponentParams {
     items: Item[];
@@ -29,8 +30,10 @@ interface TableComponentParams {
 
 const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setItems, storeMode }) => {
 
-    const [imageUrl, setImageUrl] = useState<string>('');
-    const [itemToDelete, setItemToDelete] = useState<Item>();
+    const [focusedItem, setFocusedItem] = useState<Item>();
+    const [showImageDialog, setShowImageDialog] = useState<boolean>(false);
+    const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
+    const [showMoreInformationDialog, setShowMoreInformationDialog] = useState<boolean>(false);
 
     /**
      * Event handler for the change event on the value adjustment slider
@@ -165,7 +168,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                             <FixedWidthColumnHeading width={120}>Trade-In Value</FixedWidthColumnHeading>
                             {storeMode && <FixedWidthColumnHeading width={200}>Manual Adjustment</FixedWidthColumnHeading>}
                             <FixedWidthColumnHeading width={200}>Notes/Comments</FixedWidthColumnHeading>
-                            <FixedWidthColumnHeading width={50} />
+                            <FixedWidthColumnHeading width={100} />
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -174,7 +177,8 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                                 <StyledTableCell className={"clickable"}>
                                     {item.thumbnail_url && item.image_url && (
                                         <img alt="bricklink-set-img" src={item.thumbnail_url} onClick={() => {
-                                            setImageUrl(item.image_url ?? '');
+                                            setFocusedItem(item);
+                                            setShowImageDialog(true);
                                         }}/>
                                     )}
                                 </StyledTableCell>
@@ -213,6 +217,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                                 )}
                                 <StyledTableCell>
                                     <OutlinedInput
+                                        style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}
                                         startAdornment={<InputAdornment position="start">$</InputAdornment>}
                                         value={item.valueDisplay}
                                         onChange={(event) => handleValueChange(event, item.id)}
@@ -229,7 +234,16 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                                 </StyledTableCell>
                                 <StyledTableCell className={"clickable"}>
                                     {storeMode && (
-                                        <Delete color={"error"} onClick={() => setItemToDelete(item)} />
+                                        <>
+                                            <Delete fontSize={"large"} color={"error"} style={{padding: "5px"}} onClick={() => {
+                                                setFocusedItem(item);
+                                                setShowImageDialog(true);
+                                            }} />
+                                            <PlaylistAdd fontSize={"large"} color={"primary"} style={{padding: "5px"}} onClick={() => {
+                                                setFocusedItem(item);
+                                                setShowMoreInformationDialog(true);
+                                            }}/>
+                                        </>
                                     )}
                                 </StyledTableCell>
                             </TableRow>
@@ -237,17 +251,27 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                     </TableBody>
                 </Table>
             </TableContainer>
-            <ImageDialog open={imageUrl !== ''} imageUrl={imageUrl} onClose={() => {
-                setImageUrl('');
+            <ImageDialog open={showImageDialog && focusedItem !== undefined} item={focusedItem!} onClose={() => {
+                setFocusedItem(undefined);
+                setShowImageDialog(false);
             }}/>
             <ConfirmDialog
-                open={itemToDelete !== undefined}
-                item={itemToDelete}
-                onCancel={() => setItemToDelete(undefined)}
+                open={showDeleteDialog && focusedItem !== undefined}
+                item={focusedItem}
+                onCancel={() => {
+                    setFocusedItem(undefined);
+                    setShowDeleteDialog(false);
+                }}
                 deleteRow={(id: number) => {
                     setItems([...items].filter(item => item.id !== id));
-                    setItemToDelete(undefined);
                 }} />
+            <MoreInformationDialog
+                open={showMoreInformationDialog && focusedItem !== undefined}
+                onClose={() => {
+                    setFocusedItem(undefined);
+                    setShowMoreInformationDialog(false);
+                }}
+                item={focusedItem} />
         </>
     );
 }

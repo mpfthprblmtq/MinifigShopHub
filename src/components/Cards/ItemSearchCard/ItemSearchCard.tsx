@@ -10,6 +10,7 @@ import {useBrickLinkService} from "../../../services/useBrickLinkService";
 import {Clear} from "@mui/icons-material";
 import {StyledCard} from "../Cards.styles";
 import {Source} from "../../../model/shared/Source";
+import {AxiosError} from "axios";
 
 interface SetSearchCardParams {
     items: Item[];
@@ -23,17 +24,29 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
     const [loading, setLoading] = useState<boolean>(false);
     const [success, setSuccess] = useState(false);
     const [buttonText, setButtonText] = useState('Search');
+    const [error, setError] = useState<string>('');
 
     const { getItem, getAllSalesHistory } = useBrickLinkService();
 
     const searchForSet = async () => {
         setLoading(true);
+        setError('');
         await getItem(setNumber)
             .then((itemResponse: Item) => {
                 setItem(itemResponse);
                 setLoading(false);
                 setSuccess(true);
                 setButtonText('Add');
+                setError('');
+            }).catch((error: AxiosError) => {
+                console.log(error);
+                setLoading(false);
+                setSuccess(false);
+                if (error.response?.status === 404) {
+                    setError(`Item not found: ${setNumber}`);
+                } else {
+                    setError("Issue with BrickLink service!");
+                }
             });
     };
 
@@ -120,6 +133,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                             setSuccess(false);
                             setButtonText('Search');
                             setItem(undefined);
+                            setError('');
                         }}
                         style={{width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px"}}>
                         <Clear />
@@ -127,9 +141,10 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                 </Box>
             </Box>
             <Box>
-                {item ?
-                    <SetNameStyledTypography>[{item.year_released}] {item.name}</SetNameStyledTypography> :
-                    <SetNameStyledTypography>&nbsp;</SetNameStyledTypography>}
+                {item && !error &&
+                    <SetNameStyledTypography>[{item.year_released}] {item.name}</SetNameStyledTypography>}
+                {!item && error &&
+                    <SetNameStyledTypography color={"red"}>{error}</SetNameStyledTypography>}
             </Box>
         </StyledCard>
     )

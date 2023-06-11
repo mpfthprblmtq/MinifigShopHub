@@ -77,7 +77,7 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({items, storeMode}) => {
         calculateTotal();
     };
 
-    const handleSliderChangeCommitted = (event: any) => {
+    const handleSliderChangeCommitted = () => {
         calculateTotal();
     }
 
@@ -147,6 +147,7 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({items, storeMode}) => {
                             )}
                             <FixedWidthColumnHeading width={120}>
                                 <OutlinedInput
+                                    style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}
                                     startAdornment={<InputAdornment position="start">$</InputAdornment>}
                                     value={valueDisplay}
                                     onChange={handleValueChange}
@@ -166,7 +167,7 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({items, storeMode}) => {
                                     onBlur={handleStoreCreditValueBlur}
                                 />
                             </FixedWidthColumnHeading>
-                            <FixedWidthColumnHeading width={50} />
+                            <FixedWidthColumnHeading width={100} />
                         </TableRow>
                     </TableBody>
                 </Table>
