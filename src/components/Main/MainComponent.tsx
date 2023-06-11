@@ -6,6 +6,7 @@ import ItemSearchCard from "../Cards/ItemSearchCard/ItemSearchCard";
 import CustomItemCard from "../Cards/CustomItemCard/CustomItemCard";
 import Totals from "../Totals/Totals";
 import ConfigurationCard from "../Cards/ConfigurationCard/ConfigurationCard";
+import BrickLinkSearchCard from "../Cards/BrickLinkSearchCard/BrickLinkSearchCard";
 
 const MainComponent: FunctionComponent = () => {
 
@@ -27,6 +28,9 @@ const MainComponent: FunctionComponent = () => {
                             </Box>
                             <Box sx={{ m: 1, position: 'relative' }} className={"hide-in-print-preview"}>
                                 <CustomItemCard items={items} setItems={setItems} />
+                            </Box>
+                            <Box sx={{ m: 1, position: 'relative' }} className={"hide-in-print-preview"}>
+                                <BrickLinkSearchCard />
                             </Box>
                         </>
                     )}
