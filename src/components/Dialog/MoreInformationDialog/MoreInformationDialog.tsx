@@ -1,4 +1,4 @@
-import React, {FunctionComponent, useEffect, useState} from "react";
+import React, {FunctionComponent} from "react";
 import {Item} from "../../../model/item/Item";
 import {
     Box,
@@ -11,7 +11,6 @@ import {
     Typography
 } from "@mui/material";
 import {Close} from "@mui/icons-material";
-import {useBrickLinkService} from "../../../services/useBrickLinkService";
 import SalesHistoryAccordion from "./SalesHistoryAccordion";
 
 interface MoreInformationDialogParams {
@@ -21,16 +20,6 @@ interface MoreInformationDialogParams {
 }
 
 const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({open, onClose, item}) => {
-
-    const [category, setCategory] = useState<string>('');
-
-    const { getCategory } = useBrickLinkService();
-    useEffect(() => {
-        if (item?.category_id) {
-            getCategory(item.category_id).then((category) => setCategory(category.category_name));
-        }
-        // eslint-disable-next-line
-    }, [item]);
 
     return (
         <Dialog open={open} onClose={onClose}>
@@ -52,7 +41,7 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
                             <strong>Set ID: </strong>{item?.no}<br/>
                             <strong>Name: </strong>{item?.name}<br/>
                             <strong>Year: </strong>{item?.year_released}<br/>
-                            <strong>Category: </strong>{category}<br/>
+                            <strong>Category: </strong>{item?.category_name}<br/>
                         </Typography>
                     </Box>
                 </Box>

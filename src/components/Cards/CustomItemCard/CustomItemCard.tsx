@@ -1,5 +1,5 @@
 import React, {FunctionComponent, useState} from "react";
-import {Box, Button, InputAdornment, TextField} from "@mui/material";
+import {Box, Button, FormControl, InputAdornment, InputLabel, MenuItem, Select, TextField} from "@mui/material";
 import {SetNameStyledTypography} from "../../Main/MainComponent.styles";
 import {formatCurrency, isNumeric, launderMoney} from "../../../utils/CurrencyUtils";
 import {Item} from "../../../model/item/Item";
@@ -7,6 +7,7 @@ import {StyledCard} from "../Cards.styles";
 import {generateId} from "../../../utils/ArrayUtils";
 import {Source} from "../../../model/shared/Source";
 import {Condition} from "../../../model/shared/Condition";
+import {Type} from "../../../model/shared/Type";
 
 interface CustomItemCardParams {
     items: Item[];
@@ -17,6 +18,7 @@ interface CustomItemCardParams {
 const CustomItemCard: FunctionComponent<CustomItemCardParams> = ({items, setItems}) => {
 
     const [name, setName] = useState<string>('');
+    const [type, setType] = useState<Type>(Type.OTHER);
     const [value, setValue] = useState<string>('');
 
     const addItem = () => {
@@ -28,11 +30,16 @@ const CustomItemCard: FunctionComponent<CustomItemCardParams> = ({items, setItem
             valueDisplay: formatCurrency(value)!.toString().substring(1),
             valueAdjustment: 0,
             source: Source.CUSTOM,
-            condition: Condition.USED
+            condition: Condition.USED,
+            type: type
         }]);
         setName('');
         setValue('');
     };
+
+    const handleChange = (event: any) => {
+        setType(event.target.value);
+    }
 
     return (
         <StyledCard variant="outlined">
@@ -48,6 +55,22 @@ const CustomItemCard: FunctionComponent<CustomItemCardParams> = ({items, setItem
                         }}
                         value={name}
                     />
+                </Box>
+                <Box sx={{ m: 1, position: 'relative' }}>
+                    <FormControl fullWidth>
+                        <InputLabel id="custom-type-select-label">Type</InputLabel>
+                        <Select
+                            labelId="custom-type-select-label"
+                            value={type}
+                            label="Type"
+                            onChange={handleChange}
+                            sx={{backgroundColor: "white", minWidth: "100px"}}>
+                            <MenuItem value={Type.OTHER}>Other</MenuItem>
+                            <MenuItem value={Type.SET}>Set</MenuItem>
+                            <MenuItem value={Type.MINIFIG}>Minifig</MenuItem>
+                            <MenuItem value={Type.BULK}>Bulk</MenuItem>
+                        </Select>
+                    </FormControl>
                 </Box>
                 <Box sx={{ m: 1, position: 'relative' }}>
                     <TextField

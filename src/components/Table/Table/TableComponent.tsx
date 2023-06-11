@@ -1,12 +1,14 @@
 import React, {FunctionComponent, useState} from "react";
 import {
+    Box,
     InputAdornment,
     OutlinedInput,
     Table,
     TableBody,
     TableContainer,
     TableHead,
-    TableRow
+    TableRow,
+    Tooltip
 } from "@mui/material";
 import NewUsedToggleButton from "../NewUsedToggleButton/NewUsedToggleButton";
 import {formatCurrency, isNumeric, launderMoney} from "../../../utils/CurrencyUtils";
@@ -21,6 +23,7 @@ import ItemComment from "../ItemComment/ItemComment";
 import ConfirmDialog from "../../Dialog/ConfirmDialog/ConfirmDialog";
 import {Source} from "../../../model/shared/Source";
 import MoreInformationDialog from "../../Dialog/MoreInformationDialog/MoreInformationDialog";
+import {Type} from "../../../model/shared/Type";
 
 interface TableComponentParams {
     items: Item[];
@@ -175,12 +178,17 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                         {items.map(item => (
                             <TableRow key={item.id}>
                                 <StyledTableCell className={"clickable"}>
-                                    {item.thumbnail_url && item.image_url && (
-                                        <img alt="bricklink-set-img" src={item.thumbnail_url} onClick={() => {
-                                            setFocusedItem(item);
-                                            setShowImageDialog(true);
-                                        }}/>
-                                    )}
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                        {item.thumbnail_url && item.image_url && (
+                                            <img alt="bricklink-set-img" src={item.thumbnail_url} onClick={() => {
+                                                setFocusedItem(item);
+                                                setShowImageDialog(true);
+                                            }}/>
+                                        )}
+                                        {item.source === Source.CUSTOM && item.type !== Type.OTHER && (
+                                            <img src={`/assets/images/${item.type}.svg`} alt="set" width={55}/>
+                                        )}
+                                    </Box>
                                 </StyledTableCell>
                                 <StyledTableCell>
                                     <a
@@ -235,14 +243,20 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                                 <StyledTableCell className={"clickable"}>
                                     {storeMode && (
                                         <>
-                                            <Delete fontSize={"large"} color={"error"} style={{padding: "5px"}} onClick={() => {
-                                                setFocusedItem(item);
-                                                setShowImageDialog(true);
-                                            }} />
-                                            <PlaylistAdd fontSize={"large"} color={"primary"} style={{padding: "5px"}} onClick={() => {
-                                                setFocusedItem(item);
-                                                setShowMoreInformationDialog(true);
-                                            }}/>
+                                            <Tooltip title={"Delete Row"}>
+                                                <Delete fontSize={"large"} color={"error"} style={{padding: "5px"}} onClick={() => {
+                                                    setFocusedItem(item);
+                                                    setShowDeleteDialog(true);
+                                                }} />
+                                            </Tooltip>
+                                            {item.source === Source.BRICKLINK && (
+                                                <Tooltip title={"More Details"}>
+                                                    <PlaylistAdd fontSize={"large"} color={"primary"} style={{padding: "5px"}} onClick={() => {
+                                                        setFocusedItem(item);
+                                                        setShowMoreInformationDialog(true);
+                                                    }}/>
+                                                </Tooltip>
+                                            )}
                                         </>
                                     )}
                                 </StyledTableCell>
@@ -264,6 +278,8 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                 }}
                 deleteRow={(id: number) => {
                     setItems([...items].filter(item => item.id !== id));
+                    setFocusedItem(undefined);
+                    setShowDeleteDialog(false);
                 }} />
             <MoreInformationDialog
                 open={showMoreInformationDialog && focusedItem !== undefined}

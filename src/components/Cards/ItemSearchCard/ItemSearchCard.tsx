@@ -1,5 +1,5 @@
 import React, {FunctionComponent, useState} from "react";
-import {Box, Button, CircularProgress, TextField} from "@mui/material";
+import {Box, Button, CircularProgress, FormControl, InputLabel, MenuItem, Select, TextField} from "@mui/material";
 import {green} from "@mui/material/colors";
 import {SetNameStyledTypography} from "../../Main/MainComponent.styles";
 import {Item} from "../../../model/item/Item";
@@ -11,6 +11,7 @@ import {Clear} from "@mui/icons-material";
 import {StyledCard} from "../Cards.styles";
 import {Source} from "../../../model/shared/Source";
 import {AxiosError} from "axios";
+import {Type} from "../../../model/shared/Type";
 
 interface SetSearchCardParams {
     items: Item[];
@@ -20,18 +21,19 @@ interface SetSearchCardParams {
 const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems}) => {
 
     const [setNumber, setSetNumber] = useState<string>('');
+    const [type, setType] = useState<Type>(Type.SET);
     const [item, setItem] = useState<Item>();
     const [loading, setLoading] = useState<boolean>(false);
     const [success, setSuccess] = useState(false);
     const [buttonText, setButtonText] = useState('Search');
     const [error, setError] = useState<string>('');
 
-    const { getItem, getAllSalesHistory } = useBrickLinkService();
+    const { getHydratedItem, getAllSalesHistory } = useBrickLinkService();
 
     const searchForSet = async () => {
         setLoading(true);
         setError('');
-        await getItem(setNumber)
+        await getHydratedItem(setNumber, type)
             .then((itemResponse: Item) => {
                 setItem(itemResponse);
                 setLoading(false);
@@ -64,6 +66,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                 item.baseValue = item.value;
                 item.valueAdjustment = 0;
                 item.source = Source.BRICKLINK;
+                item.type = type;
 
                 // add the item with sales data to existing state
                 setItems([...items, { ...item, ...response }]);
@@ -78,8 +81,12 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
         }
     };
 
+    const handleTypeChange = (event: any) => {
+        setType(event.target.value);
+    };
+
     return (
-        <StyledCard variant="outlined" sx={{maxWidth: 400}}>
+        <StyledCard variant="outlined" sx={{minWidth: 400}}>
             <SetNameStyledTypography>Add Set</SetNameStyledTypography>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Box sx={{ m: 1, position: 'relative' }}>
@@ -92,6 +99,21 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                         }}
                         value={setNumber}
                     />
+                </Box>
+                <Box sx={{ m: 1, position: 'relative' }}>
+                    <FormControl fullWidth>
+                        <InputLabel id="search-type-select-label">Type</InputLabel>
+                        <Select
+                            labelId="search-type-select-label"
+                            value={type}
+                            label="Type"
+                            onChange={handleTypeChange}
+                            sx={{backgroundColor: "white", minWidth: "100px"}}>
+                            <MenuItem value={Type.SET}>Set</MenuItem>
+                            <MenuItem value={Type.MINIFIG}>Minifig</MenuItem>
+                            <MenuItem value={Type.PART}>Bulk</MenuItem>
+                        </Select>
+                    </FormControl>
                 </Box>
                 <Box sx={{ m: 1, position: 'relative' }}>
                     <Button
@@ -134,6 +156,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                             setButtonText('Search');
                             setItem(undefined);
                             setError('');
+                            setType(Type.SET);
                         }}
                         style={{width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px"}}>
                         <Clear />

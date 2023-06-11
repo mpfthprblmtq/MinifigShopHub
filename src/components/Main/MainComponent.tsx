@@ -22,10 +22,10 @@ const MainComponent: FunctionComponent = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     {storeMode && (
                         <>
-                            <Box sx={{ m: 1, position: 'relative' }}>
+                            <Box sx={{ m: 1, position: 'relative' }} className={"hide-in-print-preview"}>
                                 <ItemSearchCard items={items} setItems={setItems} />
                             </Box>
-                            <Box sx={{ m: 1, position: 'relative' }}>
+                            <Box sx={{ m: 1, position: 'relative' }} className={"hide-in-print-preview"}>
                                 <CustomItemCard items={items} setItems={setItems} />
                             </Box>
                         </>

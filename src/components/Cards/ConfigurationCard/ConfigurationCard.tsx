@@ -1,6 +1,5 @@
 import React, {FunctionComponent} from "react";
 import {StyledCard} from "../Cards.styles";
-import {SetNameStyledTypography} from "../../Main/MainComponent.styles";
 import {Box, Button, FormControlLabel, Switch, Tooltip} from "@mui/material";
 import {Print, Refresh} from "@mui/icons-material";
 
@@ -13,10 +12,9 @@ interface ConfigurationCardParams {
 const ConfigurationCard: FunctionComponent<ConfigurationCardParams> = ({storeMode, setStoreMode, resetCalculations}) => {
 
     return (
-       <StyledCard variant="outlined" sx={{minHeight: 100, marginLeft: "5px"}} className={"hide-in-print-preview"}>
+       <StyledCard variant="outlined" sx={{minHeight: 80, marginLeft: "5px"}} className={"hide-in-print-preview"}>
            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
                <Box sx={{ m: 1, position: 'relative' }}>
-                   <SetNameStyledTypography>Options</SetNameStyledTypography>
                    <FormControlLabel control={
                        <Switch checked={storeMode} onChange={() => {setStoreMode(!storeMode)}} />
                    } label={"Store Mode"} style={{marginLeft: "10px"}}/>
