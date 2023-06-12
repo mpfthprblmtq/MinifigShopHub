@@ -26,6 +26,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
     const [loading, setLoading] = useState<boolean>(false);
     const [success, setSuccess] = useState(false);
     const [buttonText, setButtonText] = useState('Search');
+    const [labelText, setLabelText] = useState<string>('Set Number');
     const [error, setError] = useState<string>('');
 
     const { getHydratedItem, getAllSalesHistory } = useBrickLinkService();
@@ -83,6 +84,17 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
 
     const handleTypeChange = (event: any) => {
         setType(event.target.value);
+        switch (event.target.value) {
+            case Type.SET:
+                setLabelText('Set Number');
+                break;
+            case Type.MINIFIG:
+                setLabelText('Minifig ID');
+                break;
+            case Type.PART:
+                setLabelText('Part ID');
+                break;
+        }
     };
 
     return (
@@ -91,7 +103,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Box sx={{ m: 1, position: 'relative' }}>
                     <TextField
-                        label="Set Number"
+                        label={labelText}
                         variant="outlined"
                         sx={{backgroundColor: "white"}}
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,7 +123,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                             sx={{backgroundColor: "white", minWidth: "100px"}}>
                             <MenuItem value={Type.SET}>Set</MenuItem>
                             <MenuItem value={Type.MINIFIG}>Minifig</MenuItem>
-                            <MenuItem value={Type.PART}>Bulk</MenuItem>
+                            <MenuItem value={Type.PART}>Part</MenuItem>
                         </Select>
                     </FormControl>
                 </Box>

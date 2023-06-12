@@ -9,14 +9,13 @@ import {Category} from "../model/category/Category";
 import {CategoryResponse} from "../model/category/CategoryResponse";
 import {Type} from "../model/shared/Type";
 import {htmlDecode} from "../utils/StringUtils";
+import {filterOutOldDates} from "../utils/DateUtils";
 
 const baseUrl: string = "https://api.bricklink.com/api/store/v1";
 
 export interface BrickLinkHooks {
     getHydratedItem: (id: string, itemType: Type) => Promise<Item>;
-    getItem: (id: string, itemType: Type) => Promise<Item>;
     getAllSalesHistory: (item: Item) => Promise<AllSalesHistory>;
-    getCategory: (id: number) => Promise<Category>;
 }
 
 export const useBrickLinkService = (): BrickLinkHooks => {
@@ -48,8 +47,6 @@ export const useBrickLinkService = (): BrickLinkHooks => {
             console.log(error);
             throw error;
         }
-
-
     }
 
     /**
@@ -101,6 +98,9 @@ export const useBrickLinkService = (): BrickLinkHooks => {
                 getSalesHistory(item.no, item.type, "sold", "N"),
                 getSalesHistory(item.no, item.type, "stock", "N")
             ]).then(responses => {
+                responses.map((response) => {
+                    return filterOutOldDates(response);
+                });
                 allSalesHistory.usedSold = responses[0];
                 allSalesHistory.usedStock = responses[1];
                 allSalesHistory.newSold = responses[2];
@@ -125,6 +125,6 @@ export const useBrickLinkService = (): BrickLinkHooks => {
         )).data.data;
     }
 
-    return { getHydratedItem, getItem, getAllSalesHistory, getCategory };
+    return { getHydratedItem, getAllSalesHistory };
 };
 

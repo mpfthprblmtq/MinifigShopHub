@@ -1,4 +1,4 @@
-import React, {FunctionComponent, useState} from "react";
+import React, {FunctionComponent, useRef, useState} from "react";
 import {Item} from "../../model/item/Item";
 import {Box} from "@mui/material";
 import TableComponent from "../Table/Table/TableComponent";
@@ -7,14 +7,27 @@ import CustomItemCard from "../Cards/CustomItemCard/CustomItemCard";
 import Totals from "../Totals/Totals";
 import ConfigurationCard from "../Cards/ConfigurationCard/ConfigurationCard";
 import BrickLinkSearchCard from "../Cards/BrickLinkSearchCard/BrickLinkSearchCard";
+import ConfirmResetCalculationsDialog from "../Dialog/ConfirmDialog/ConfirmResetCalculationsDialog";
+import {formatCurrency} from "../../utils/CurrencyUtils";
+
+interface TotalsRefProps {
+    resetTotalsCalculations: () => void;
+}
 
 const MainComponent: FunctionComponent = () => {
 
+    const totalsRef = useRef({} as TotalsRefProps);
     const [items, setItems] = useState<Item[]>([]);
     const [storeMode, setStoreMode] = useState<boolean>(true);
+    const [showConfirmResetCalculationsDialog, setShowConfirmResetCalculationsDialog] = useState<boolean>(false);
 
     const resetCalculations = () => {
-        console.log('ashdfkajsh')
+        items.forEach((item) => {
+            item.value = item.baseValue;
+            item.valueDisplay = formatCurrency(item.value).toString().substring(1);
+            item.valueAdjustment = 0;
+        });
+        totalsRef.current.resetTotalsCalculations();
     };
 
     return (
@@ -43,12 +56,19 @@ const MainComponent: FunctionComponent = () => {
                     <ConfigurationCard
                         storeMode={storeMode}
                         setStoreMode={setStoreMode}
-                        resetCalculations={resetCalculations}/>
+                        resetCalculations={() => setShowConfirmResetCalculationsDialog(true)}/>
                 </Box>
             </Box>
             {items.length > 0 && (
-                <Totals items={items} storeMode={storeMode} />
+                <Totals items={items} storeMode={storeMode} ref={totalsRef} />
             )}
+            <ConfirmResetCalculationsDialog
+                open={showConfirmResetCalculationsDialog}
+                onCancel={() => setShowConfirmResetCalculationsDialog(false)}
+                resetCalculations={() => {
+                    setShowConfirmResetCalculationsDialog(false);
+                    resetCalculations();
+                }} />
         </div>
     );
 };

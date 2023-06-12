@@ -1,16 +1,14 @@
 import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Typography} from "@mui/material";
 import {Close} from "@mui/icons-material";
-import {Item} from "../../../model/item/Item";
 import {FunctionComponent} from "react";
 
 interface ConfirmDialogParams {
     open: boolean;
-    item?: Item;
     onCancel: () => void;
-    deleteRow: (id: number) => void;
+    resetCalculations: () => void;
 }
 
-const ConfirmDialog: FunctionComponent<ConfirmDialogParams> = ({open, item, onCancel, deleteRow}) => {
+const ConfirmResetCalculationsDialog: FunctionComponent<ConfirmDialogParams> = ({open, onCancel, resetCalculations}) => {
     return (
         <Dialog open={open} maxWidth="sm" fullWidth>
             <DialogTitle>Confirm Row Deletion</DialogTitle>
@@ -20,19 +18,18 @@ const ConfirmDialog: FunctionComponent<ConfirmDialogParams> = ({open, item, onCa
                 </IconButton>
             </Box>
             <DialogContent>
-                <Typography>Are you sure you want to delete the following item?</Typography>
-                <Typography>{item?.no} - {item?.name}</Typography>
+                <Typography>Are you sure you want to reset all calculations?  This cannot be undone.</Typography>
             </DialogContent>
             <DialogActions>
                 <Button variant="contained" onClick={onCancel}>
                     Cancel
                 </Button>
-                <Button color={"error"} variant="contained" onClick={() => deleteRow(item!.id)}>
-                    Delete
+                <Button color={"error"} variant="contained" onClick={resetCalculations}>
+                    Reset
                 </Button>
             </DialogActions>
         </Dialog>
     );
 };
 
-export default ConfirmDialog;
+export default ConfirmResetCalculationsDialog;

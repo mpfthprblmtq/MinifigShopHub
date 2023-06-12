@@ -20,7 +20,7 @@ import ImageDialog from "../../Dialog/ImageDialog/ImageDialog";
 import {Delete, PlaylistAdd} from "@mui/icons-material";
 import {getItemWithId} from "../../../utils/ArrayUtils";
 import ItemComment from "../ItemComment/ItemComment";
-import ConfirmDialog from "../../Dialog/ConfirmDialog/ConfirmDialog";
+import ConfirmItemDeleteDialog from "../../Dialog/ConfirmDialog/ConfirmItemDeleteDialog";
 import {Source} from "../../../model/shared/Source";
 import MoreInformationDialog from "../../Dialog/MoreInformationDialog/MoreInformationDialog";
 import {Type} from "../../../model/shared/Type";
@@ -205,20 +205,24 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                                     <>
                                         <StyledTableCell>
                                             {item.source === Source.BRICKLINK && (
-                                                <>
-                                                    Min: {formatCurrency(item.newSold?.min_price)}<br/>
-                                                    <strong>Avg: {formatCurrency(item.newSold?.avg_price)}</strong><br/>
-                                                    Max: {formatCurrency(item.newSold?.max_price)}
-                                                </>
+                                                <Tooltip title={`Based on ${item.newSold?.unit_quantity} sales`}>
+                                                    <div>
+                                                        Min: {formatCurrency(item.newSold?.min_price)}<br/>
+                                                        <strong>Avg: {formatCurrency(item.newSold?.avg_price)}</strong><br/>
+                                                        Max: {formatCurrency(item.newSold?.max_price)}
+                                                    </div>
+                                                </Tooltip>
                                             )}
                                         </StyledTableCell>
                                         <StyledTableCell>
                                             {item.source === Source.BRICKLINK && (
-                                                <>
-                                                    Min: {formatCurrency(item.usedSold?.min_price)}<br/>
-                                                    <strong>Avg: {formatCurrency(item.usedSold?.avg_price)}</strong><br/>
-                                                    Max: {formatCurrency(item.usedSold?.max_price)}
-                                                </>
+                                                <Tooltip title={`Based on ${item.usedSold?.unit_quantity} sales`}>
+                                                    <div>
+                                                        Min: {formatCurrency(item.usedSold?.min_price)}<br/>
+                                                        <strong>Avg: {formatCurrency(item.usedSold?.avg_price)}</strong><br/>
+                                                        Max: {formatCurrency(item.usedSold?.max_price)}
+                                                    </div>
+                                                </Tooltip>
                                             )}
                                         </StyledTableCell>
                                     </>
@@ -269,7 +273,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                 setFocusedItem(undefined);
                 setShowImageDialog(false);
             }}/>
-            <ConfirmDialog
+            <ConfirmItemDeleteDialog
                 open={showDeleteDialog && focusedItem !== undefined}
                 item={focusedItem}
                 onCancel={() => {

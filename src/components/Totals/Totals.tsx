@@ -1,4 +1,4 @@
-import React, {FunctionComponent, useEffect, useState} from "react";
+import React, {forwardRef, useEffect, useImperativeHandle, useState} from "react";
 import {
     InputAdornment,
     OutlinedInput,
@@ -18,7 +18,13 @@ interface TotalsSectionParams {
     storeMode: boolean;
 }
 
-const Totals: FunctionComponent<TotalsSectionParams> = ({items, storeMode}) => {
+const Totals = forwardRef(({items, storeMode}: TotalsSectionParams, totalsRef) => {
+
+    useImperativeHandle(totalsRef, () => {
+        return {
+            resetTotalsCalculations: resetCalculations
+        };
+    });
 
     const [value, setValue] = useState<number>(0);
     const [valueDisplay, setValueDisplay] = useState<string>('');
@@ -28,16 +34,22 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({items, storeMode}) => {
 
     useEffect(() => {
         setValue(items.reduce((sum, item) => sum + item.value, 0));
-        setBaseValue(items.reduce((sum, item) => sum + item.value, 0));
+        setBaseValue(items.reduce((sum, item) => sum + item.baseValue, 0));
     }, [items]);
 
     useEffect(() => {
         setValueDisplay(formatCurrency(value).toString().substring(1));
-        setValueAdjustment(valueAdjustment === 0 ? 0 : valueAdjustment);
         setStoreCreditValue(formatCurrency(+process.env.REACT_APP_STORE_CREDIT_ADJUSTMENT! * value).toString().substring(1));
         calculateAdjustment();
         // eslint-disable-next-line
     }, [value]);
+
+    const resetCalculations = () => {
+        setValue(baseValue);
+        setValueDisplay(formatCurrency(value).toString().substring(1));
+        setStoreCreditValue(formatCurrency(+process.env.REACT_APP_STORE_CREDIT_ADJUSTMENT! * value).toString().substring(1));
+        setValueAdjustment(0);
+    };
 
     /**
      * Event handler for the change event on the value text field, just sets the value
@@ -176,6 +188,6 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({items, storeMode}) => {
             </TableContainer>
         </>
     );
-}
+});
 
 export default Totals;
