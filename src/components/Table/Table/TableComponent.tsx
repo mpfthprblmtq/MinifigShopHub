@@ -192,7 +192,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                                 </StyledTableCell>
                                 <StyledTableCell>
                                     <a
-                                        href={`https://www.bricklink.com/v2/catalog/catalogitem.page?S=${item.no}#T=P`}
+                                        href={`https://www.bricklink.com/v2/catalog/catalogitem.page?${item.type === Type.SET ? 'S' : 'M'}=${item.no}#T=P`}
                                         target="_blank" rel="noreferrer">{item.no}
                                     </a>
                                 </StyledTableCell>

@@ -91,9 +91,6 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
             case Type.MINIFIG:
                 setLabelText('Minifig ID');
                 break;
-            case Type.PART:
-                setLabelText('Part ID');
-                break;
         }
     };
 
@@ -123,7 +120,6 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                             sx={{backgroundColor: "white", minWidth: "100px"}}>
                             <MenuItem value={Type.SET}>Set</MenuItem>
                             <MenuItem value={Type.MINIFIG}>Minifig</MenuItem>
-                            <MenuItem value={Type.PART}>Part</MenuItem>
                         </Select>
                     </FormControl>
                 </Box>
