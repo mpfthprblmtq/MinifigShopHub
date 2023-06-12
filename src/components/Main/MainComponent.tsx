@@ -56,7 +56,9 @@ const MainComponent: FunctionComponent = () => {
                     <ConfigurationCard
                         storeMode={storeMode}
                         setStoreMode={setStoreMode}
-                        resetCalculations={() => setShowConfirmResetCalculationsDialog(true)}/>
+                        resetCalculations={() => setShowConfirmResetCalculationsDialog(true)}
+                        buttonsDisabled={!items || items.length === 0}
+                    />
                 </Box>
             </Box>
             {items.length > 0 && (

@@ -7,9 +7,10 @@ interface ConfigurationCardParams {
     storeMode: boolean;
     setStoreMode: (storeMode: boolean) => void;
     resetCalculations: () => void;
+    buttonsDisabled: boolean;
 }
 
-const ConfigurationCard: FunctionComponent<ConfigurationCardParams> = ({storeMode, setStoreMode, resetCalculations}) => {
+const ConfigurationCard: FunctionComponent<ConfigurationCardParams> = ({storeMode, setStoreMode, resetCalculations, buttonsDisabled}) => {
 
     return (
        <StyledCard variant="outlined" sx={{minHeight: 80, marginLeft: "5px"}} className={"hide-in-print-preview"}>
@@ -25,6 +26,7 @@ const ConfigurationCard: FunctionComponent<ConfigurationCardParams> = ({storeMod
                            variant="contained"
                            color="error"
                            onClick={resetCalculations}
+                           disabled={buttonsDisabled}
                            style={{width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px", margin: "5px"}}>
                            <Refresh />
                        </Button>
@@ -35,6 +37,7 @@ const ConfigurationCard: FunctionComponent<ConfigurationCardParams> = ({storeMod
                        onClick={() => {
                            window.print();
                        }}
+                       disabled={buttonsDisabled}
                        style={{width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px", margin: "5px"}}>
                        <Print />
                    </Button>
