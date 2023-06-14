@@ -23,7 +23,7 @@ export const useBrickLinkService = (): BrickLinkHooks => {
     // create our BrickLink Axios instance
     const brickLinkAxiosInstance = axios.create({
         baseURL: "",
-        timeout: 3000,
+        timeout: 5000,
         headers: {}
     });
 
