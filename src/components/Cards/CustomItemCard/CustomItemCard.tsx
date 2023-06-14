@@ -44,63 +44,66 @@ const CustomItemCard: FunctionComponent<CustomItemCardParams> = ({items, setItem
     return (
         <StyledCard variant="outlined">
             <SetNameStyledTypography>Add Custom Item</SetNameStyledTypography>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Box sx={{ m: 1, position: 'relative' }}>
-                    <TextField
-                        label="Name"
-                        variant="outlined"
-                        sx={{backgroundColor: "white"}}
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                            setName(event.target.value);
-                        }}
-                        value={name}
-                    />
+            <form>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ m: 1, position: 'relative' }}>
+                        <TextField
+                            label="Name"
+                            variant="outlined"
+                            sx={{backgroundColor: "white"}}
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                setName(event.target.value);
+                            }}
+                            value={name}
+                        />
+                    </Box>
+                    <Box sx={{ m: 1, position: 'relative' }}>
+                        <FormControl fullWidth>
+                            <InputLabel id="custom-type-select-label">Type</InputLabel>
+                            <Select
+                                labelId="custom-type-select-label"
+                                value={type}
+                                label="Type"
+                                onChange={handleChange}
+                                sx={{backgroundColor: "white", minWidth: "100px"}}>
+                                <MenuItem value={Type.OTHER}>Other</MenuItem>
+                                <MenuItem value={Type.SET}>Set</MenuItem>
+                                <MenuItem value={Type.MINIFIG}>Minifig</MenuItem>
+                                <MenuItem value={Type.BULK}>Bulk</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+                    <Box sx={{ m: 1, position: 'relative' }}>
+                        <TextField
+                            label="Value"
+                            value={value}
+                            sx={{backgroundColor: "white"}}
+                            InputProps={{
+                                startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                            }}
+                            id="custom-item-field"
+                            onBlur={(event) => {
+                                setValue(formatCurrency(launderMoney(event.target.value))!.toString().substring(1));
+                            }}
+                            onChange={(event) => {
+                                if (isNumeric(event.target.value)) {
+                                    setValue(event.target.value);
+                                }
+                            }}/>
+                    </Box>
+                    <Box sx={{ m: 1, position: 'relative' }}>
+                        <Button
+                            variant="contained"
+                            color="success"
+                            disabled={!name || !value}
+                            onClick={addItem}
+                            style={{width: "100px", minWidth: "100px", maxWidth: "100px", height: "50px"}}
+                            type='submit'>
+                            Add
+                        </Button>
+                    </Box>
                 </Box>
-                <Box sx={{ m: 1, position: 'relative' }}>
-                    <FormControl fullWidth>
-                        <InputLabel id="custom-type-select-label">Type</InputLabel>
-                        <Select
-                            labelId="custom-type-select-label"
-                            value={type}
-                            label="Type"
-                            onChange={handleChange}
-                            sx={{backgroundColor: "white", minWidth: "100px"}}>
-                            <MenuItem value={Type.OTHER}>Other</MenuItem>
-                            <MenuItem value={Type.SET}>Set</MenuItem>
-                            <MenuItem value={Type.MINIFIG}>Minifig</MenuItem>
-                            <MenuItem value={Type.BULK}>Bulk</MenuItem>
-                        </Select>
-                    </FormControl>
-                </Box>
-                <Box sx={{ m: 1, position: 'relative' }}>
-                    <TextField
-                        label="Value"
-                        value={value}
-                        sx={{backgroundColor: "white"}}
-                        InputProps={{
-                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                        }}
-                        id="custom-item-field"
-                        onBlur={(event) => {
-                            setValue(formatCurrency(launderMoney(event.target.value))!.toString().substring(1));
-                        }}
-                        onChange={(event) => {
-                            if (isNumeric(event.target.value)) {
-                                setValue(event.target.value);
-                            }
-                        }}/>
-                </Box>
-                <Box sx={{ m: 1, position: 'relative' }}>
-                    <Button
-                        variant="contained"
-                        color="success"
-                        disabled={!name || !value}
-                        onClick={addItem}
-                        style={{width: "100px", minWidth: "100px", maxWidth: "100px", height: "50px"}}>
-                        Add
-                    </Button>
-                </Box>
-            </Box>
+            </form>
         </StyledCard>
     );
 };

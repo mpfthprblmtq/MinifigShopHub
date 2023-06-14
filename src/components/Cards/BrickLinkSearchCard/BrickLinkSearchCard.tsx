@@ -16,28 +16,31 @@ const BrickLinkSearchCard:FunctionComponent = () => {
     return (
         <StyledCard variant="outlined">
             <SetNameStyledTypography>Search BrickLink</SetNameStyledTypography>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Box sx={{ m: 1, position: 'relative' }}>
-                    <TextField
-                        label="Search Query"
-                        variant="outlined"
-                        sx={{backgroundColor: "white", minWidth: 300}}
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                            setQuery(event.target.value);
-                        }}
-                        value={query}
-                    />
+            <form>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ m: 1, position: 'relative' }}>
+                        <TextField
+                            label="Search Query"
+                            variant="outlined"
+                            sx={{backgroundColor: "white", minWidth: 300}}
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                setQuery(event.target.value);
+                            }}
+                            value={query}
+                        />
+                    </Box>
+                    <Box sx={{ m: 1, position: 'relative' }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={search}
+                            style={{width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px", margin: "5px"}}
+                            type='submit'>
+                            <Search />
+                        </Button>
+                    </Box>
                 </Box>
-                <Box sx={{ m: 1, position: 'relative' }}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={search}
-                        style={{width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px", margin: "5px"}}>
-                        <Search />
-                    </Button>
-                </Box>
-            </Box>
+            </form>
         </StyledCard>
     )
 };

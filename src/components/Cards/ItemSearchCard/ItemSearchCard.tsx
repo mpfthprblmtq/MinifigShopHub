@@ -97,80 +97,83 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
     return (
         <StyledCard variant="outlined" sx={{minWidth: 400}}>
             <SetNameStyledTypography>Add Set</SetNameStyledTypography>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Box sx={{ m: 1, position: 'relative' }}>
-                    <TextField
-                        label={labelText}
-                        variant="outlined"
-                        sx={{backgroundColor: "white"}}
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                            setSetNumber(event.target.value);
-                        }}
-                        value={setNumber}
-                    />
-                </Box>
-                <Box sx={{ m: 1, position: 'relative' }}>
-                    <FormControl fullWidth>
-                        <InputLabel id="search-type-select-label">Type</InputLabel>
-                        <Select
-                            labelId="search-type-select-label"
-                            value={type}
-                            label="Type"
-                            onChange={handleTypeChange}
-                            sx={{backgroundColor: "white", minWidth: "100px"}}>
-                            <MenuItem value={Type.SET}>Set</MenuItem>
-                            <MenuItem value={Type.MINIFIG}>Minifig</MenuItem>
-                        </Select>
-                    </FormControl>
-                </Box>
-                <Box sx={{ m: 1, position: 'relative' }}>
-                    <Button
-                        variant="contained"
-                        sx={{
-                            ...(success && item && {
-                                bgcolor: green[500],
-                                '&:hover': {
-                                    bgcolor: green[700],
-                                },
-                            })
-                        }}
-                        disabled={loading || !setNumber}
-                        onClick={buttonText === 'Search' && !item ? searchForSet : addToList}
-                        style={{minWidth: "100px", height: "50px"}}>
-                        {buttonText}
-                    </Button>
-                    {loading && (
-                        <CircularProgress
-                            size={24}
-                            sx={{
-                                color: green[500],
-                                position: 'absolute',
-                                top: '50%',
-                                left: '50%',
-                                marginTop: '-12px',
-                                marginLeft: '-12px',
+            <form>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ m: 1, position: 'relative' }}>
+                        <TextField
+                            label={labelText}
+                            variant="outlined"
+                            sx={{backgroundColor: "white"}}
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                setSetNumber(event.target.value);
                             }}
+                            value={setNumber}
                         />
-                    )}
+                    </Box>
+                    <Box sx={{ m: 1, position: 'relative' }}>
+                        <FormControl fullWidth>
+                            <InputLabel id="search-type-select-label">Type</InputLabel>
+                            <Select
+                                labelId="search-type-select-label"
+                                value={type}
+                                label="Type"
+                                onChange={handleTypeChange}
+                                sx={{backgroundColor: "white", minWidth: "100px"}}>
+                                <MenuItem value={Type.SET}>Set</MenuItem>
+                                <MenuItem value={Type.MINIFIG}>Minifig</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+                    <Box sx={{ m: 1, position: 'relative' }}>
+                        <Button
+                            variant="contained"
+                            sx={{
+                                ...(success && item && {
+                                    bgcolor: green[500],
+                                    '&:hover': {
+                                        bgcolor: green[700],
+                                    },
+                                })
+                            }}
+                            disabled={loading || !setNumber}
+                            onClick={buttonText === 'Search' && !item ? searchForSet : addToList}
+                            style={{minWidth: "100px", height: "50px"}}
+                            type='submit'>
+                            {buttonText}
+                        </Button>
+                        {loading && (
+                            <CircularProgress
+                                size={24}
+                                sx={{
+                                    color: green[500],
+                                    position: 'absolute',
+                                    top: '50%',
+                                    left: '50%',
+                                    marginTop: '-12px',
+                                    marginLeft: '-12px',
+                                }}
+                            />
+                        )}
+                    </Box>
+                    <Box sx={{ m: 1, position: 'relative' }}>
+                        <Button
+                            variant="contained"
+                            color="error"
+                            disabled={loading || !setNumber}
+                            onClick={() => {
+                                setSetNumber('');
+                                setSuccess(false);
+                                setButtonText('Search');
+                                setItem(undefined);
+                                setError('');
+                                setType(Type.SET);
+                            }}
+                            style={{width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px"}}>
+                            <Clear />
+                        </Button>
+                    </Box>
                 </Box>
-                <Box sx={{ m: 1, position: 'relative' }}>
-                    <Button
-                        variant="contained"
-                        color="error"
-                        disabled={loading || !setNumber}
-                        onClick={() => {
-                            setSetNumber('');
-                            setSuccess(false);
-                            setButtonText('Search');
-                            setItem(undefined);
-                            setError('');
-                            setType(Type.SET);
-                        }}
-                        style={{width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px"}}>
-                        <Clear />
-                    </Button>
-                </Box>
-            </Box>
+            </form>
             <Box>
                 {item && !error &&
                     <SetNameStyledTypography>[{item.year_released}] {item.name}</SetNameStyledTypography>}
