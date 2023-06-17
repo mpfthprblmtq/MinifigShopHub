@@ -13,4 +13,4 @@
 ### v0.2.0 - Updates After First Client Feedback Session
 
 - Modified the currency inputs to have a better control on the inputs.  Before, you could put in commas and decimals anywhere and the app would accept it and throw errors.  Now it only accepts one decimal point and adds commas on blur automatically.
-- 
+- Added configuration for grayscale printing by default
