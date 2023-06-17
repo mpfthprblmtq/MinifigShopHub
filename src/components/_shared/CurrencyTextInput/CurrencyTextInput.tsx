@@ -2,12 +2,11 @@ import {forwardRef, FunctionComponent} from "react";
 import {NumericFormat, NumericFormatProps} from "react-number-format";
 import {TextField} from "@mui/material";
 
-interface CustomProps {
-    onChange: (event: { target: { name: string; value: string } }) => void;
-    name: string;
+interface NumericFormatCustomParams {
+    onChange: (event: { target: { value: string } }) => void;
 }
 
-const NumericFormatCustom = forwardRef<NumericFormatProps, CustomProps>(
+const NumericFormatCustom = forwardRef<NumericFormatProps, NumericFormatCustomParams>(
     function NumericFormatCustom(props, ref) {
         const { onChange, ...other } = props;
 
@@ -15,11 +14,10 @@ const NumericFormatCustom = forwardRef<NumericFormatProps, CustomProps>(
             <NumericFormat
                 {...other}
                 getInputRef={ref}
-                onValueChange={(values) => {
+                onValueChange={(event) => {
                     onChange({
                         target: {
-                            name: props.name,
-                            value: values.value,
+                            value: event.value,
                         },
                     });
                 }}
