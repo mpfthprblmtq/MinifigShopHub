@@ -1,8 +1,6 @@
 import React, {FunctionComponent, useState} from "react";
 import {
     Box,
-    InputAdornment,
-    OutlinedInput,
     Table,
     TableBody,
     TableContainer,
@@ -11,7 +9,7 @@ import {
     Tooltip
 } from "@mui/material";
 import NewUsedToggleButton from "../NewUsedToggleButton/NewUsedToggleButton";
-import {formatCurrency, isNumeric, launderMoney} from "../../../utils/CurrencyUtils";
+import {formatCurrency, launderMoney} from "../../../utils/CurrencyUtils";
 import {FixedWidthColumnHeading, StyledTableCell} from "./TableComponent.styles";
 import {Item} from "../../../model/item/Item";
 import {Condition} from "../../../model/shared/Condition";
@@ -24,6 +22,7 @@ import ConfirmItemDeleteDialog from "../../Dialog/ConfirmDialog/ConfirmItemDelet
 import {Source} from "../../../model/shared/Source";
 import MoreInformationDialog from "../../Dialog/MoreInformationDialog/MoreInformationDialog";
 import {Type} from "../../../model/shared/Type";
+import CurrencyTextInput from "../../_shared/CurrencyTextInput/CurrencyTextInput";
 
 interface TableComponentParams {
     items: Item[];
@@ -74,15 +73,14 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
      * @param id the id of the item to modify
      */
     const handleValueChange = (event: any, id: number) => {
-        if (isNumeric(event.target.value)) {
-            const newItems = [...items];
-            const item = getItemWithId(newItems, id);
-            if (item) {
-                item.value = launderMoney(event.target.value);
-                item.valueDisplay = event.target.value;
-            }
-            setItems(newItems);
+        const newItems = [...items];
+        const item = getItemWithId(newItems, id);
+        if (item) {
+            item.value = launderMoney(event.target.value);
+            item.valueDisplay = event.target.value;
+            calculateAdjustment(item);
         }
+        setItems(newItems);
     };
 
     /**
@@ -94,9 +92,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
         const newItems = [...items];
         const item = getItemWithId(newItems, id);
         if (item) {
-            item.value = launderMoney(event.target.value);
-            item.valueDisplay = formatCurrency(event.target.value).toString().substring(1);
-            calculateAdjustment(item);
+            item.valueDisplay = formatCurrency(launderMoney(event.target.value));
         }
         setItems(newItems);
     };
@@ -228,9 +224,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                                     </>
                                 )}
                                 <StyledTableCell>
-                                    <OutlinedInput
-                                        style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}
-                                        startAdornment={<InputAdornment position="start">$</InputAdornment>}
+                                    <CurrencyTextInput
                                         value={item.valueDisplay}
                                         onChange={(event) => handleValueChange(event, item.id)}
                                         onBlur={(event) => handleValueBlur(event, item.id)}
