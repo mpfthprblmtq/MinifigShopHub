@@ -11,6 +11,7 @@ import {Type} from "../model/shared/Type";
 import {htmlDecode} from "../utils/StringUtils";
 import {filterOutOldDates} from "../utils/DateUtils";
 
+const corsProxyUrl: string = 'https://corsproxy.io/?';
 const baseUrl: string = "https://api.bricklink.com/api/store/v1";
 
 export interface BrickLinkHooks {
@@ -22,7 +23,7 @@ export const useBrickLinkService = (): BrickLinkHooks => {
 
     // create our BrickLink Axios instance
     const brickLinkAxiosInstance = axios.create({
-        baseURL: "",
+        baseURL: baseUrl,
         timeout: 5000,
         headers: {}
     });
@@ -69,7 +70,7 @@ export const useBrickLinkService = (): BrickLinkHooks => {
 
         // make the request
         return (await brickLinkAxiosInstance.get<ItemResponse>(
-            `api/store/v1/items/${itemType}/${id}`,
+            `${corsProxyUrl}${baseUrl}/items/${itemType}/${id}`,
             {headers: authHeader}
         )).data.data;
     };
@@ -84,7 +85,7 @@ export const useBrickLinkService = (): BrickLinkHooks => {
 
         // make the request
         return (await brickLinkAxiosInstance.get<SalesHistoryResponse>(
-            `api/store/v1/items/${itemType}/${id}/price?guide_type=${type}&new_or_used=${state}`,
+            `${corsProxyUrl}${baseUrl}/items/${itemType}/${id}/price?guide_type=${type}&new_or_used=${state}`,
             {headers: authHeader}
         )).data.data;
     };
@@ -120,7 +121,7 @@ export const useBrickLinkService = (): BrickLinkHooks => {
 
         // make the request
         return (await brickLinkAxiosInstance.get<CategoryResponse>(
-            `api/store/v1/categories/${id}`,
+            `${corsProxyUrl}${baseUrl}/categories/${id}`,
             {headers: authHeader}
         )).data.data;
     }

@@ -1,9 +1,8 @@
 {
-  "homepage": "https://prblmtq.com/quote-builder",
+  "homepage": ".",
   "name": "quote-builder",
   "version": "0.1.0",
   "private": true,
-  "proxy": "https://api.bricklink.com/",
   "dependencies": {
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",

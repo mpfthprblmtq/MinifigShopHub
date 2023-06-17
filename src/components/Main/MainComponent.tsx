@@ -9,6 +9,7 @@ import ConfigurationCard from "../Cards/ConfigurationCard/ConfigurationCard";
 import BrickLinkSearchCard from "../Cards/BrickLinkSearchCard/BrickLinkSearchCard";
 import ConfirmResetCalculationsDialog from "../Dialog/ConfirmDialog/ConfirmResetCalculationsDialog";
 import {formatCurrency} from "../../utils/CurrencyUtils";
+import Version from "./Version";
 
 interface TotalsRefProps {
     resetTotalsCalculations: () => void;
@@ -71,6 +72,7 @@ const MainComponent: FunctionComponent = () => {
                     setShowConfirmResetCalculationsDialog(false);
                     resetCalculations();
                 }} />
+            <Version />
         </div>
     );
 };
