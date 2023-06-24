@@ -7,7 +7,7 @@ export const formatCurrency = (s: string | number | undefined) => {
 };
 
 export const launderMoney = (s: string): number => {
-    return +s
+    return +s.trim()
         .replace(",", "")
         .replace(" ", "")
         .replace("$", "");

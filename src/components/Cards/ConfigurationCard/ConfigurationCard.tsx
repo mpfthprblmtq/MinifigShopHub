@@ -22,14 +22,16 @@ const ConfigurationCard: FunctionComponent<ConfigurationCardParams> = ({storeMod
                </Box>
                <Box sx={{ m: 1, float: 'right'}}>
                    <Tooltip title='Reset Calculations'>
-                       <Button
-                           variant="contained"
-                           color="error"
-                           onClick={resetCalculations}
-                           disabled={buttonsDisabled}
-                           style={{width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px", margin: "5px"}}>
-                           <Refresh />
-                       </Button>
+                       <>
+                           <Button
+                               variant="contained"
+                               color="error"
+                               onClick={resetCalculations}
+                               disabled={buttonsDisabled}
+                               style={{width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px", margin: "5px"}}>
+                               <Refresh />
+                           </Button>
+                       </>
                    </Tooltip>
                    <Button
                        variant="contained"

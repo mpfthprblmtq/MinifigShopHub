@@ -1,13 +1,5 @@
 import React, {FunctionComponent, useState} from "react";
-import {
-    Box,
-    Table,
-    TableBody,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Tooltip
-} from "@mui/material";
+import {Box, Table, TableBody, TableContainer, TableHead, TableRow, Tooltip} from "@mui/material";
 import NewUsedToggleButton from "../NewUsedToggleButton/NewUsedToggleButton";
 import {formatCurrency, launderMoney} from "../../../utils/CurrencyUtils";
 import {FixedWidthColumnHeading, StyledTableCell} from "./TableComponent.styles";
@@ -23,6 +15,7 @@ import {Source} from "../../../model/shared/Source";
 import MoreInformationDialog from "../../Dialog/MoreInformationDialog/MoreInformationDialog";
 import {Type} from "../../../model/shared/Type";
 import CurrencyTextInput from "../../_shared/CurrencyTextInput/CurrencyTextInput";
+import {Availability} from "../../../model/salesStatus/Availability";
 
 interface TableComponentParams {
     items: Item[];
@@ -193,7 +186,9 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                                     </a>
                                 </StyledTableCell>
                                 <StyledTableCell>{item.name}</StyledTableCell>
-                                <StyledTableCell>{item.year_released}</StyledTableCell>
+                                <StyledTableCell color={item.salesStatus?.availability === Availability.RETAIL ? '#008B00' : 'black'}>
+                                    {item.year_released}<br/>{item.salesStatus?.availability ?? ''}
+                                </StyledTableCell>
                                 <StyledTableCell>
                                     <NewUsedToggleButton item={item} handleConditionChange={handleConditionChange} />
                                 </StyledTableCell>

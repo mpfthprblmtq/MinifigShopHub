@@ -22,47 +22,26 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
 
     const [setNumber, setSetNumber] = useState<string>('');
     const [type, setType] = useState<Type>(Type.SET);
-    const [item, setItem] = useState<Item>();
     const [loading, setLoading] = useState<boolean>(false);
-    const [success, setSuccess] = useState(false);
-    const [buttonText, setButtonText] = useState('Search');
     const [labelText, setLabelText] = useState<string>('Set Number');
     const [error, setError] = useState<string>('');
 
-    const { getHydratedItem, getAllSalesHistory } = useBrickLinkService();
+    const { getHydratedItem } = useBrickLinkService();
 
     const searchForSet = async () => {
         setLoading(true);
         setError('');
         await getHydratedItem(setNumber, type)
-            .then((itemResponse: Item) => {
-                setItem(itemResponse);
+            .then((item: Item) => {
                 setLoading(false);
-                setSuccess(true);
-                setButtonText('Add');
                 setError('');
-            }).catch((error: AxiosError) => {
-                console.log(error);
-                setLoading(false);
-                setSuccess(false);
-                if (error.response?.status === 404) {
-                    setError(`Item not found: ${setNumber}`);
-                } else {
-                    setError("Issue with BrickLink service!");
-                }
-            });
-    };
 
-    const addToList = async () => {
-        if (item) {
-            setLoading(true);
-            getAllSalesHistory(item).then(response => {
                 // generate an id and some other default goodies
                 // by default, set the condition to used and use the average sold value for the value attribute
                 item.id = generateId(items);
                 item.condition = Condition.USED;
-                item.value = response.usedSold?.avg_price ?
-                    +response.usedSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE! : 0;
+                item.value = item.usedSold?.avg_price ?
+                    +item.usedSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE! : 0;
                 item.valueDisplay = formatCurrency(item.value)!.toString().substring(1);
                 item.baseValue = item.value;
                 item.valueAdjustment = 0;
@@ -70,16 +49,21 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                 item.type = type;
 
                 // add the item with sales data to existing state
-                setItems([...items, { ...item, ...response }]);
+                setItems([...items, item]);
 
                 // update graphics
                 setLoading(false);
-                setSuccess(false);
-                setButtonText('Search');
                 setSetNumber('');
-                setItem(undefined);
+
+            }).catch((error: AxiosError) => {
+                console.log(error);
+                setLoading(false);
+                if (error.response?.status === 404) {
+                    setError(`Item not found: ${setNumber}`);
+                } else {
+                    setError("Issue with BrickLink service!");
+                }
             });
-        }
     };
 
     const handleTypeChange = (event: any) => {
@@ -127,19 +111,11 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                     <Box sx={{ m: 1, position: 'relative' }}>
                         <Button
                             variant="contained"
-                            sx={{
-                                ...(success && item && {
-                                    bgcolor: green[500],
-                                    '&:hover': {
-                                        bgcolor: green[700],
-                                    },
-                                })
-                            }}
                             disabled={loading || !setNumber}
-                            onClick={buttonText === 'Search' && !item ? searchForSet : addToList}
+                            onClick={searchForSet}
                             style={{minWidth: "100px", height: "50px"}}
                             type='submit'>
-                            {buttonText}
+                            Search
                         </Button>
                         {loading && (
                             <CircularProgress
@@ -162,9 +138,6 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                             disabled={loading || !setNumber}
                             onClick={() => {
                                 setSetNumber('');
-                                setSuccess(false);
-                                setButtonText('Search');
-                                setItem(undefined);
                                 setError('');
                                 setType(Type.SET);
                             }}
@@ -175,9 +148,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                 </Box>
             </form>
             <Box>
-                {item && !error &&
-                    <SetNameStyledTypography>[{item.year_released}] {item.name}</SetNameStyledTypography>}
-                {!item && error &&
+                {error &&
                     <SetNameStyledTypography color={"red"}>{error}</SetNameStyledTypography>}
             </Box>
         </StyledCard>

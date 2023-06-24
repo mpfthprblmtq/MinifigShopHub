@@ -11,4 +11,5 @@ export const FixedWidthColumnHeading = styled(TableCell)`
 
 export const StyledTableCell = styled(TableCell)`
   font-family: 'Arial', sans-serif !important;
+  color: ${props => props.color} !important;
 `;
