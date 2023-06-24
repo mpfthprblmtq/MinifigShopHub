@@ -18,7 +18,6 @@ const baseUrl: string = "https://api.bricklink.com/api/store/v1";
 
 export interface BrickLinkHooks {
     getHydratedItem: (id: string, itemType: Type) => Promise<Item>;
-    getAllSalesHistory: (item: Item) => Promise<AllSalesHistory>;
 }
 
 export const useBrickLinkService = (): BrickLinkHooks => {
@@ -147,6 +146,6 @@ export const useBrickLinkService = (): BrickLinkHooks => {
         )).data.data;
     }
 
-    return { getHydratedItem, getAllSalesHistory };
+    return { getHydratedItem };
 };
 
