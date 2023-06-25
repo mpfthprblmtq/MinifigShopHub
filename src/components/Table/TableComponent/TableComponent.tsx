@@ -1,21 +1,22 @@
 import React, {FunctionComponent, useState} from "react";
-import {Box, Table, TableBody, TableContainer, TableHead, TableRow, Tooltip} from "@mui/material";
-import NewUsedToggleButton from "../NewUsedToggleButton/NewUsedToggleButton";
+import {Table, TableBody, TableContainer, TableHead, TableRow} from "@mui/material";
+import NewUsedToggleButtonCell from "../TableCells/NewUsedToggleButtonCell";
 import {formatCurrency, launderMoney} from "../../../utils/CurrencyUtils";
 import {FixedWidthColumnHeading, StyledTableCell} from "./TableComponent.styles";
 import {Item} from "../../../model/item/Item";
 import {Condition} from "../../../model/shared/Condition";
-import ManualValueAdjustmentSlider from "../ManualValueAdjustmentSlider/ManualValueAdjustmentSlider";
+import ManualValueAdjustmentSliderCell from "../TableCells/ManualValueAdjustmentSliderCell";
 import ImageDialog from "../../Dialog/ImageDialog/ImageDialog";
-import {Delete, PlaylistAdd} from "@mui/icons-material";
 import {getItemWithId} from "../../../utils/ArrayUtils";
-import ItemComment from "../ItemComment/ItemComment";
+import ItemCommentCell from "../TableCells/ItemCommentCell";
 import ConfirmItemDeleteDialog from "../../Dialog/ConfirmDialog/ConfirmItemDeleteDialog";
-import {Source} from "../../../model/shared/Source";
 import MoreInformationDialog from "../../Dialog/MoreInformationDialog/MoreInformationDialog";
-import {Type} from "../../../model/shared/Type";
-import CurrencyTextInput from "../../_shared/CurrencyTextInput/CurrencyTextInput";
-import {Availability} from "../../../model/salesStatus/Availability";
+import ImageCell from "../TableCells/ImageCell";
+import SetNumberCell from "../TableCells/SetNumberCell";
+import YearAvailabilityCell from "../TableCells/YearAvailabilityCell";
+import BrickLinkSalesCells from "../TableCells/BrickLinkSalesCells";
+import ValueCell from "../TableCells/ValueCell";
+import IconsCell from "../TableCells/IconsCell";
 
 interface TableComponentParams {
     items: Item[];
@@ -166,93 +167,38 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                     <TableBody>
                         {items.map(item => (
                             <TableRow key={item.id}>
-                                <StyledTableCell className={"clickable"}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                                        {item.thumbnail_url && item.image_url && (
-                                            <img alt="bricklink-set-img" src={item.thumbnail_url} onClick={() => {
-                                                setFocusedItem(item);
-                                                setShowImageDialog(true);
-                                            }}/>
-                                        )}
-                                        {item.source === Source.CUSTOM && item.type !== Type.OTHER && (
-                                            <img src={`/assets/images/${item.type}.svg`} alt="set" width={55}/>
-                                        )}
-                                    </Box>
-                                </StyledTableCell>
-                                <StyledTableCell>
-                                    <a
-                                        href={`https://www.bricklink.com/v2/catalog/catalogitem.page?${item.type === Type.SET ? 'S' : 'M'}=${item.no}#T=P`}
-                                        target="_blank" rel="noreferrer">{item.no}
-                                    </a>
-                                </StyledTableCell>
+                                <ImageCell item={item} onClick={() => {
+                                    setFocusedItem(item);
+                                    setShowImageDialog(true);
+                                }}/>
+                                <SetNumberCell item={item} />
                                 <StyledTableCell>{item.name}</StyledTableCell>
-                                <StyledTableCell color={item.salesStatus?.availability === Availability.RETAIL ? '#008B00' : 'black'}>
-                                    {item.year_released}<br/>{item.salesStatus?.availability ?? ''}
-                                </StyledTableCell>
-                                <StyledTableCell>
-                                    <NewUsedToggleButton item={item} handleConditionChange={handleConditionChange} />
-                                </StyledTableCell>
+                                <YearAvailabilityCell item={item} />
+                                <NewUsedToggleButtonCell item={item} handleConditionChange={handleConditionChange} />
                                 {storeMode && (
-                                    <>
-                                        <StyledTableCell>
-                                            {item.source === Source.BRICKLINK && (
-                                                <Tooltip title={`Based on ${item.newSold?.unit_quantity} sales`}>
-                                                    <div>
-                                                        Min: {formatCurrency(item.newSold?.min_price)}<br/>
-                                                        <strong>Avg: {formatCurrency(item.newSold?.avg_price)}</strong><br/>
-                                                        Max: {formatCurrency(item.newSold?.max_price)}
-                                                    </div>
-                                                </Tooltip>
-                                            )}
-                                        </StyledTableCell>
-                                        <StyledTableCell>
-                                            {item.source === Source.BRICKLINK && (
-                                                <Tooltip title={`Based on ${item.usedSold?.unit_quantity} sales`}>
-                                                    <div>
-                                                        Min: {formatCurrency(item.usedSold?.min_price)}<br/>
-                                                        <strong>Avg: {formatCurrency(item.usedSold?.avg_price)}</strong><br/>
-                                                        Max: {formatCurrency(item.usedSold?.max_price)}
-                                                    </div>
-                                                </Tooltip>
-                                            )}
-                                        </StyledTableCell>
-                                    </>
+                                    <BrickLinkSalesCells item={item} />
                                 )}
-                                <StyledTableCell>
-                                    <CurrencyTextInput
-                                        value={item.valueDisplay}
-                                        onChange={(event) => handleValueChange(event, item.id)}
-                                        onBlur={(event) => handleValueBlur(event, item.id)}
+                                <ValueCell
+                                    item={item}
+                                    handleValueBlur={handleValueBlur}
+                                    handleValueChange={handleValueChange} />
+                                {storeMode && (
+                                    <ManualValueAdjustmentSliderCell item={item} handleSliderChange={handleSliderChange}/>
+                                )}
+                                <ItemCommentCell item={item} storeMode={storeMode} handleCommentChange={handleCommentChange}/>
+                                {storeMode && (
+                                    <IconsCell
+                                        item={item}
+                                        onDelete={() => {
+                                            setFocusedItem(item);
+                                            setShowDeleteDialog(true);
+                                        }}
+                                        onShowMoreInfo={() => {
+                                            setFocusedItem(item);
+                                            setShowMoreInformationDialog(true);
+                                        }}
                                     />
-                                </StyledTableCell>
-                                {storeMode && (
-                                    <StyledTableCell>
-                                        <ManualValueAdjustmentSlider item={item} handleSliderChange={handleSliderChange}/>
-                                    </StyledTableCell>
                                 )}
-                                <StyledTableCell>
-                                    <ItemComment item={item} storeMode={storeMode} handleCommentChange={handleCommentChange}/>
-                                </StyledTableCell>
-                                <StyledTableCell className={"clickable"}>
-                                    {storeMode && (
-                                        <>
-                                            <Tooltip title={"Delete Row"}>
-                                                <Delete fontSize={"large"} color={"error"} style={{padding: "5px"}} onClick={() => {
-                                                    setFocusedItem(item);
-                                                    setShowDeleteDialog(true);
-                                                }} />
-                                            </Tooltip>
-                                            {item.source === Source.BRICKLINK && (
-                                                <Tooltip title={"More Details"}>
-                                                    <PlaylistAdd fontSize={"large"} color={"primary"} style={{padding: "5px"}} onClick={() => {
-                                                        setFocusedItem(item);
-                                                        setShowMoreInformationDialog(true);
-                                                    }}/>
-                                                </Tooltip>
-                                            )}
-                                        </>
-                                    )}
-                                </StyledTableCell>
                             </TableRow>
                         ))}
                     </TableBody>

@@ -1,13 +1,14 @@
 import React, {FunctionComponent} from "react";
 import {Slider} from "@mui/material";
 import {Item} from "../../../model/item/Item";
+import {StyledTableCell} from "../TableComponent/TableComponent.styles";
 
 interface ManualAdjustmentSliderParams {
     item: Item;
     handleSliderChange: (event: Event, id: number) => void;
 }
 
-const ManualValueAdjustmentSlider: FunctionComponent<ManualAdjustmentSliderParams> = ({item, handleSliderChange}) => {
+const ManualValueAdjustmentSliderCell: FunctionComponent<ManualAdjustmentSliderParams> = ({item, handleSliderChange}) => {
 
     const marks = [
         { value: 0, label: "|" },
@@ -28,16 +29,18 @@ const ManualValueAdjustmentSlider: FunctionComponent<ManualAdjustmentSliderParam
     };
 
     return (
-        <Slider
-            onChange={(event) => handleSliderChange(event, item.id)}
-            valueLabelFormat={formatSliderLabel}
-            defaultValue={0}
-            marks={marks}
-            valueLabelDisplay="auto"
-            min={-100}
-            max={100}
-            value={item.valueAdjustment} />
+        <StyledTableCell>
+            <Slider
+                onChange={(event) => handleSliderChange(event, item.id)}
+                valueLabelFormat={formatSliderLabel}
+                defaultValue={0}
+                marks={marks}
+                valueLabelDisplay="auto"
+                min={-100}
+                max={100}
+                value={item.valueAdjustment} />
+        </StyledTableCell>
     );
 };
 
-export default ManualValueAdjustmentSlider;
+export default ManualValueAdjustmentSliderCell;

@@ -28,6 +28,9 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
 
     const { getHydratedItem } = useBrickLinkService();
 
+    /**
+     * Main search method that searches for a set and sets all appropriate values
+     */
     const searchForSet = async () => {
         setLoading(true);
         setError('');
@@ -56,7 +59,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                 setSetNumber('');
 
             }).catch((error: AxiosError) => {
-                console.log(error);
+                console.error(error);
                 setLoading(false);
                 if (error.response?.status === 404) {
                     setError(`Item not found: ${setNumber}`);

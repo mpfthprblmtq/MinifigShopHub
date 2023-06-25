@@ -1,7 +1,7 @@
 import React, {FunctionComponent, useRef, useState} from "react";
 import {Item} from "../../model/item/Item";
 import {Box} from "@mui/material";
-import TableComponent from "../Table/Table/TableComponent";
+import TableComponent from "../Table/TableComponent/TableComponent";
 import ItemSearchCard from "../Cards/ItemSearchCard/ItemSearchCard";
 import CustomItemCard from "../Cards/CustomItemCard/CustomItemCard";
 import Totals from "../Totals/Totals";

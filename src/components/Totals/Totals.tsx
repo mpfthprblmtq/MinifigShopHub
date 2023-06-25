@@ -6,7 +6,7 @@ import {
     TableContainer,
     TableRow
 } from "@mui/material";
-import {FixedWidthColumnHeading} from "../Table/Table/TableComponent.styles";
+import {FixedWidthColumnHeading} from "../Table/TableComponent/TableComponent.styles";
 import {Item} from "../../model/item/Item";
 import {formatCurrency, launderMoney} from "../../utils/CurrencyUtils";
 import ManualTotalAdjustmentSlider from "./ManualTotalAdjustmentSlider";
