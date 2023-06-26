@@ -11,7 +11,7 @@ const StyledTypography = styled(Typography)`
 
 const Version: FunctionComponent = () => {
     return (
-        <StyledTypography>© Pat Ripley / Version: {packageJson.version}</StyledTypography>
+        <StyledTypography className={"hide-in-print-preview"}>© Pat Ripley / Version: {packageJson.version}</StyledTypography>
     );
 }
 

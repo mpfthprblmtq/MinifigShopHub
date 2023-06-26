@@ -140,7 +140,9 @@ const Totals = forwardRef(({items, storeMode}: TotalsSectionParams, totalsRef) =
                                 </>
                             )}
                             <FixedWidthColumnHeading width={120}>
-                                <CurrencyTextInput value={valueDisplay} onChange={handleValueChange} onBlur={handleValueBlur} />
+                                <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
+                                    <CurrencyTextInput value={valueDisplay} onChange={handleValueChange} onBlur={handleValueBlur} />
+                                </div>
                             </FixedWidthColumnHeading>
                             {storeMode &&
                                 <FixedWidthColumnHeading width={200}>

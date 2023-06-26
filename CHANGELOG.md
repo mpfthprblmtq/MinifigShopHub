@@ -10,7 +10,12 @@
 - A totals section, which takes the value of all rows from the table and sums it up.  Also has a "Store Credit" field that is a higher percentage of the estimated value for store credit instead of cash trade in.
 - A configuration card that lets you toggled between "store mode" and "customer mode" which is a stripped down version and hides some sales data fields.  Also has a "Reset Calculations" button and a print button.
 
-### v0.2.0 - Updates After First Client Feedback Session
+### v0.1.1 - Interim Update
 
+*This is mostly so users can use it in the middle of development*
+
+- Added BrickEconomyService, which scrapes page data from the brickeconomy.com using a search url.  Grabs the availability ("Retail" and "Retired") and the MSRP of the set.  Added the availability to the Year column, and added a label on the Value column for MSRP if the set is currently available at retail.
+- Fixed a bug on the BrickLink search card where when you perform the search, the page would refresh, losing all the data on the screen (will fix the losing data on refresh in a later release with Redux)
 - Modified the currency inputs to have a better control on the inputs.  Before, you could put in commas and decimals anywhere and the app would accept it and throw errors.  Now it only accepts one decimal point and adds commas on blur automatically.
 - Added configuration for grayscale printing by default
+- Modified value calculations (50% for used sets, 60% for new sets), and took the retail availability into account

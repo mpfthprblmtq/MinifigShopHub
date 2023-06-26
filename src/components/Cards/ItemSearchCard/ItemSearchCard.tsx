@@ -12,6 +12,7 @@ import {StyledCard} from "../Cards.styles";
 import {Source} from "../../../model/shared/Source";
 import {AxiosError} from "axios";
 import {Type} from "../../../model/shared/Type";
+import {Availability} from "../../../model/salesStatus/Availability";
 
 interface SetSearchCardParams {
     items: Item[];
@@ -28,6 +29,14 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
 
     const { getHydratedItem } = useBrickLinkService();
 
+    const calculateValue = (item: Item): number => {
+        if (item.salesStatus?.availability === Availability.RETAIL && item.salesStatus.retailPrice) {
+            return item.salesStatus.retailPrice * +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED!;
+        } else {
+            return item.usedSold?.avg_price ? +item.usedSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! : 0;
+        }
+    };
+
     /**
      * Main search method that searches for a set and sets all appropriate values
      */
@@ -43,8 +52,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                 // by default, set the condition to used and use the average sold value for the value attribute
                 item.id = generateId(items);
                 item.condition = Condition.USED;
-                item.value = item.usedSold?.avg_price ?
-                    +item.usedSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE! : 0;
+                item.value = calculateValue(item);
                 item.valueDisplay = formatCurrency(item.value)!.toString().substring(1);
                 item.baseValue = item.value;
                 item.valueAdjustment = 0;

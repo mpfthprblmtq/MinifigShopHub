@@ -17,6 +17,7 @@ import YearAvailabilityCell from "../TableCells/YearAvailabilityCell";
 import BrickLinkSalesCells from "../TableCells/BrickLinkSalesCells";
 import ValueCell from "../TableCells/ValueCell";
 import IconsCell from "../TableCells/IconsCell";
+import {Availability} from "../../../model/salesStatus/Availability";
 
 interface TableComponentParams {
     items: Item[];
@@ -97,14 +98,19 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
      * @param item the item to check
      */
     const calculatePrice = (item: Item) => {
-        if (item.condition === Condition.USED && item.usedSold) {
-            item.value = item.usedSold?.avg_price ?
-                +item.usedSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE! : 0;
+        if (item.salesStatus?.availability === Availability.RETAIL && item.salesStatus.retailPrice) {
+            item.value = item.salesStatus.retailPrice * (item.condition === Condition.USED ? +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! : +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW!);
             item.baseValue = item.value;
-        } else if (item.condition === Condition.NEW && item.newSold) {
-            item.value = item.newSold?.avg_price ?
-                +item.newSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE! : 0;
-            item.baseValue = item.value;
+        } else {
+            if (item.condition === Condition.USED && item.usedSold) {
+                item.value = item.usedSold?.avg_price ?
+                    +item.usedSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE! : 0;
+                item.baseValue = item.value;
+            } else if (item.condition === Condition.NEW && item.newSold) {
+                item.value = item.newSold?.avg_price ?
+                    +item.newSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE! : 0;
+                item.baseValue = item.value;
+            }
         }
 
         if (item.valueAdjustment === 0) {
@@ -173,7 +179,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                                 }}/>
                                 <SetNumberCell item={item} />
                                 <StyledTableCell>{item.name}</StyledTableCell>
-                                <YearAvailabilityCell item={item} />
+                                <YearAvailabilityCell item={item} storeMode={storeMode} />
                                 <NewUsedToggleButtonCell item={item} handleConditionChange={handleConditionChange} />
                                 {storeMode && (
                                     <BrickLinkSalesCells item={item} />
@@ -181,7 +187,8 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                                 <ValueCell
                                     item={item}
                                     handleValueBlur={handleValueBlur}
-                                    handleValueChange={handleValueChange} />
+                                    handleValueChange={handleValueChange}
+                                    storeMode={storeMode} />
                                 {storeMode && (
                                     <ManualValueAdjustmentSliderCell item={item} handleSliderChange={handleSliderChange}/>
                                 )}

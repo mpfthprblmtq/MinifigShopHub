@@ -5,12 +5,13 @@ import {StyledTableCell} from "../TableComponent/TableComponent.styles";
 
 interface YearAvailabilityCellParams {
     item: Item;
+    storeMode: boolean;
 }
 
-const YearAvailabilityCell: FunctionComponent<YearAvailabilityCellParams> = ({item}) => {
+const YearAvailabilityCell: FunctionComponent<YearAvailabilityCellParams> = ({item, storeMode}) => {
     return (
-        <StyledTableCell color={item.salesStatus?.availability === Availability.RETAIL ? '#008B00' : 'black'}>
-            {item.year_released}<br/>{item.salesStatus?.availability ?? ''}
+        <StyledTableCell color={storeMode && item.salesStatus?.availability === Availability.RETAIL ? '#008B00' : 'black'}>
+            {item.year_released}<br/>{storeMode && (item.salesStatus?.availability ?? '')}
         </StyledTableCell>
     );
 };
