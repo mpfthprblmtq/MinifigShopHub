@@ -18,7 +18,7 @@ const ImageCell: FunctionComponent<ImageCellParams> = ({item, onClick}) => {
                     <img alt="bricklink-set-img" src={item.thumbnail_url} onClick={() => onClick(item)} />
                 )}
                 {item.source === Source.CUSTOM && item.type !== Type.OTHER && (
-                    <img src={`/assets/images/${item.type}.svg`} alt="set" width={55}/>
+                    <img src={`assets/images/${item.type}.svg`} alt={item.type} width={55}/>
                 )}
             </Box>
         </StyledTableCell>
