@@ -51,6 +51,11 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                 item.source = Source.BRICKLINK;
                 item.type = type;
 
+                // remove the "-1" for display purposes
+                if (new RegExp(".+-\\d").test(item.no ?? '')) {
+                    item.no = item.no?.substring(0, item.no?.length - 2);
+                }
+
                 // add the item with sales data to existing state
                 setItems([...items, item]);
 

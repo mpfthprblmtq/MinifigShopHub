@@ -1,8 +1,10 @@
 import React, {FunctionComponent} from "react";
 import {PriceDetail} from "../../../model/salesHistory/PriceDetail";
-import {Box, Card, Typography} from "@mui/material";
+import {Box, Card, Tooltip, Typography} from "@mui/material";
 import {formatCurrency} from "../../../utils/CurrencyUtils";
 import {formatDate} from "../../../utils/DateUtils";
+import {getCountryFromIso2Code} from "../../../utils/CountryUtils";
+import {htmlDecode} from "../../../utils/StringUtils";
 
 interface SalesDataParams {
     priceDetails?: PriceDetail[];
@@ -42,7 +44,9 @@ const SalesData: FunctionComponent<SalesDataParams> = ({priceDetails, isSalesDat
                                             </tr>
                                             <tr>
                                                 <td><Typography><strong>Sale Location:</strong></Typography></td>
-                                                <td><Typography>{priceDetail.seller_country_code} &rarr; {priceDetail.buyer_country_code}</Typography></td>
+                                                <Tooltip title={getCountryFromIso2Code(priceDetail.seller_country_code) + ' ' + htmlDecode('&rarr;') + ' ' + getCountryFromIso2Code(priceDetail.buyer_country_code)}>
+                                                    <td><Typography>{priceDetail.seller_country_code} &rarr; {priceDetail.buyer_country_code}</Typography></td>
+                                                </Tooltip>
                                             </tr>
                                         </table>
                                     </Box>
