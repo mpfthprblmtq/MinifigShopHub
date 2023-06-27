@@ -12,12 +12,18 @@ interface ItemCommentParams {
 const ItemCommentCell: FunctionComponent<ItemCommentParams> = ({item, storeMode, handleCommentChange}) => {
 
     const [editing, setEditing] = useState<boolean>(false);
+    const [comment, setComment] = useState<string>(item.comment ?? '');
+
+    const submitCommentChanges = () => {
+        setEditing(!editing);
+        handleCommentChange(comment, item.id);
+    }
 
     return (
         <StyledTableCell>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 {storeMode && (
-                    <Box sx={{ m: 1, position: 'relative' }} className={"clickable"} onClick={() => setEditing(!editing)}>
+                    <Box sx={{ m: 1, position: 'relative' }} className={"clickable"} onClick={submitCommentChanges}>
                         {editing ? <Check color={"success"} /> : <EditNote color={"primary"} />}
                     </Box>
                 )}
@@ -26,8 +32,16 @@ const ItemCommentCell: FunctionComponent<ItemCommentParams> = ({item, storeMode,
                         editing ?
                             <TextField
                                 size="small"
-                                value={item.comment}
-                                onChange={(event: any) => handleCommentChange(event, item.id)}/>
+                                value={comment}
+                                onKeyDown={(event) => {
+                                    if (event.key === 'Enter') {
+                                        submitCommentChanges();
+                                    }
+                                }}
+                                onChange={(event: any) => {
+                                    setComment(event.target.value);
+                                }}
+                            />
                             : <Typography fontSize={"inherit"}>{item.comment}</Typography>
                     ) : <Typography fontSize={"inherit"}>{item.comment}</Typography>}
                 </Box>

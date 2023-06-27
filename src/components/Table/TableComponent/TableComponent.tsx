@@ -138,11 +138,11 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
         }
     };
 
-    const handleCommentChange = (event: any, id: number) => {
+    const handleCommentChange = (comment: string, id: number) => {
         const newItems = [...items];
         const item = getItemWithId(newItems, id);
         if (item) {
-            item.comment = event.target.value;
+            item.comment = comment;
         }
         setItems(newItems);
     }
