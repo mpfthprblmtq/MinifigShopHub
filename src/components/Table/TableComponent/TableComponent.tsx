@@ -104,11 +104,11 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
         } else {
             if (item.condition === Condition.USED && item.usedSold) {
                 item.value = item.usedSold?.avg_price ?
-                    +item.usedSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE! : 0;
+                    +item.usedSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! : 0;
                 item.baseValue = item.value;
             } else if (item.condition === Condition.NEW && item.newSold) {
                 item.value = item.newSold?.avg_price ?
-                    +item.newSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE! : 0;
+                    +item.newSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! : 0;
                 item.baseValue = item.value;
             }
         }
