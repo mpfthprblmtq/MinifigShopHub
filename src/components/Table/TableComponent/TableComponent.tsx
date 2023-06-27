@@ -38,13 +38,15 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
      * @param id the id of the item to modify
      */
     const handleConditionChange = (condition: Condition, id: number) => {
-        const newItems = [...items];
-        const item = getItemWithId(newItems, id);
-        if (item) {
-            item.condition = condition;
-            calculatePrice(item);
+        if (condition) {
+            const newItems = [...items];
+            const item = getItemWithId(newItems, id);
+            if (item) {
+                item.condition = condition;
+                calculatePrice(item);
+            }
+            setItems(newItems);
         }
-        setItems(newItems);
     };
 
     /**
