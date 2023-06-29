@@ -100,14 +100,26 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
      * @param item the item to check
      */
     const calculatePrice = (item: Item) => {
+        // if the set is still available at retail
         if (item.salesStatus?.availability === Availability.RETAIL && item.salesStatus.retailPrice) {
-            item.value = item.salesStatus.retailPrice * (item.condition === Condition.USED ? +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! : +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW!);
+            // if the set is used, use BrickLink data to set value
+            if (item.condition === Condition.USED) {
+                item.value = item.usedSold?.avg_price ?
+                    +item.usedSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! : 0;
+            // else if the set is new, use MSRP to set value
+            } else if (item.condition === Condition.NEW) {
+                item.value = item.salesStatus.retailPrice * (+process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW!);
+            }
             item.baseValue = item.value;
+
+        // if the set is retired
         } else {
+            // if the set is used
             if (item.condition === Condition.USED && item.usedSold) {
                 item.value = item.usedSold?.avg_price ?
                     +item.usedSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! : 0;
                 item.baseValue = item.value;
+            // else if the set is new
             } else if (item.condition === Condition.NEW && item.newSold) {
                 item.value = item.newSold?.avg_price ?
                     +item.newSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! : 0;

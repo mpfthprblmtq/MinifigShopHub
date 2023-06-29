@@ -14,8 +14,16 @@
 
 *This is mostly so users can use it in the middle of development*
 
-- Added BrickEconomyService, which scrapes page data from the brickeconomy.com using a search url.  Grabs the availability ("Retail" and "Retired") and the MSRP of the set.  Added the availability to the Year column, and added a label on the Value column for MSRP if the set is currently available at retail.
+- Added BrickEconomyService, which scrapes page data from brickeconomy.com using a search url.  Grabs the availability ("Retail" and "Retired") and the MSRP of the set.  Added the availability to the Year column, and added a label on the Value column for MSRP if the set is currently available at retail.
 - Fixed a bug on the BrickLink search card where when you perform the search, the page would refresh, losing all the data on the screen (will fix the losing data on refresh in a later release with Redux)
 - Modified the currency inputs to have a better control on the inputs.  Before, you could put in commas and decimals anywhere and the app would accept it and throw errors.  Now it only accepts one decimal point and adds commas on blur automatically.
 - Added configuration for grayscale printing by default
 - Modified value calculations (50% for used sets, 60% for new sets), and took the retail availability into account
+
+### v0.1.2 - Interim Update 2
+
+- Added the ability to press enter on the comment field
+- Fixed a bug where you could set the condition to neither New nor Used
+- Made the More Information modal a static height, added the retail and MSRP to it, and made the ux a bit smoother
+- Modified value calculation, used retail availability sets should use BrickLink base price
+
