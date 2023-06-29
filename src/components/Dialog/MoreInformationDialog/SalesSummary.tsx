@@ -30,15 +30,19 @@ const SalesSummary: FunctionComponent<SalesSummaryParams> = ({salesHistory, isSa
             <Box sx={{ m: 1, position: 'relative'}}>
                 <table>
                     <tr>
-                        <td><Typography>
-                            <strong>{isSalesData ? 'Sales:' : 'Listings:'}</strong>
-                        </Typography></td>
+                        <td>
+                            <Typography>
+                                <strong>{isSalesData ? 'Sales:' : 'Listings:'}</strong>
+                            </Typography>
+                        </td>
                         <td><Typography>{salesHistory?.unit_quantity}</Typography></td>
                     </tr>
                     <tr>
-                        <td><Typography>
-                            <strong>{isSalesData ? 'Total Sold:' : 'Total Listed:'}</strong>
-                        </Typography></td>
+                        <td>
+                            <Typography>
+                                <strong>{isSalesData ? 'Total Sold:' : 'Total Listed:'}</strong>
+                            </Typography>
+                        </td>
                         <td><Typography>{salesHistory?.total_quantity}</Typography></td>
                     </tr>
                 </table>

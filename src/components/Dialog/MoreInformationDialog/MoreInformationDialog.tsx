@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import {Close} from "@mui/icons-material";
 import SalesHistoryAccordion from "./SalesHistoryAccordion";
+import {formatCurrency} from "../../../utils/CurrencyUtils";
 
 interface MoreInformationDialogParams {
     open: boolean;
@@ -22,7 +23,13 @@ interface MoreInformationDialogParams {
 const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({open, onClose, item}) => {
 
     return (
-        <Dialog open={open} onClose={onClose}>
+        <Dialog open={open} onClose={onClose} PaperProps={{
+            sx: {
+                width: "50%",
+                maxHeight: '80vh',
+                height: '80vh'
+            }
+        }}>
             <DialogTitle>Item Details for {item?.no}</DialogTitle>
             <Box position="absolute" top={0} right={0} onClick={onClose}>
                 <IconButton>
@@ -33,7 +40,7 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     {item?.image_url && item?.thumbnail_url && (
                         <Box sx={{ m: 1, position: 'relative' }}>
-                            <img width="150" alt="bricklink-set-img" src={item.image_url}/>
+                            <img width="200" alt="bricklink-set-img" src={item.image_url}/>
                         </Box>
                     )}
                     <Box sx={{ m: 1, position: 'relative' }}>
@@ -43,20 +50,28 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
                             <strong>Year: </strong>{item?.year_released}<br/>
                             <strong>Category: </strong>{item?.category_name}<br/>
                         </Typography>
+                        {item?.salesStatus?.availability && item.salesStatus.retailPrice && (
+                            <Typography style={{marginTop: 10}}>
+                                <strong>Availability: </strong>{item?.salesStatus?.availability}<br/>
+                                <strong>MSRP: </strong>{formatCurrency(item?.salesStatus?.retailPrice)}<br/>
+                            </Typography>
+                        )}
                     </Box>
                 </Box>
-                <SalesHistoryAccordion
-                    title={<Typography>Last 6 Months Sales <strong>(New)</strong></Typography>}
-                    salesHistory={item?.newSold} />
-                <SalesHistoryAccordion
-                    title={<Typography>Last 6 Months Sales <strong>(Used)</strong></Typography>}
-                    salesHistory={item?.usedSold} />
-                <SalesHistoryAccordion
-                    title={<Typography>Current Items For Sale <strong>(New)</strong></Typography>}
-                    salesHistory={item?.newStock} />
-                <SalesHistoryAccordion
-                    title={<Typography>Current Items For Sale <strong>(Used)</strong></Typography>}
-                    salesHistory={item?.usedStock} />
+                <Box marginTop={'10px'}>
+                    <SalesHistoryAccordion
+                        title={<Typography>Last 6 Months Sales <strong>(New)</strong></Typography>}
+                        salesHistory={item?.newSold} />
+                    <SalesHistoryAccordion
+                        title={<Typography>Last 6 Months Sales <strong>(Used)</strong></Typography>}
+                        salesHistory={item?.usedSold} />
+                    <SalesHistoryAccordion
+                        title={<Typography>Current Items For Sale <strong>(New)</strong></Typography>}
+                        salesHistory={item?.newStock} />
+                    <SalesHistoryAccordion
+                        title={<Typography>Current Items For Sale <strong>(Used)</strong></Typography>}
+                        salesHistory={item?.usedStock} />
+                </Box>
             </DialogContent>
             <DialogActions>
                 <Button variant="contained" onClick={onClose}>

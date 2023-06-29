@@ -59,7 +59,7 @@ const SalesHistoryAccordion: FunctionComponent<SalesHistoryAccordionParams> = ({
     };
 
     return (
-        <Accordion>
+        <Accordion TransitionProps={{timeout: 500}}>
             <AccordionSummary expandIcon={<ExpandMore />}>
                 {title}
             </AccordionSummary>
