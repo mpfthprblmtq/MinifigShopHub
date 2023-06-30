@@ -35,14 +35,17 @@ interface CurrencyTextInputParams {
     readonly?: boolean;
     onChange: (event: any) => void;
     onBlur: (event: any) => void;
+    color?: string;
 }
 
 const CurrencyTextInput: FunctionComponent<CurrencyTextInputParams> =
-    ({value, label, readonly, onChange, onBlur}) => {
+    ({value, label, readonly, onChange, onBlur, color}) => {
 
     return (
         <TextField
-            style={{backgroundColor: 'white'}}
+            sx={{
+                input: { color: color, backgroundColor: 'white' }
+            }}
             label={label ?? ''}
             value={value}
             onChange={onChange}

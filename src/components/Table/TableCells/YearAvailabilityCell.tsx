@@ -10,7 +10,7 @@ interface YearAvailabilityCellParams {
 
 const YearAvailabilityCell: FunctionComponent<YearAvailabilityCellParams> = ({item, storeMode}) => {
     return (
-        <StyledTableCell color={storeMode && item.salesStatus?.availability === Availability.RETAIL ? '#008B00' : 'black'}>
+        <StyledTableCell color={storeMode && item.salesStatus?.availability === Availability.RETAIL ? '#008000' : 'black'}>
             {item.year_released}<br/>{storeMode && (item.salesStatus?.availability ?? '')}
         </StyledTableCell>
     );

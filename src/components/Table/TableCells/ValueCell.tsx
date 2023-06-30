@@ -21,6 +21,7 @@ const ValueCell: FunctionComponent<ValueCellParams> = ({item, handleValueBlur, h
                     value={item.valueDisplay}
                     onChange={(event) => handleValueChange(event, item.id)}
                     onBlur={(event) => handleValueBlur(event, item.id)}
+                    color={storeMode && item.value > 100 ? '#800000' : 'black'}
                 />
             </div>
         </StyledTableCell>
