@@ -50,10 +50,10 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
                             <strong>Year: </strong>{item?.year_released}<br/>
                             <strong>Category: </strong>{item?.category_name}<br/>
                         </Typography>
-                        {item?.salesStatus?.availability && item.salesStatus.retailPrice && (
+                        {item?.retailStatus?.availability && item.retailStatus.retailPrice && (
                             <Typography style={{marginTop: 10}}>
-                                <strong>Availability: </strong>{item?.salesStatus?.availability}<br/>
-                                <strong>MSRP: </strong>{formatCurrency(item?.salesStatus?.retailPrice)}<br/>
+                                <strong>Availability: </strong>{item?.retailStatus?.availability}<br/>
+                                <strong>MSRP: </strong>{formatCurrency(item?.retailStatus?.retailPrice)}<br/>
                             </Typography>
                         )}
                     </Box>

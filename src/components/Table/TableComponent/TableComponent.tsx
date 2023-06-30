@@ -17,7 +17,7 @@ import YearAvailabilityCell from "../TableCells/YearAvailabilityCell";
 import BrickLinkSalesCells from "../TableCells/BrickLinkSalesCells";
 import ValueCell from "../TableCells/ValueCell";
 import IconsCell from "../TableCells/IconsCell";
-import {Availability} from "../../../model/salesStatus/Availability";
+import {Availability} from "../../../model/retailStatus/Availability";
 
 interface TableComponentParams {
     items: Item[];
@@ -101,14 +101,14 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
      */
     const calculatePrice = (item: Item) => {
         // if the set is still available at retail
-        if (item.salesStatus?.availability === Availability.RETAIL && item.salesStatus.retailPrice) {
+        if (item.retailStatus?.availability === Availability.RETAIL && item.retailStatus.retailPrice) {
             // if the set is used, use BrickLink data to set value
             if (item.condition === Condition.USED) {
                 item.value = item.usedSold?.avg_price ?
                     +item.usedSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! : 0;
             // else if the set is new, use MSRP to set value
             } else if (item.condition === Condition.NEW) {
-                item.value = item.salesStatus.retailPrice * (+process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW!);
+                item.value = item.retailStatus.retailPrice * (+process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW!);
             }
             item.baseValue = item.value;
 

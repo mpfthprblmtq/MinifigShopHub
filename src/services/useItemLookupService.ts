@@ -1,7 +1,7 @@
 import {Type} from "../model/shared/Type";
 import {Item} from "../model/item/Item";
 import {Category} from "../model/category/Category";
-import {SalesStatus} from "../model/salesStatus/SalesStatus";
+import {RetailStatus} from "../model/retailStatus/RetailStatus";
 import {AllSalesHistory} from "../model/salesHistory/AllSalesHistory";
 import {htmlDecode} from "../utils/StringUtils";
 import {useBrickEconomyService} from "./useBrickEconomyService";
@@ -17,7 +17,7 @@ export interface ItemLookupServiceHooks {
 export const useItemLookupService = (): ItemLookupServiceHooks => {
 
     const { getItem, getCategory, getAllSalesHistory } = useBrickLinkService();
-    const { getSaleStatus } = useBrickEconomyService();
+    const { getRetailStatus } = useBrickEconomyService();
 
     const getHydratedItem = async (id: string): Promise<Item> => {
 
@@ -27,21 +27,21 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
             // also acts as the error checking, if this fails, that means the set probably doesn't exist
             const item: Item = await getItem(id, type);
 
-            // then grab the category, salesStatus, and sales history
+            // then grab the category, retailStatus, and sales history
             if (item.category_id && item.no) {
                 await Promise.all(
                     [
                         getCategory(item.category_id),
-                        getSaleStatus(item.no),
+                        getRetailStatus(item.no),
                         getAllSalesHistory(item)
                     ]
                 ).then(itemHydrationData => {
                     const category: Category = itemHydrationData[0];
-                    const salesStatus: SalesStatus = itemHydrationData[1];
+                    const retailStatus: RetailStatus = itemHydrationData[1];
                     const allSalesHistory: AllSalesHistory = itemHydrationData[2];
 
                     item.category_name = category.category_name;
-                    item.salesStatus = salesStatus;
+                    item.retailStatus = retailStatus;
                     item.usedSold = allSalesHistory.usedSold;
                     item.usedStock = allSalesHistory.usedStock;
                     item.newSold = allSalesHistory.newSold;

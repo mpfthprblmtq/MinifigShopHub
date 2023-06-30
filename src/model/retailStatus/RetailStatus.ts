@@ -1,6 +1,6 @@
 import {Availability} from "./Availability";
 
-export interface SalesStatus {
+export interface RetailStatus {
     availability?: Availability;
     retailPrice?: number;
 }

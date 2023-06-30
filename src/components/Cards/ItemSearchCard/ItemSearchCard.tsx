@@ -136,7 +136,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
             </form>
             <Box>
                 {error &&
-                    <SetNameStyledTypography color={"red"}>{error}</SetNameStyledTypography>}
+                    <SetNameStyledTypography color={"#800000"}>{error}</SetNameStyledTypography>}
             </Box>
             <BulkLoadDialog
                 open={bulkLoadModalOpen}

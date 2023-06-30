@@ -1,14 +1,14 @@
-import {SalesStatus} from "../model/salesStatus/SalesStatus";
+import {RetailStatus} from "../model/retailStatus/RetailStatus";
 import axios from "axios";
 import * as cheerio from 'cheerio';
-import {Availability} from "../model/salesStatus/Availability";
+import {Availability} from "../model/retailStatus/Availability";
 import {launderMoney} from "../utils/CurrencyUtils";
 
 const corsProxyUrl: string = 'https://corsproxy.io/?';
 const baseUrl: string = 'https://www.brickeconomy.com/search?query=';
 
 export interface BrickEconomyHooks {
-    getSaleStatus: (id: string) => Promise<SalesStatus>;
+    getRetailStatus: (id: string) => Promise<RetailStatus>;
 }
 
 export const useBrickEconomyService = (): BrickEconomyHooks => {
@@ -20,18 +20,18 @@ export const useBrickEconomyService = (): BrickEconomyHooks => {
         headers: {}
     });
 
-    const getSaleStatus = async (id: string): Promise<SalesStatus> => {
-        const salesStatus: SalesStatus = {};
+    const getRetailStatus = async (id: string): Promise<RetailStatus> => {
+        const retailStatus: RetailStatus = {};
         try {
             const { data: pageSource } = await brickEconomyAxiosInstance.get(`${corsProxyUrl}${baseUrl}${id}`);
             await Promise.all([getAvailability(pageSource), getMSRP(pageSource)])
                 .then((results) => {
                     if (results[0]) {
-                        salesStatus.availability =
+                        retailStatus.availability =
                             results[0] === Availability.RETIRED ? Availability.RETIRED : Availability.RETAIL;
                     }
                     if (results[1]) {
-                        salesStatus.retailPrice = launderMoney(results[1]);
+                        retailStatus.retailPrice = launderMoney(results[1]);
                     }
                 });
 
@@ -39,7 +39,7 @@ export const useBrickEconomyService = (): BrickEconomyHooks => {
             console.error('Error occurred while scraping page!');
             console.error(error);
         }
-        return salesStatus;
+        return retailStatus;
 
     };
 
@@ -72,5 +72,5 @@ export const useBrickEconomyService = (): BrickEconomyHooks => {
         return '';
     };
 
-    return { getSaleStatus };
+    return { getRetailStatus };
 }
