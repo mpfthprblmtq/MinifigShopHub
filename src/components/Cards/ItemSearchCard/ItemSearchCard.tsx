@@ -4,14 +4,11 @@ import {green} from "@mui/material/colors";
 import {SetNameStyledTypography} from "../../Main/MainComponent.styles";
 import {Item} from "../../../model/item/Item";
 import {generateId} from "../../../utils/ArrayUtils";
-import {Condition} from "../../../model/shared/Condition";
-import {formatCurrency} from "../../../utils/CurrencyUtils";
-import {useBrickLinkService} from "../../../services/useBrickLinkService";
 import {Clear} from "@mui/icons-material";
 import {StyledCard} from "../Cards.styles";
-import {Source} from "../../../model/shared/Source";
 import {AxiosError} from "axios";
 import {Type} from "../../../model/shared/Type";
+import {useItemLookupService} from "../../../services/useItemLookupService";
 
 interface SetSearchCardParams {
     items: Item[];
@@ -26,7 +23,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
     const [labelText, setLabelText] = useState<string>('Set Number');
     const [error, setError] = useState<string>('');
 
-    const { getHydratedItem } = useBrickLinkService();
+    const { getHydratedItem } = useItemLookupService();
 
     /**
      * Main search method that searches for a set and sets all appropriate values
@@ -39,22 +36,8 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                 setLoading(false);
                 setError('');
 
-                // generate an id and some other default goodies
-                // by default, set the condition to used and use the average sold value for the value attribute
+                // set the id
                 item.id = generateId(items);
-                item.condition = Condition.USED;
-                item.value = item.usedSold?.avg_price ?
-                    +item.usedSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! : 0;
-                item.valueDisplay = formatCurrency(item.value)!.toString().substring(1);
-                item.baseValue = item.value;
-                item.valueAdjustment = 0;
-                item.source = Source.BRICKLINK;
-                item.type = type;
-
-                // remove the "-1" for display purposes
-                if (new RegExp(".+-\\d").test(item.no ?? '')) {
-                    item.no = item.no?.substring(0, item.no?.length - 2);
-                }
 
                 // add the item with sales data to existing state
                 setItems([...items, item]);
