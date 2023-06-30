@@ -26,8 +26,8 @@ const SalesData: FunctionComponent<SalesDataParams> = ({priceDetails, isSalesDat
         <Box>
             {priceDetails && priceDetails.length > 0 && (
                 <>
-                    {listToShow.map(priceDetail => (
-                        <Card style={{marginTop: "10px", backgroundColor: "#F5F5F5"}}>
+                    {listToShow.map((priceDetail, index) => (
+                        <Card style={{marginTop: "10px", backgroundColor: "#F5F5F5"}} key={index}>
                             <Box sx={{ display: 'flex' }}>
                                 <Box sx={{ m: 1, position: 'relative' }}>
                                     <table>

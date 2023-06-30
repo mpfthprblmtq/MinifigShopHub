@@ -11,7 +11,7 @@ import {formatCurrency} from "../utils/CurrencyUtils";
 import {Source} from "../model/shared/Source";
 
 export interface ItemLookupServiceHooks {
-    getHydratedItem: (id: string, itemType: Type) => Promise<Item>;
+    getHydratedItem: (id: string) => Promise<Item>;
 }
 
 export const useItemLookupService = (): ItemLookupServiceHooks => {
@@ -19,7 +19,9 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
     const { getItem, getCategory, getAllSalesHistory } = useBrickLinkService();
     const { getSaleStatus } = useBrickEconomyService();
 
-    const getHydratedItem = async (id: string, type: Type): Promise<Item> => {
+    const getHydratedItem = async (id: string): Promise<Item> => {
+
+        const type: Type = determineType(id);
         try {
             // get the main item data
             // also acts as the error checking, if this fails, that means the set probably doesn't exist
@@ -72,6 +74,13 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
             throw error;
         }
     }
+
+    const determineType = (id: string): Type => {
+        if (new RegExp("[a-zA-Z]+\\d+").test(id)) {
+            return Type.MINIFIG;
+        }
+        return Type.SET;
+    };
 
     return { getHydratedItem };
 };
