@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {Item} from "../../../model/item/Item";
-import {Tooltip} from "@mui/material";
-import {Delete, PlaylistAdd} from "@mui/icons-material";
+import {Box, Tooltip} from "@mui/material";
+import {Delete, InfoOutlined} from "@mui/icons-material";
 import {Source} from "../../../model/shared/Source";
 import {StyledTableCell} from "../TableComponent/TableComponent.styles";
 
@@ -14,14 +14,20 @@ interface IconsCellParams {
 const IconsCell: FunctionComponent<IconsCellParams> = ({item, onDelete, onShowMoreInfo}) => {
     return (
         <StyledTableCell>
-            <Tooltip title={"Delete Row"} className={"clickable"}>
-                <Delete fontSize={"large"} color={"error"} style={{padding: "5px"}} onClick={onDelete} />
-            </Tooltip>
-            {item.source === Source.BRICKLINK && (
-                <Tooltip title={"More Details"} className={"clickable"}>
-                    <PlaylistAdd fontSize={"large"} color={"primary"} style={{padding: "5px"}} onClick={onShowMoreInfo}/>
-                </Tooltip>
-            )}
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Box sx={{ m: 1, position: 'relative', padding: 0, margin: 0}} className={"clickable"}>
+                    <Tooltip title={"Delete Row"}>
+                        <Delete fontSize={"large"} color={"error"} onClick={onDelete} />
+                    </Tooltip>
+                </Box>
+                {item.source === Source.BRICKLINK && (
+                    <Box sx={{ m: 1, position: 'relative', padding: 0, margin: 0 }} className={"clickable"}>
+                        <Tooltip title={"More Details"}>
+                            <InfoOutlined fontSize={"large"} color={"primary"} onClick={onShowMoreInfo}/>
+                        </Tooltip>
+                    </Box>
+                )}
+            </Box>
         </StyledTableCell>
     );
 };

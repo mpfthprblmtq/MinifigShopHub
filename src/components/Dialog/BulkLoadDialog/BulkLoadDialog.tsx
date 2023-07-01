@@ -1,7 +1,7 @@
 import React, {FunctionComponent, useState} from "react";
 import {
     Box,
-    Button,
+    Button, CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
@@ -15,6 +15,7 @@ import {cleanTextAreaList, getNumberFromResponseUrl} from "../../../utils/String
 import {Item} from "../../../model/item/Item";
 import {useItemLookupService} from "../../../services/useItemLookupService";
 import {AxiosError} from "axios";
+import {green} from "@mui/material/colors";
 
 interface BulkLoadDialogParams {
     open: boolean;
@@ -24,12 +25,15 @@ interface BulkLoadDialogParams {
 
 const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose, addToItems}) => {
 
+    const [loading, setLoading] = useState<boolean>(false);
     const [setNumbers, setSetNumbers] = useState<string>('');
     const [hasError, setHasError] = useState<boolean>(false);
     const { getHydratedItem } = useItemLookupService();
 
     const loadItems = async () => {
-        const setNumberList: string[] = cleanTextAreaList(setNumbers).split(',');
+        setLoading(true);
+        const setNumberList: string[] =
+            cleanTextAreaList(setNumbers).split(',').filter(setNumber => setNumber);
         const items: Item[] = [];
         const errorItems: AxiosError[] = [];
 
@@ -69,6 +73,7 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
             setHasError(true);
             setSetNumbers(errorSetNumbers.join('\r\n'));
         }
+        setLoading(false);
     }
 
     return (
@@ -105,15 +110,37 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
                 />
             </DialogContent>
             <DialogActions style={{marginBottom: 10}}>
-                <Button variant="contained" onClick={() => {
-                    setSetNumbers('');
-                    onClose();
-                }}>
+                <Button
+                    variant="contained"
+                    disabled={loading}
+                    onClick={() => {
+                        setSetNumbers('');
+                        onClose();
+                    }}>
                     Cancel
                 </Button>
-                <Button color={"success"} variant="contained" onClick={loadItems}>
-                    Search
-                </Button>
+                <Box sx={{ m: 1, position: 'relative' }}>
+                    <Button
+                        color={"success"}
+                        variant="contained"
+                        onClick={loadItems}
+                        disabled={loading}>
+                        Search
+                    </Button>
+                    {loading && (
+                        <CircularProgress
+                            size={20}
+                            sx={{
+                                color: green[500],
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                marginTop: '-10px',
+                                marginLeft: '-10px',
+                            }}
+                        />
+                    )}
+                </Box>
             </DialogActions>
         </Dialog>
     )

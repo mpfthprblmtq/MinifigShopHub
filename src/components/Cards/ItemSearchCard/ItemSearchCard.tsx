@@ -4,7 +4,7 @@ import {green} from "@mui/material/colors";
 import {SetNameStyledTypography} from "../../Main/MainComponent.styles";
 import {Item} from "../../../model/item/Item";
 import {generateId} from "../../../utils/ArrayUtils";
-import {Clear, Reorder} from "@mui/icons-material";
+import {Clear, PlaylistAdd} from "@mui/icons-material";
 import {StyledCard} from "../Cards.styles";
 import {AxiosError} from "axios";
 import {useItemLookupService} from "../../../services/useItemLookupService";
@@ -128,7 +128,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                                     setBulkLoadModalOpen(true);
                                 }}
                                 style={{width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px"}}>
-                                <Reorder />
+                                <PlaylistAdd />
                             </Button>
                         </Tooltip>
                     </Box>
