@@ -10,6 +10,7 @@ import BrickLinkSearchCard from "../Cards/BrickLinkSearchCard/BrickLinkSearchCar
 import ConfirmResetCalculationsDialog from "../Dialog/ConfirmDialog/ConfirmResetCalculationsDialog";
 import {formatCurrency} from "../../utils/CurrencyUtils";
 import Version from "./Version";
+import {Condition} from "../../model/shared/Condition";
 
 interface TotalsRefProps {
     resetTotalsCalculations: () => void;
@@ -24,9 +25,11 @@ const MainComponent: FunctionComponent = () => {
 
     const resetCalculations = () => {
         items.forEach((item) => {
-            item.value = item.baseValue;
+            item.valueAdjustment = item.condition === Condition.USED ?
+                +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100 :
+                +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! * 100;
+            item.value = item.baseValue * (item.valueAdjustment / 100);
             item.valueDisplay = formatCurrency(item.value).toString().substring(1);
-            item.valueAdjustment = 0;
         });
         totalsRef.current.resetTotalsCalculations();
     };

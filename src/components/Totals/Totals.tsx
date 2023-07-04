@@ -32,14 +32,14 @@ const Totals = forwardRef(({items, storeMode}: TotalsSectionParams, totalsRef) =
     const [storeCreditValue, setStoreCreditValue] = useState<string>('');
 
     useEffect(() => {
-        setValue(items.reduce((sum, item) => sum + item.value, 0));
-        setBaseValue(items.reduce((sum, item) => sum + item.baseValue, 0));
+        const calculatedValue: number = items.reduce((sum, item) => sum + item.value, 0);
+        setValue(calculatedValue);
+        setBaseValue(calculatedValue);
     }, [items]);
 
     useEffect(() => {
         setValueDisplay(formatCurrency(value).toString().substring(1));
         setStoreCreditValue(formatCurrency(+process.env.REACT_APP_STORE_CREDIT_ADJUSTMENT! * value).toString().substring(1));
-        calculateAdjustment();
         // eslint-disable-next-line
     }, [value]);
 
@@ -65,30 +65,35 @@ const Totals = forwardRef(({items, storeMode}: TotalsSectionParams, totalsRef) =
     const handleValueBlur = (event: any) => {
         setValue(launderMoney(event.target.value));
         setValueDisplay(formatCurrency(event.target.value).toString().substring(1));
+        calculateAdjustment(launderMoney(event.target.value));
     };
 
     const handleSliderChange = (event: any) => {
         setValueAdjustment(event.target.value);
-        calculateTotal();
+        calculateTotal(event.target.value);
     };
 
     const handleSliderChangeCommitted = () => {
         calculateTotal();
     }
 
-    const calculateTotal = () => {
-        if (valueAdjustment === 0) {
-            setValue(baseValue);
+    const calculateTotal = (adjustment?: number) => {
+        if (adjustment !== undefined) {
+            setValue(adjustment === 0 ? baseValue : baseValue + (baseValue * (adjustment/100)));
         } else {
-            setValue(baseValue + (baseValue * (valueAdjustment/100)));
+            setValue(valueAdjustment === 0 ? baseValue : baseValue + (baseValue * (valueAdjustment/100)))
         }
     };
 
-    const calculateAdjustment = () => {
-        if (value < baseValue) {
-            setValueAdjustment(((value / baseValue) - 1) * 100);
-        } else if (value > baseValue) {
-            setValueAdjustment(((value - baseValue) / baseValue) * 100);
+    const calculateAdjustment = (newValue: number) => {
+        if (newValue === baseValue) {
+            setValueAdjustment(0);
+        } else if (newValue < baseValue) {
+            let valueAdjustment = ((newValue / baseValue) - 1) * 100;
+            setValueAdjustment(valueAdjustment);
+        } else {
+            let valueAdjustment = (1 - (baseValue / newValue)) * 100;
+            setValueAdjustment(valueAdjustment);
         }
     };
 

@@ -49,11 +49,11 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
 
                     // by default, set the condition to used and use the average sold value for the value attribute
                     item.condition = Condition.USED;
+                    item.baseValue = item.usedSold?.avg_price ? +item.usedSold.avg_price : 0;
                     item.value = item.usedSold?.avg_price ?
                         +item.usedSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! : 0;
                     item.valueDisplay = formatCurrency(item.value)!.toString().substring(1);
-                    item.baseValue = item.value;
-                    item.valueAdjustment = 0;
+                    item.valueAdjustment = +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100;
                     item.source = Source.BRICKLINK;
                     item.type = type;
 
