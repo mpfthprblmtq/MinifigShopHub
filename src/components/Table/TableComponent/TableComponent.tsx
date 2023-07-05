@@ -42,10 +42,18 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
             const newItems = [...items];
             const item = getItemWithId(newItems, id);
             if (item) {
-                if (condition === Condition.NEW) {
+                // if we're changing from used to new, and the existing valueAdjustment is the valueAdjustment for used,
+                // then change the valueAdjustment to the valueAdjustment for new
+                if (item.condition === Condition.USED && condition === Condition.NEW &&
+                    item.valueAdjustment === +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100) {
                     item.valueAdjustment = +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! * 100;
-                } else {
+                    // if we're changing from new to used, and the existing valueAdjustment is the valueAdjustment for new,
+                    // then change the valueAdjustment to the valueAdjustment for used
+                } else if (item.condition === Condition.NEW && condition === Condition.USED &&
+                    item.valueAdjustment === +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! * 100) {
                     item.valueAdjustment = +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100;
+                } else {
+                    // else just leave the value adjustment as it is
                 }
                 item.condition = condition;
                 calculatePrice(item);
@@ -63,7 +71,9 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
         const newItems = [...items];
         const item = getItemWithId(newItems, id);
         if (item) {
-            item.valueAdjustment = event.target.value;
+            item.valueAdjustment = +event.target.value
+                .toFixed(2)
+                .replace(".00", "");
             calculatePrice(item);
         }
         setItems(newItems);
@@ -128,7 +138,6 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                     +item.newSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! : 0;
             }
         }
-        // item.baseValue = item.value;
         item.value = item.baseValue * (item.valueAdjustment/100);
         item.valueDisplay = formatCurrency(item.value)!.toString().substring(1);
     };
@@ -139,7 +148,9 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
      * @param item the item to check
      */
     const calculateAdjustment = (item: Item) => {
-        item.valueAdjustment = (item.value / item.baseValue) * 100;
+        item.valueAdjustment = +((item.value / item.baseValue) * 100)
+            .toFixed(2)
+            .replace(".00", "");
     };
 
     const handleCommentChange = (comment: string, id: number) => {

@@ -11,6 +11,7 @@ import ConfirmResetCalculationsDialog from "../Dialog/ConfirmDialog/ConfirmReset
 import {formatCurrency} from "../../utils/CurrencyUtils";
 import Version from "./Version";
 import {Condition} from "../../model/shared/Condition";
+import SettingsDialog from "../Dialog/SettingsDialog/SettingsDialog";
 
 interface TotalsRefProps {
     resetTotalsCalculations: () => void;
@@ -22,9 +23,10 @@ const MainComponent: FunctionComponent = () => {
     const [items, setItems] = useState<Item[]>([]);
     const [storeMode, setStoreMode] = useState<boolean>(true);
     const [showConfirmResetCalculationsDialog, setShowConfirmResetCalculationsDialog] = useState<boolean>(false);
+    const [settingsDialogOpen, setSettingsDialogOpen] = useState<boolean>(false);
 
     const resetCalculations = () => {
-        items.forEach((item) => {
+        items.forEach(item => {
             item.valueAdjustment = item.condition === Condition.USED ?
                 +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100 :
                 +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! * 100;
@@ -32,6 +34,29 @@ const MainComponent: FunctionComponent = () => {
             item.valueDisplay = formatCurrency(item.value).toString().substring(1);
         });
         totalsRef.current.resetTotalsCalculations();
+    };
+
+    const setBulkCondition = (condition: Condition) => {
+        items.forEach(item => {
+            // if we're changing from used to new, and the existing valueAdjustment is the valueAdjustment for used,
+            // then change the valueAdjustment to the valueAdjustment for new
+            if (item.condition === Condition.USED && condition === Condition.NEW &&
+                item.valueAdjustment === +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100) {
+                item.valueAdjustment = +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! * 100;
+            // if we're changing from new to used, and the existing valueAdjustment is the valueAdjustment for new,
+            // then change the valueAdjustment to the valueAdjustment for used
+            } else if (item.condition === Condition.NEW && condition === Condition.USED &&
+                item.valueAdjustment === +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! * 100) {
+                item.valueAdjustment = +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100;
+            } else {
+                // else just leave the value adjustment as it is
+            }
+
+            item.condition = condition;
+            item.value = item.baseValue * (item.valueAdjustment / 100);
+            item.valueDisplay = formatCurrency(item.value).toString().substring(1);
+        });
+        setItems([...items]);
     };
 
     return (
@@ -60,8 +85,8 @@ const MainComponent: FunctionComponent = () => {
                     <ConfigurationCard
                         storeMode={storeMode}
                         setStoreMode={setStoreMode}
-                        resetCalculations={() => setShowConfirmResetCalculationsDialog(true)}
                         buttonsDisabled={!items || items.length === 0}
+                        setSettingsDialogOpen={setSettingsDialogOpen}
                     />
                 </Box>
             </Box>
@@ -74,7 +99,15 @@ const MainComponent: FunctionComponent = () => {
                 resetCalculations={() => {
                     setShowConfirmResetCalculationsDialog(false);
                     resetCalculations();
-                }} />
+                }}
+            />
+            <SettingsDialog
+                open={settingsDialogOpen}
+                onClose={() => setSettingsDialogOpen(false)}
+                resetCalculations={() => setShowConfirmResetCalculationsDialog(true)}
+                setBulkCondition={(condition) => {setBulkCondition(condition)}}
+                actionsDisabled={items.length === 0}
+            />
             <Version />
         </div>
     );
