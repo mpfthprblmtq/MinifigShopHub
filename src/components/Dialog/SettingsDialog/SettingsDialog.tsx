@@ -35,7 +35,11 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose,
 
     return (
         <Dialog open={open} onClose={closeDialog} sx={{width: 550, margin: 'auto'}}>
-            <DialogTitle>Settings</DialogTitle>
+            <DialogTitle>
+                <Typography style={{fontFamily: 'Didact Gothic', fontSize: '20px', marginBottom: '-20px'}}>
+                    Settings
+                </Typography>
+            </DialogTitle>
             <Box position="absolute" top={0} right={0} onClick={closeDialog}>
                 <IconButton>
                     <Close />

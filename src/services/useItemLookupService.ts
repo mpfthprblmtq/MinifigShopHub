@@ -11,7 +11,8 @@ import {formatCurrency} from "../utils/CurrencyUtils";
 import {Source} from "../model/shared/Source";
 
 export interface ItemLookupServiceHooks {
-    getHydratedItem: (id: string) => Promise<Item>;
+    getHydratedItem: (item: Item) => Promise<Item>;
+    getItemMatches: (id: string) => Promise<Item[]>;
 }
 
 export const useItemLookupService = (): ItemLookupServiceHooks => {
@@ -19,15 +20,39 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
     const { getItem, getCategory, getAllSalesHistory } = useBrickLinkService();
     const { getRetailStatus } = useBrickEconomyService();
 
-    const getHydratedItem = async (id: string): Promise<Item> => {
-
-        const type: Type = determineType(id);
+    const getItemMatches = async (id: string): Promise<Item[]> => {
         try {
-            // get the main item data
-            // also acts as the error checking, if this fails, that means the set probably doesn't exist
-            const item: Item = await getItem(id, type);
+            // get the first item with the id
+            // also acts as an error checker for bad ids given
+            const item: Item = await getItem(id, determineType(id));
 
-            // then grab the category, retailStatus, and sales history
+            // check to see if there are other sets by appending sequential numbers
+            const items: Item[] = [item];
+            let matchesFound: boolean = true;
+            let index: number = 2;
+            while (matchesFound) {
+                try {
+                    const setNumber: string = item.no!.split("-")[0] + "-" + index;
+                    const matchedItem = await getItem(setNumber, determineType(setNumber));
+                    if (matchedItem) {
+                        items.push(matchedItem);
+                        index++;
+                    }
+                } catch (error) {
+                    matchesFound = false;
+                }
+            }
+            return items;
+        } catch (error) {
+            // error handler for the first search, throws the error for the UI to catch (no items found with that id)
+            console.log(error);
+            throw error;
+        }
+    };
+
+    const getHydratedItem = async (item: Item): Promise<Item> => {
+        try {
+            // grab the category, retailStatus, and sales history from the given item
             if (item.category_id && item.no) {
                 await Promise.all(
                     [
@@ -55,7 +80,7 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
                     item.valueDisplay = formatCurrency(item.value)!.toString().substring(1);
                     item.valueAdjustment = +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100;
                     item.source = Source.BRICKLINK;
-                    item.type = type;
+                    item.type = determineType(item.no ?? '');
 
                     // remove the "-1" for display purposes
                     if (new RegExp(".+-\\d").test(item.no ?? '')) {
@@ -82,5 +107,5 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
         return Type.SET;
     };
 
-    return { getHydratedItem };
+    return { getHydratedItem, getItemMatches };
 };

@@ -4,11 +4,12 @@ import {green} from "@mui/material/colors";
 import {SetNameStyledTypography} from "../../Main/MainComponent.styles";
 import {Item} from "../../../model/item/Item";
 import {generateId} from "../../../utils/ArrayUtils";
-import {Clear, PlaylistAdd} from "@mui/icons-material";
+import {PlaylistAdd} from "@mui/icons-material";
 import {StyledCard} from "../Cards.styles";
 import {AxiosError} from "axios";
 import {useItemLookupService} from "../../../services/useItemLookupService";
 import BulkLoadDialog from "../../Dialog/BulkLoadDialog/BulkLoadDialog";
+import MultipleItemsFoundDialog from "../../Dialog/MultipleItemsFoundDialog/MultipleItemsFoundDialog";
 
 interface SetSearchCardParams {
     items: Item[];
@@ -22,7 +23,10 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
     const [error, setError] = useState<string>('');
     const [bulkLoadModalOpen, setBulkLoadModalOpen] = useState<boolean>(false);
 
-    const { getHydratedItem } = useItemLookupService();
+    const [multipleItemsDialogOpen, setMultipleItemsDialogOpen] = useState<boolean>(false);
+    const [multipleItems, setMultipleItems] = useState<Item[]>([]);
+
+    const { getHydratedItem, getItemMatches } = useItemLookupService();
 
     /**
      * Main search method that searches for a set and sets all appropriate values
@@ -30,33 +34,43 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
     const searchForSet = async () => {
         setLoading(true);
         setError('');
-        await getHydratedItem(setNumber)
-            .then((item: Item) => {
-                setLoading(false);
-                setError('');
 
-                // set the id
-                item.id = generateId(items);
+        await getItemMatches(setNumber).then(async (matches) => {
+            setLoading(false);
+            setError('');
 
-                // add the item with sales data to existing state
-                setItems([...items, item]);
+            // if there's only one match, get the hydration data and add it to the table
+            if (matches.length === 1) {
+                await getHydratedItem(matches[0])
+                    .then((item: Item) => {
+                        setLoading(false);
+                        setError('');
 
-                // update graphics
-                setLoading(false);
-                setSetNumber('');
+                        // set the id
+                        item.id = generateId(items);
 
-            }).catch((error: AxiosError) => {
-                console.error(error);
-                setLoading(false);
-                if (error.response?.status === 404) {
-                    setError(`Item not found: ${setNumber}`);
-                } else {
-                    setError("Issue with BrickLink service!");
-                }
-            });
+                        // add the item with sales data to existing state
+                        setItems([...items, item]);
+
+                        // update graphics
+                        setLoading(false);
+                        setSetNumber('');
+                    })
+            } else {
+                setMultipleItems(matches);
+                setMultipleItemsDialogOpen(true);
+            }
+        }).catch((error: AxiosError) => {
+            setLoading(false);
+            if (error.response?.status === 404) {
+                setError(`Item not found: ${setNumber}`);
+            } else {
+                setError("Issue with BrickLink service!");
+            }
+        });
     };
 
-    const addToItems = (itemsToAdd: Item[]) => {
+    const addItems = (itemsToAdd: Item[]) => {
         let nextId = generateId(items);
         itemsToAdd.forEach(item => {
             // set the id
@@ -65,18 +79,33 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
         });
 
         setItems([...items, ...itemsToAdd]);
-    }
+    };
+
+    const addMultipleMatchItems = (items: Item[]) => {
+        if (items && items.length !== 0) {
+            setMultipleItems(items);
+            setMultipleItemsDialogOpen(true);
+        }
+    };
+
+    const addItem = async (item: Item) => {
+        const itemToAdd = {...item};
+        await getHydratedItem(itemToAdd).then(hydratedItem => {
+            hydratedItem.id = generateId(items);
+            setItems([...items, hydratedItem]);
+        });
+    };
 
     return (
-        <StyledCard variant="outlined" sx={{minWidth: 400}}>
+        <StyledCard variant="outlined" sx={{width: 420}}>
             <SetNameStyledTypography>Add Set</SetNameStyledTypography>
             <form>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Box sx={{ m: 1, position: 'relative' }}>
+                    <Box sx={{ m: 1, position: 'relative', flexGrow: 4 }}>
                         <TextField
                             label={'Item ID'}
                             variant="outlined"
-                            sx={{backgroundColor: "white"}}
+                            sx={{backgroundColor: "white", width: '100%'}}
                             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                 setSetNumber(event.target.value);
                             }}
@@ -88,7 +117,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                             variant="contained"
                             disabled={loading || !setNumber}
                             onClick={searchForSet}
-                            style={{minWidth: "100px", height: "50px"}}
+                            sx={{minWidth: "100px", height: "50px"}}
                             type='submit'>
                             Search
                         </Button>
@@ -107,19 +136,6 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                         )}
                     </Box>
                     <Box sx={{ m: 1, position: 'relative' }}>
-                        <Button
-                            variant="contained"
-                            color="error"
-                            disabled={loading || !setNumber}
-                            onClick={() => {
-                                setSetNumber('');
-                                setError('');
-                            }}
-                            style={{width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px"}}>
-                            <Clear />
-                        </Button>
-                    </Box>
-                    <Box sx={{ m: 1, position: 'relative' }}>
                         <Tooltip title={'Bulk Load Items'}>
                             <Button
                                 variant="contained"
@@ -127,7 +143,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                                 onClick={() => {
                                     setBulkLoadModalOpen(true);
                                 }}
-                                style={{width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px"}}>
+                                style={{width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px", marginLeft: '5px'}}>
                                 <PlaylistAdd />
                             </Button>
                         </Tooltip>
@@ -141,7 +157,14 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
             <BulkLoadDialog
                 open={bulkLoadModalOpen}
                 onClose={() => setBulkLoadModalOpen(false)}
-                addToItems={addToItems} />
+                addItems={addItems}
+                addMultipleMatchItems={addMultipleMatchItems}
+            />
+            <MultipleItemsFoundDialog
+                open={multipleItemsDialogOpen}
+                onClose={() => setMultipleItemsDialogOpen(false)}
+                items={multipleItems}
+                addItem={addItem} />
         </StyledCard>
     )
 };

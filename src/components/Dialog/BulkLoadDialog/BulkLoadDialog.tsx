@@ -20,37 +20,46 @@ import {green} from "@mui/material/colors";
 interface BulkLoadDialogParams {
     open: boolean;
     onClose: () => void;
-    addToItems: (items: Item[]) => void;
+    addItems: (items: Item[]) => void;
+    addMultipleMatchItems: (items: Item[]) => void;
 }
 
-const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose, addToItems}) => {
+const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose, addItems, addMultipleMatchItems}) => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [setNumbers, setSetNumbers] = useState<string>('');
     const [hasError, setHasError] = useState<boolean>(false);
-    const { getHydratedItem } = useItemLookupService();
+    const { getItemMatches, getHydratedItem } = useItemLookupService();
 
     const loadItems = async () => {
         setLoading(true);
         const setNumberList: string[] =
             cleanTextAreaList(setNumbers).split(',').filter(setNumber => setNumber);
         const items: Item[] = [];
+        const itemsWithMultipleMatches: Item[] = [];
         const errorItems: AxiosError[] = [];
 
         while(setNumberList.length) {
             // 5 at a time
             await Promise.all(
                 setNumberList
-                    .splice(0,5)                   // handle 5 at a time
-                    .map(setNumber => getHydratedItem(setNumber))   // actual API call
-                    .map(p => p.catch(e => e)))                     // custom handler to set the response to the error
+                    .splice(0,5)
+                    .map(setNumber =>
+                        getItemMatches(setNumber)
+                        // getHydratedItem(setNumber)
+                    )
+                    .map(p => p.catch(e => e)))
                 .then(responses => {
                     responses.forEach(response => {
                         // check to see if the response type is an error or an item like we want
                         if (response instanceof AxiosError) {
                             errorItems.push(response);
                         } else {
-                            items.push(response);
+                            if (response.length === 1) {
+                                items.push(response[0]);
+                            } else {
+                                itemsWithMultipleMatches.push(...response);
+                            }
                         }
                     });
                 }).catch(error => {
@@ -59,7 +68,14 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
         }
 
         // add the items that worked to the items list
-        addToItems(items);
+        const hydratedItems: Item[] = [];
+        for (const item of items) {
+            await getHydratedItem(item).then(hydratedItem => hydratedItems.push(hydratedItem));
+        }
+        addItems(hydratedItems);
+
+        // add the items with multiple matches
+        addMultipleMatchItems(itemsWithMultipleMatches);
 
         // grabbing the set numbers from the error objects
         const errorSetNumbers: string[] = errorItems.map(e => getNumberFromResponseUrl(e.request.responseURL));
@@ -77,7 +93,7 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
     }
 
     return (
-        <Dialog open={open} onClose={onClose}
+        <Dialog open={open} onClose={onClose} disableScrollLock={true}
                 PaperProps={{
                     sx: {
                         width: "50vh",

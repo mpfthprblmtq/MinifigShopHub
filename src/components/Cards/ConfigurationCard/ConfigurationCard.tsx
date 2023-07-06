@@ -14,7 +14,7 @@ const ConfigurationCard: FunctionComponent<ConfigurationCardParams> =
     ({storeMode, setStoreMode, setSettingsDialogOpen, buttonsDisabled}) => {
 
     return (
-       <StyledCard variant="outlined" sx={{minHeight: 80, marginLeft: "5px", width: 450}} className={"hide-in-print-preview"}>
+       <StyledCard variant="outlined" sx={{minHeight: 80, marginLeft: "5px", width: 420}} className={"hide-in-print-preview"}>
            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
                <Box sx={{ m: 1, position: 'relative' }}>
                    <FormControlLabel control={
