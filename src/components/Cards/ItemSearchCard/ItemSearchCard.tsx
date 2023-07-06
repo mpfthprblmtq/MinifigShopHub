@@ -143,7 +143,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
                                 onClick={() => {
                                     setBulkLoadModalOpen(true);
                                 }}
-                                style={{width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px", marginLeft: '5px'}}>
+                                style={{width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px", marginRight: '5px'}}>
                                 <PlaylistAdd />
                             </Button>
                         </Tooltip>
