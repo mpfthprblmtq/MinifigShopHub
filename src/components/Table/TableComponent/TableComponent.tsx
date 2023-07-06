@@ -120,10 +120,10 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
             // if the set is used, use BrickLink data to set value
             if (item.condition === Condition.USED) {
                 item.value = item.usedSold?.avg_price ?
-                    +item.usedSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! : 0;
+                    +item.usedSold.avg_price * item.valueAdjustment / 100 : 0;
             // else if the set is new, use MSRP to set value
             } else if (item.condition === Condition.NEW) {
-                item.value = item.retailStatus.retailPrice * +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW!;
+                item.value = item.retailStatus.retailPrice * item.valueAdjustment / 100;
             }
 
         // if the set is retired
@@ -131,14 +131,14 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
             // if the set is used
             if (item.condition === Condition.USED && item.usedSold) {
                 item.value = item.usedSold?.avg_price ?
-                    +item.usedSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! : 0;
+                    +item.usedSold.avg_price * item.valueAdjustment / 100 : 0;
             // else if the set is new
             } else if (item.condition === Condition.NEW && item.newSold) {
                 item.value = item.newSold?.avg_price ?
-                    +item.newSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! : 0;
+                    +item.newSold.avg_price * item.valueAdjustment / 100 : 0;
             }
         }
-        item.value = item.baseValue * (item.valueAdjustment/100);
+        // item.value = item.baseValue * (item.valueAdjustment/100);
         item.valueDisplay = formatCurrency(item.value)!.toString().substring(1);
     };
 
@@ -148,6 +148,15 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
      * @param item the item to check
      */
     const calculateAdjustment = (item: Item) => {
+        if (item.retailStatus?.availability === Availability.RETAIL && item.retailStatus.retailPrice && item.condition === Condition.NEW) {
+            item.baseValue = item.retailStatus.retailPrice;
+        } else {
+            if (item.condition === Condition.USED) {
+                item.baseValue = item.usedSold?.avg_price ? +item.usedSold.avg_price : 0;
+            } else {
+                item.baseValue = item.newSold?.avg_price ? +item.newSold.avg_price : 0;
+            }
+        }
         item.valueAdjustment = +((item.value / item.baseValue) * 100)
             .toFixed(2)
             .replace(".00", "");
