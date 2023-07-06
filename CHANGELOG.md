@@ -27,7 +27,7 @@
 - Made the More Information modal a static height, added the retail and MSRP to it, and made the ux a bit smoother
 - Modified value calculation, used retail availability sets should use BrickLink base price
 
-### v0.2.0 - Functionality Implementation from First Feedback Session
+### v1.0.0 - Functionality Implementation from First Feedback Session
 
 - Added a bulk load dialog that accepts many set numbers and searches for them all
 - Removed Type dropdown on Item Search Card, so now it just checks against a regex.  If the id starts with letters then has numbers, it's a minifig, else it's a set.
