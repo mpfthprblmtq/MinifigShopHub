@@ -63,9 +63,10 @@ const Totals = forwardRef(({items, storeMode}: TotalsSectionParams, totalsRef) =
      * @param event the event to capture
      */
     const handleValueBlur = (event: any) => {
-        setValue(launderMoney(event.target.value));
-        setValueDisplay(formatCurrency(event.target.value).toString().substring(1));
-        calculateAdjustment(launderMoney(event.target.value));
+        const launderedValue: number = launderMoney(event.target.value);
+        setValue(launderedValue);
+        setValueDisplay(formatCurrency(launderedValue));
+        calculateAdjustment(launderedValue);
     };
 
     const handleSliderChange = (event: any) => {
@@ -98,72 +99,70 @@ const Totals = forwardRef(({items, storeMode}: TotalsSectionParams, totalsRef) =
     };
 
     return (
-        <>
-            <TableContainer style={{width: "100%", paddingTop: "40px"}}>
-                <Table size="small"
-                    sx={{
-                        [`& .${tableCellClasses.root}`]: {
-                            borderBottom: "none"
+        <TableContainer style={{width: "100%", paddingTop: "40px"}}>
+            <Table size="small"
+                sx={{
+                    [`& .${tableCellClasses.root}`]: {
+                        borderBottom: "none"
+                    }
+                }}>
+                <TableBody>
+                    <TableRow>
+                        <FixedWidthColumnHeading width={80} />
+                        <FixedWidthColumnHeading width={80} />
+                        <FixedWidthColumnHeading width={150} />
+                        <FixedWidthColumnHeading width={50} />
+                        <FixedWidthColumnHeading width={110} />
+                        {storeMode && (
+                            <>
+                                <FixedWidthColumnHeading width={100} />
+                                <FixedWidthColumnHeading width={100} />
+                            </>
+                        )}
+                        <FixedWidthColumnHeading width={120}>
+                            Total (Cash)
+                        </FixedWidthColumnHeading>
+                        {storeMode &&
+                            <FixedWidthColumnHeading width={200}>
+                                Total Adjustment
+                            </FixedWidthColumnHeading>
                         }
-                    }}>
-                    <TableBody>
-                        <TableRow>
-                            <FixedWidthColumnHeading width={80} />
-                            <FixedWidthColumnHeading width={80} />
-                            <FixedWidthColumnHeading width={150} />
-                            <FixedWidthColumnHeading width={50} />
-                            <FixedWidthColumnHeading width={110} />
-                            {storeMode && (
-                                <>
-                                    <FixedWidthColumnHeading width={100} />
-                                    <FixedWidthColumnHeading width={100} />
-                                </>
-                            )}
-                            <FixedWidthColumnHeading width={120}>
-                                Total (Cash)
-                            </FixedWidthColumnHeading>
-                            {storeMode &&
-                                <FixedWidthColumnHeading width={200}>
-                                    Total Adjustment
-                                </FixedWidthColumnHeading>
-                            }
+                        <FixedWidthColumnHeading width={200}>
+                            Total (Store Credit)
+                        </FixedWidthColumnHeading>
+                        <FixedWidthColumnHeading width={50} />
+                    </TableRow>
+                    <TableRow>
+                        <FixedWidthColumnHeading width={80} />
+                        <FixedWidthColumnHeading width={80} />
+                        <FixedWidthColumnHeading width={150} />
+                        <FixedWidthColumnHeading width={50} />
+                        <FixedWidthColumnHeading width={110} />
+                        {storeMode && (
+                            <>
+                                <FixedWidthColumnHeading width={100} />
+                                <FixedWidthColumnHeading width={100} />
+                            </>
+                        )}
+                        <FixedWidthColumnHeading width={120}>
+                            <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
+                                <CurrencyTextInput value={valueDisplay} onChange={handleValueChange} onBlur={handleValueBlur} />
+                            </div>
+                        </FixedWidthColumnHeading>
+                        {storeMode &&
                             <FixedWidthColumnHeading width={200}>
-                                Total (Store Credit)
-                            </FixedWidthColumnHeading>
-                            <FixedWidthColumnHeading width={50} />
-                        </TableRow>
-                        <TableRow>
-                            <FixedWidthColumnHeading width={80} />
-                            <FixedWidthColumnHeading width={80} />
-                            <FixedWidthColumnHeading width={150} />
-                            <FixedWidthColumnHeading width={50} />
-                            <FixedWidthColumnHeading width={110} />
-                            {storeMode && (
-                                <>
-                                    <FixedWidthColumnHeading width={100} />
-                                    <FixedWidthColumnHeading width={100} />
-                                </>
-                            )}
-                            <FixedWidthColumnHeading width={120}>
-                                <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
-                                    <CurrencyTextInput value={valueDisplay} onChange={handleValueChange} onBlur={handleValueBlur} />
-                                </div>
-                            </FixedWidthColumnHeading>
-                            {storeMode &&
-                                <FixedWidthColumnHeading width={200}>
-                                    <ManualTotalAdjustmentSlider value={valueAdjustment} handleSliderChange={handleSliderChange} handleSliderChangeCommitted={handleSliderChangeCommitted}/>
-                                </FixedWidthColumnHeading>}
-                            <FixedWidthColumnHeading width={200}>
-                                <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
-                                    <CurrencyTextInput value={storeCreditValue} onChange={() => {}} onBlur={() => {}} readonly/>
-                                </div>
-                            </FixedWidthColumnHeading>
-                            <FixedWidthColumnHeading width={100} />
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        </>
+                                <ManualTotalAdjustmentSlider value={valueAdjustment} handleSliderChange={handleSliderChange} handleSliderChangeCommitted={handleSliderChangeCommitted}/>
+                            </FixedWidthColumnHeading>}
+                        <FixedWidthColumnHeading width={200}>
+                            <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
+                                <CurrencyTextInput value={storeCreditValue} onChange={() => {}} onBlur={() => {}} readonly/>
+                            </div>
+                        </FixedWidthColumnHeading>
+                        <FixedWidthColumnHeading width={100} />
+                    </TableRow>
+                </TableBody>
+            </Table>
+        </TableContainer>
     );
 });
 

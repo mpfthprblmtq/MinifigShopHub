@@ -25,13 +25,13 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose,
 
     const [usedAutoAdjustmentPercentage, setUsedAutoAdjustmentPercentage] = useState<number>(50);
     const [newAutoAdjustmentPercentage, setNewAutoAdjustmentPercentage] = useState<number>(60);
-    const [storeCreditAdjustmentPercentage, setStoreCreditAdjustmentPercentage] = useState<number>(110);
+    const [storeCreditAdjustmentPercentage, setStoreCreditAdjustmentPercentage] = useState<number>(120);
     const [condition, setCondition] = useState<Condition>();
 
     const closeDialog = () => {
         setCondition(undefined);
         onClose();
-    }
+    };
 
     return (
         <Dialog open={open} onClose={closeDialog} sx={{width: 550, margin: 'auto'}} disableScrollLock={true}>
