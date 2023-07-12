@@ -1,7 +1,7 @@
 import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Typography} from "@mui/material";
 import {Close} from "@mui/icons-material";
 import {Item} from "../../../model/item/Item";
-import {FunctionComponent} from "react";
+import React, {FunctionComponent} from "react";
 
 interface ConfirmDialogParams {
     open: boolean;
@@ -20,8 +20,15 @@ const ConfirmItemDeleteDialog: FunctionComponent<ConfirmDialogParams> = ({open, 
                 </IconButton>
             </Box>
             <DialogContent>
-                <Typography>Are you sure you want to delete the following item?</Typography>
-                <Typography>{item?.no} - {item?.name}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center'}}>
+                    <Box sx={{ m: 1, position: 'relative' }}>
+                        <img width="150" alt="bricklink-set-img" src={item?.image_url}/>
+                    </Box>
+                    <Box sx={{ m: 1, position: 'relative' }}>
+                        <Typography>Are you sure you want to delete the following item?</Typography><br/>
+                        <Typography>{item?.no}<br/>{item?.name}</Typography>
+                    </Box>
+                </Box>
             </DialogContent>
             <DialogActions>
                 <Button variant="contained" onClick={onCancel}>

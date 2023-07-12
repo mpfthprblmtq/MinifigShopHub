@@ -8,14 +8,14 @@ import {AllSalesHistory} from "../model/salesHistory/AllSalesHistory";
 import {Category} from "../model/category/Category";
 import {CategoryResponse} from "../model/category/CategoryResponse";
 import {Type} from "../model/shared/Type";
-import {htmlDecode} from "../utils/StringUtils";
 import {filterOutOldDates} from "../utils/DateUtils";
 
 const corsProxyUrl: string = 'https://corsproxy.io/?';
 const baseUrl: string = "https://api.bricklink.com/api/store/v1";
 
 export interface BrickLinkHooks {
-    getHydratedItem: (id: string, itemType: Type) => Promise<Item>;
+    getItem: (id: string, type: Type) => Promise<Item>;
+    getCategory: (id: number) => Promise<Category>;
     getAllSalesHistory: (item: Item) => Promise<AllSalesHistory>;
 }
 
@@ -28,64 +28,27 @@ export const useBrickLinkService = (): BrickLinkHooks => {
         headers: {}
     });
 
-    const getHydratedItem = async (id: string, itemType: Type): Promise<Item> => {
-        try {
-            // get the main item data
-            const item: Item = await getItem(id, itemType);
-
-            // get the category
-            if (item.category_id) {
-                const category: Category = await getCategory(item.category_id);
-                item.category_name = category.category_name;
-            }
-
-            // html decode the item name since that's html encoded
-            item.name = htmlDecode(item.name);
-
-            // return the hydrated item
-            return item;
-        } catch (error) {
-            console.log(error);
-            throw error;
-        }
-    }
-
     /**
      * Get function that retrieves basic set information (name, year released, etc)
      * @param id the id of the set
-     * @param itemType the type of item to get
+     * @param type the type of item to get
      */
-    const getItem = async (id: string, itemType: Type): Promise<Item> => {
+    const getItem = async (id: string, type: Type): Promise<Item> => {
         // append a '-1' onto the end of the id, since that's how BrickLink stores their data
-        if (itemType === Type.SET && !id.match(".*-\\d+")) {
+        if (type === Type.SET && !id.match(".*-\\d+")) {
             id += "-1";
         }
 
         // build the request and authorization header
         const request = {
-            url: `${baseUrl}/items/${itemType}/${id}`,
+            url: `${baseUrl}/items/${type}/${id}`,
             method: 'GET'
         };
         const authHeader = getAuthHeader(request);
 
         // make the request
         return (await brickLinkAxiosInstance.get<ItemResponse>(
-            `${corsProxyUrl}${baseUrl}/items/${itemType}/${id}`,
-            {headers: authHeader}
-        )).data.data;
-    };
-
-    const getSalesHistory = async (id: string, itemType: Type, type: 'sold' | 'stock', state: 'U' | 'N'): Promise<SalesHistory> => {
-        // build the request and authorization header
-        const request = {
-            url: `${baseUrl}/items/${itemType}/${id}/price?guide_type=${type}&new_or_used=${state}`,
-            method: 'GET'
-        };
-        const authHeader = getAuthHeader(request);
-
-        // make the request
-        return (await brickLinkAxiosInstance.get<SalesHistoryResponse>(
-            `${corsProxyUrl}${baseUrl}/items/${itemType}/${id}/price?guide_type=${type}&new_or_used=${state}`,
+            `${corsProxyUrl}${baseUrl}/items/${type}/${id}`,
             {headers: authHeader}
         )).data.data;
     };
@@ -111,6 +74,21 @@ export const useBrickLinkService = (): BrickLinkHooks => {
         return allSalesHistory;
     };
 
+    const getSalesHistory = async (id: string, itemType: Type, type: 'sold' | 'stock', state: 'U' | 'N'): Promise<SalesHistory> => {
+        // build the request and authorization header
+        const request = {
+            url: `${baseUrl}/items/${itemType}/${id}/price?guide_type=${type}&new_or_used=${state}`,
+            method: 'GET'
+        };
+        const authHeader = getAuthHeader(request);
+
+        // make the request
+        return (await brickLinkAxiosInstance.get<SalesHistoryResponse>(
+            `${corsProxyUrl}${baseUrl}/items/${itemType}/${id}/price?guide_type=${type}&new_or_used=${state}`,
+            {headers: authHeader}
+        )).data.data;
+    };
+
     const getCategory = async (id: number): Promise<Category> => {
         // build the request and authorization header
         const request = {
@@ -126,6 +104,6 @@ export const useBrickLinkService = (): BrickLinkHooks => {
         )).data.data;
     }
 
-    return { getHydratedItem, getAllSalesHistory };
+    return { getItem, getCategory, getAllSalesHistory };
 };
 

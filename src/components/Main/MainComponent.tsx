@@ -1,7 +1,7 @@
 import React, {FunctionComponent, useRef, useState} from "react";
 import {Item} from "../../model/item/Item";
 import {Box} from "@mui/material";
-import TableComponent from "../Table/Table/TableComponent";
+import TableComponent from "../Table/TableComponent/TableComponent";
 import ItemSearchCard from "../Cards/ItemSearchCard/ItemSearchCard";
 import CustomItemCard from "../Cards/CustomItemCard/CustomItemCard";
 import Totals from "../Totals/Totals";
@@ -10,6 +10,8 @@ import BrickLinkSearchCard from "../Cards/BrickLinkSearchCard/BrickLinkSearchCar
 import ConfirmResetCalculationsDialog from "../Dialog/ConfirmDialog/ConfirmResetCalculationsDialog";
 import {formatCurrency} from "../../utils/CurrencyUtils";
 import Version from "./Version";
+import {Condition} from "../../model/shared/Condition";
+import SettingsDialog from "../Dialog/SettingsDialog/SettingsDialog";
 
 interface TotalsRefProps {
     resetTotalsCalculations: () => void;
@@ -21,14 +23,40 @@ const MainComponent: FunctionComponent = () => {
     const [items, setItems] = useState<Item[]>([]);
     const [storeMode, setStoreMode] = useState<boolean>(true);
     const [showConfirmResetCalculationsDialog, setShowConfirmResetCalculationsDialog] = useState<boolean>(false);
+    const [settingsDialogOpen, setSettingsDialogOpen] = useState<boolean>(false);
 
     const resetCalculations = () => {
-        items.forEach((item) => {
-            item.value = item.baseValue;
+        items.forEach(item => {
+            item.valueAdjustment = item.condition === Condition.USED ?
+                +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100 :
+                +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! * 100;
+            item.value = item.baseValue * (item.valueAdjustment / 100);
             item.valueDisplay = formatCurrency(item.value).toString().substring(1);
-            item.valueAdjustment = 0;
         });
         totalsRef.current.resetTotalsCalculations();
+    };
+
+    const setBulkCondition = (condition: Condition) => {
+        items.forEach(item => {
+            // if we're changing from used to new, and the existing valueAdjustment is the valueAdjustment for used,
+            // then change the valueAdjustment to the valueAdjustment for new
+            if (item.condition === Condition.USED && condition === Condition.NEW &&
+                item.valueAdjustment === +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100) {
+                item.valueAdjustment = +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! * 100;
+            // if we're changing from new to used, and the existing valueAdjustment is the valueAdjustment for new,
+            // then change the valueAdjustment to the valueAdjustment for used
+            } else if (item.condition === Condition.NEW && condition === Condition.USED &&
+                item.valueAdjustment === +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! * 100) {
+                item.valueAdjustment = +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100;
+            } else {
+                // else just leave the value adjustment as it is
+            }
+
+            item.condition = condition;
+            item.value = item.baseValue * (item.valueAdjustment / 100);
+            item.valueDisplay = formatCurrency(item.value).toString().substring(1);
+        });
+        setItems([...items]);
     };
 
     return (
@@ -57,8 +85,8 @@ const MainComponent: FunctionComponent = () => {
                     <ConfigurationCard
                         storeMode={storeMode}
                         setStoreMode={setStoreMode}
-                        resetCalculations={() => setShowConfirmResetCalculationsDialog(true)}
                         buttonsDisabled={!items || items.length === 0}
+                        setSettingsDialogOpen={setSettingsDialogOpen}
                     />
                 </Box>
             </Box>
@@ -71,7 +99,15 @@ const MainComponent: FunctionComponent = () => {
                 resetCalculations={() => {
                     setShowConfirmResetCalculationsDialog(false);
                     resetCalculations();
-                }} />
+                }}
+            />
+            <SettingsDialog
+                open={settingsDialogOpen}
+                onClose={() => setSettingsDialogOpen(false)}
+                resetCalculations={() => setShowConfirmResetCalculationsDialog(true)}
+                setBulkCondition={(condition) => {setBulkCondition(condition)}}
+                actionsDisabled={items.length === 0}
+            />
             <Version />
         </div>
     );

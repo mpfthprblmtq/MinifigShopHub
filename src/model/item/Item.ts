@@ -2,6 +2,7 @@ import {SalesHistory} from "../salesHistory/SalesHistory";
 import {Condition} from "../shared/Condition";
 import {Source} from "../shared/Source";
 import {Type} from "../shared/Type";
+import {RetailStatus} from "../retailStatus/RetailStatus";
 
 export interface Item {
     id: number;
@@ -20,6 +21,7 @@ export interface Item {
     comment?: string;
     source: Source;
     type: Type;
+    retailStatus?: RetailStatus;
     newStock?: SalesHistory;
     usedStock?: SalesHistory;
     newSold?: SalesHistory;

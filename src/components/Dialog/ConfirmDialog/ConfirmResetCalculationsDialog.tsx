@@ -10,7 +10,7 @@ interface ConfirmDialogParams {
 
 const ConfirmResetCalculationsDialog: FunctionComponent<ConfirmDialogParams> = ({open, onCancel, resetCalculations}) => {
     return (
-        <Dialog open={open} maxWidth="sm" fullWidth>
+        <Dialog open={open} maxWidth="sm">
             <DialogTitle>Confirm Reset Calculations</DialogTitle>
             <Box position="absolute" top={0} right={0} onClick={onCancel}>
                 <IconButton>

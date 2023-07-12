@@ -9,11 +9,11 @@ interface ManualTotalAdjustmentSliderParams {
 
 const ManualTotalAdjustmentSlider: FunctionComponent<ManualTotalAdjustmentSliderParams> = ({value, handleSliderChange, handleSliderChangeCommitted}) => {
     const marks = [
-        { value: 0, label: "|" },
-        { value: -100, label: "-100%" },
-        { value: 100, label: "+100%"},
         { value: -50, label: "-50%" },
-        { value: 50, label: "+50%" }
+        { value: -25, label: "-25%" },
+        { value: 0, label: "|" },
+        { value: 50, label: "+50%" },
+        { value: 25, label: "+25%" }
     ];
 
     /**
@@ -24,7 +24,6 @@ const ManualTotalAdjustmentSlider: FunctionComponent<ManualTotalAdjustmentSlider
     const formatSliderLabel = (value: number): string => {
         const label = value.toFixed(2);
         return label.replace(".00", "") + "%";
-        // return (value - Math.floor(value) === 0 ? value : value.toFixed(2)) + "%";
     };
 
     return (
@@ -34,9 +33,10 @@ const ManualTotalAdjustmentSlider: FunctionComponent<ManualTotalAdjustmentSlider
             valueLabelFormat={formatSliderLabel}
             defaultValue={0}
             marks={marks}
+            step={5}
             valueLabelDisplay="auto"
-            min={-100}
-            max={100}
+            min={-50}
+            max={50}
             value={value} />
     );
 };

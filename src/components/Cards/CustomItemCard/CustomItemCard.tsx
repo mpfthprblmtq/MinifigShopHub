@@ -1,13 +1,14 @@
 import React, {FunctionComponent, useState} from "react";
-import {Box, Button, FormControl, InputAdornment, InputLabel, MenuItem, Select, TextField} from "@mui/material";
+import {Box, Button, FormControl, InputLabel, MenuItem, Select, TextField} from "@mui/material";
 import {SetNameStyledTypography} from "../../Main/MainComponent.styles";
-import {formatCurrency, isNumeric, launderMoney} from "../../../utils/CurrencyUtils";
+import {formatCurrency, launderMoney} from "../../../utils/CurrencyUtils";
 import {Item} from "../../../model/item/Item";
 import {StyledCard} from "../Cards.styles";
 import {generateId} from "../../../utils/ArrayUtils";
 import {Source} from "../../../model/shared/Source";
 import {Condition} from "../../../model/shared/Condition";
 import {Type} from "../../../model/shared/Type";
+import CurrencyTextInput from "../../_shared/CurrencyTextInput/CurrencyTextInput";
 
 interface CustomItemCardParams {
     items: Item[];
@@ -74,22 +75,11 @@ const CustomItemCard: FunctionComponent<CustomItemCardParams> = ({items, setItem
                         </FormControl>
                     </Box>
                     <Box sx={{ m: 1, position: 'relative' }}>
-                        <TextField
-                            label="Value"
+                        <CurrencyTextInput
                             value={value}
-                            sx={{backgroundColor: "white"}}
-                            InputProps={{
-                                startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                            }}
-                            id="custom-item-field"
-                            onBlur={(event) => {
-                                setValue(formatCurrency(launderMoney(event.target.value))!.toString().substring(1));
-                            }}
-                            onChange={(event) => {
-                                if (isNumeric(event.target.value)) {
-                                    setValue(event.target.value);
-                                }
-                            }}/>
+                            label='Value'
+                            onChange={(event) => setValue(event.target.value)}
+                            onBlur={() => {}} />
                     </Box>
                     <Box sx={{ m: 1, position: 'relative' }}>
                         <Button

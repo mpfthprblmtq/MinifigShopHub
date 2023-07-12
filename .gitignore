@@ -134,3 +134,5 @@ dist
 /.idea/vcs.xml
 /.idea/workspace.xml
 /build/
+/.idea/.gitignore
+/build.zip

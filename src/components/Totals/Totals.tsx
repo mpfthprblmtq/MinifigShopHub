@@ -1,17 +1,16 @@
 import React, {forwardRef, useEffect, useImperativeHandle, useState} from "react";
 import {
-    InputAdornment,
-    OutlinedInput,
     Table,
     TableBody,
     tableCellClasses,
     TableContainer,
     TableRow
 } from "@mui/material";
-import {FixedWidthColumnHeading} from "../Table/Table/TableComponent.styles";
+import {FixedWidthColumnHeading} from "../Table/TableComponent/TableComponent.styles";
 import {Item} from "../../model/item/Item";
-import {formatCurrency, isNumeric, launderMoney} from "../../utils/CurrencyUtils";
+import {formatCurrency, launderMoney} from "../../utils/CurrencyUtils";
 import ManualTotalAdjustmentSlider from "./ManualTotalAdjustmentSlider";
+import CurrencyTextInput from "../_shared/CurrencyTextInput/CurrencyTextInput";
 
 interface TotalsSectionParams {
     items: Item[];
@@ -33,14 +32,14 @@ const Totals = forwardRef(({items, storeMode}: TotalsSectionParams, totalsRef) =
     const [storeCreditValue, setStoreCreditValue] = useState<string>('');
 
     useEffect(() => {
-        setValue(items.reduce((sum, item) => sum + item.value, 0));
-        setBaseValue(items.reduce((sum, item) => sum + item.baseValue, 0));
+        const calculatedValue: number = items.reduce((sum, item) => sum + item.value, 0);
+        setValue(calculatedValue);
+        setBaseValue(calculatedValue);
     }, [items]);
 
     useEffect(() => {
         setValueDisplay(formatCurrency(value).toString().substring(1));
         setStoreCreditValue(formatCurrency(+process.env.REACT_APP_STORE_CREDIT_ADJUSTMENT! * value).toString().substring(1));
-        calculateAdjustment();
         // eslint-disable-next-line
     }, [value]);
 
@@ -56,9 +55,7 @@ const Totals = forwardRef(({items, storeMode}: TotalsSectionParams, totalsRef) =
      * @param event the event to capture
      */
     const handleValueChange = (event: any) => {
-        if (isNumeric(event.target.value)) {
-            setValueDisplay(event.target.value);
-        }
+        setValueDisplay(event.target.value);
     };
 
     /**
@@ -68,52 +65,40 @@ const Totals = forwardRef(({items, storeMode}: TotalsSectionParams, totalsRef) =
     const handleValueBlur = (event: any) => {
         setValue(launderMoney(event.target.value));
         setValueDisplay(formatCurrency(event.target.value).toString().substring(1));
-    };
-
-    const handleStoreCreditValueChange = (event: any) => {
-        if (isNumeric(event.target.value)) {
-            setStoreCreditValue(event.target.value);
-        }
-    };
-
-    /**
-     * Event handler for the blur event on the value text field, just cleans up the value display mostly
-     * @param event the event to capture
-     */
-    const handleStoreCreditValueBlur = (event: any) => {
-        setStoreCreditValue(formatCurrency(event.target.value).toString().substring(1));
+        calculateAdjustment(launderMoney(event.target.value));
     };
 
     const handleSliderChange = (event: any) => {
         setValueAdjustment(event.target.value);
-        calculateTotal();
+        calculateTotal(event.target.value);
     };
 
     const handleSliderChangeCommitted = () => {
         calculateTotal();
     }
 
-    const calculateTotal = () => {
-        if (valueAdjustment === 0) {
-            setValue(baseValue);
+    const calculateTotal = (adjustment?: number) => {
+        if (adjustment !== undefined) {
+            setValue(adjustment === 0 ? baseValue : baseValue + (baseValue * (adjustment/100)));
         } else {
-            setValue(baseValue + (baseValue * (valueAdjustment/100)));
+            setValue(valueAdjustment === 0 ? baseValue : baseValue + (baseValue * (valueAdjustment/100)))
         }
     };
 
-    const calculateAdjustment = () => {
-        if (value < baseValue) {
-            setValueAdjustment(((value / baseValue) - 1) * 100);
-        } else if (value > baseValue) {
-            setValueAdjustment(((value - baseValue) / baseValue) * 100);
+    const calculateAdjustment = (newValue: number) => {
+        if (newValue === baseValue) {
+            setValueAdjustment(0);
+        } else if (newValue < baseValue) {
+            let valueAdjustment = ((newValue / baseValue) - 1) * 100;
+            setValueAdjustment(valueAdjustment);
+        } else {
+            let valueAdjustment = (1 - (baseValue / newValue)) * 100;
+            setValueAdjustment(valueAdjustment);
         }
     };
 
     return (
         <>
-            {/*<div style={{position: 'absolute', marginTop: "20px"}}>*/}
-            {/*    <ConfigurationCard storeMode={storeMode} setStoreMode={}*/}
-            {/*</div>*/}
             <TableContainer style={{width: "100%", paddingTop: "40px"}}>
                 <Table size="small"
                     sx={{
@@ -160,26 +145,18 @@ const Totals = forwardRef(({items, storeMode}: TotalsSectionParams, totalsRef) =
                                 </>
                             )}
                             <FixedWidthColumnHeading width={120}>
-                                <OutlinedInput
-                                    style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}
-                                    startAdornment={<InputAdornment position="start">$</InputAdornment>}
-                                    value={valueDisplay}
-                                    onChange={handleValueChange}
-                                    onBlur={handleValueBlur}
-                                />
+                                <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
+                                    <CurrencyTextInput value={valueDisplay} onChange={handleValueChange} onBlur={handleValueBlur} />
+                                </div>
                             </FixedWidthColumnHeading>
                             {storeMode &&
                                 <FixedWidthColumnHeading width={200}>
                                     <ManualTotalAdjustmentSlider value={valueAdjustment} handleSliderChange={handleSliderChange} handleSliderChangeCommitted={handleSliderChangeCommitted}/>
                                 </FixedWidthColumnHeading>}
                             <FixedWidthColumnHeading width={200}>
-                                <OutlinedInput
-                                    style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}
-                                    startAdornment={<InputAdornment position="start">$</InputAdornment>}
-                                    value={storeCreditValue}
-                                    onChange={handleStoreCreditValueChange}
-                                    onBlur={handleStoreCreditValueBlur}
-                                />
+                                <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
+                                    <CurrencyTextInput value={storeCreditValue} onChange={() => {}} onBlur={() => {}} readonly/>
+                                </div>
                             </FixedWidthColumnHeading>
                             <FixedWidthColumnHeading width={100} />
                         </TableRow>
