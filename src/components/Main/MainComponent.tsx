@@ -1,17 +1,17 @@
 import React, {FunctionComponent, useRef, useState} from "react";
 import {Item} from "../../model/item/Item";
-import {Box} from "@mui/material";
+import {Box, Typography} from "@mui/material";
 import TableComponent from "../Table/TableComponent/TableComponent";
 import ItemSearchCard from "../Cards/ItemSearchCard/ItemSearchCard";
 import CustomItemCard from "../Cards/CustomItemCard/CustomItemCard";
 import Totals from "../Totals/Totals";
 import ConfigurationCard from "../Cards/ConfigurationCard/ConfigurationCard";
 import BrickLinkSearchCard from "../Cards/BrickLinkSearchCard/BrickLinkSearchCard";
-import ConfirmResetCalculationsDialog from "../Dialog/ConfirmDialog/ConfirmResetCalculationsDialog";
 import {formatCurrency} from "../../utils/CurrencyUtils";
 import Version from "./Version";
 import {Condition} from "../../model/shared/Condition";
 import SettingsDialog from "../Dialog/SettingsDialog/SettingsDialog";
+import ConfirmDialog from "../_shared/ConfirmDialog/ConfirmDialog";
 
 interface TotalsRefProps {
     resetTotalsCalculations: () => void;
@@ -93,13 +93,17 @@ const MainComponent: FunctionComponent = () => {
             {items.length > 0 && (
                 <Totals items={items} storeMode={storeMode} ref={totalsRef} />
             )}
-            <ConfirmResetCalculationsDialog
+            <ConfirmDialog
+                title='Confirm Reset Calculations'
+                confirmText='Reset'
+                confirmButtonColor='error'
                 open={showConfirmResetCalculationsDialog}
-                onCancel={() => setShowConfirmResetCalculationsDialog(false)}
-                resetCalculations={() => {
+                onClose={() => setShowConfirmResetCalculationsDialog(false)}
+                onConfirm={() => {
                     setShowConfirmResetCalculationsDialog(false);
                     resetCalculations();
                 }}
+                content={<Typography>Are you sure you want to reset all calculations?  This cannot be undone.</Typography>}
             />
             <SettingsDialog
                 open={settingsDialogOpen}

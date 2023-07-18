@@ -6,10 +6,9 @@ import {FixedWidthColumnHeading, StyledTableCell} from "./TableComponent.styles"
 import {Item} from "../../../model/item/Item";
 import {Condition} from "../../../model/shared/Condition";
 import ManualValueAdjustmentSliderCell from "../TableCells/ManualValueAdjustmentSliderCell";
-import ImageDialog from "../../Dialog/ImageDialog/ImageDialog";
 import {getItemWithId} from "../../../utils/ArrayUtils";
 import ItemCommentCell from "../TableCells/ItemCommentCell";
-import ConfirmItemDeleteDialog from "../../Dialog/ConfirmDialog/ConfirmItemDeleteDialog";
+import ConfirmItemDeleteDialog from "../../Dialog/ConfirmItemDeleteDialog/ConfirmItemDeleteDialog";
 import MoreInformationDialog from "../../Dialog/MoreInformationDialog/MoreInformationDialog";
 import ImageCell from "../TableCells/ImageCell";
 import SetNumberCell from "../TableCells/SetNumberCell";
@@ -18,6 +17,7 @@ import BrickLinkSalesCells from "../TableCells/BrickLinkSalesCells";
 import ValueCell from "../TableCells/ValueCell";
 import IconsCell from "../TableCells/IconsCell";
 import {Availability} from "../../../model/retailStatus/Availability";
+import InformationDialog from "../../_shared/InformationDialog/InformationDialog";
 
 interface TableComponentParams {
     items: Item[];
@@ -138,7 +138,6 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                     +item.newSold.avg_price * item.valueAdjustment / 100 : 0;
             }
         }
-        // item.value = item.baseValue * (item.valueAdjustment/100);
         item.valueDisplay = formatCurrency(item.value)!.toString().substring(1);
     };
 
@@ -235,10 +234,14 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                     </TableBody>
                 </Table>
             </TableContainer>
-            <ImageDialog open={showImageDialog && focusedItem !== undefined} item={focusedItem!} onClose={() => {
-                setFocusedItem(undefined);
-                setShowImageDialog(false);
-            }}/>
+            <InformationDialog
+                open={showImageDialog && focusedItem !== undefined}
+                onClose={() => {
+                    setFocusedItem(undefined);
+                    setShowImageDialog(false);
+                }}
+                title={focusedItem?.name ?? ''}
+                content={<img src={focusedItem?.image_url} alt="bricklink-img" />} />
             <ConfirmItemDeleteDialog
                 open={showDeleteDialog && focusedItem !== undefined}
                 item={focusedItem}
