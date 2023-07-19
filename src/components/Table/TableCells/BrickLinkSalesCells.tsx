@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {Item} from "../../../model/item/Item";
 import {StyledTableCell} from "../TableComponent/TableComponent.styles";
-import {Source} from "../../../model/shared/Source";
+import {Source} from "../../../model/_shared/Source";
 import {Box, Tooltip} from "@mui/material";
 import {formatCurrency} from "../../../utils/CurrencyUtils";
 
@@ -13,7 +13,8 @@ const BrickLinkSalesCells: FunctionComponent<BrickLinkSalesCellsParams> = ({item
     return (
         <>
             <StyledTableCell>
-                {item.source === Source.BRICKLINK && (
+                {item.source === Source.BRICKLINK
+                    && item.newSold?.price_detail && item.newSold.price_detail.length > 0 && (
                     <Tooltip title={`Based on ${item.newSold?.unit_quantity} sales`}>
                         <Box style={{color: item.newSold?.unit_quantity && item.newSold?.unit_quantity >= 10 ? '#008000' : '#BD0000'}}>
                             Min: {formatCurrency(item.newSold?.min_price)}<br/>
@@ -24,7 +25,8 @@ const BrickLinkSalesCells: FunctionComponent<BrickLinkSalesCellsParams> = ({item
                 )}
             </StyledTableCell>
             <StyledTableCell>
-                {item.source === Source.BRICKLINK && (
+                {item.source === Source.BRICKLINK
+                    && item.usedSold?.price_detail && item.usedSold.price_detail.length > 0 && (
                     <Tooltip title={`Based on ${item.usedSold?.unit_quantity} sales`}>
                         <Box style={{color: item.usedSold?.unit_quantity && item.usedSold?.unit_quantity >= 10 ? '#008000' : '#BD0000'}}>
                             Min: {formatCurrency(item.usedSold?.min_price)}<br/>

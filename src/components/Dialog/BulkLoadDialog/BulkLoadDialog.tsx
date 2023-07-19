@@ -13,7 +13,7 @@ import {
 import {Close} from "@mui/icons-material";
 import {cleanTextAreaList, getNumberFromResponseUrl} from "../../../utils/StringUtils";
 import {Item} from "../../../model/item/Item";
-import {useItemLookupService} from "../../../services/useItemLookupService";
+import {useItemLookupService} from "../../../hooks/useItemLookupService";
 import {AxiosError} from "axios";
 import {green} from "@mui/material/colors";
 

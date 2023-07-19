@@ -7,7 +7,7 @@ import {generateId} from "../../../utils/ArrayUtils";
 import {PlaylistAdd} from "@mui/icons-material";
 import {StyledCard} from "../Cards.styles";
 import {AxiosError} from "axios";
-import {useItemLookupService} from "../../../services/useItemLookupService";
+import {useItemLookupService} from "../../../hooks/useItemLookupService";
 import BulkLoadDialog from "../../Dialog/BulkLoadDialog/BulkLoadDialog";
 import MultipleItemsFoundDialog from "../../Dialog/MultipleItemsFoundDialog/MultipleItemsFoundDialog";
 
@@ -36,15 +36,10 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
         setError('');
 
         await getItemMatches(setNumber).then(async (matches) => {
-            setLoading(false);
-            setError('');
-
             // if there's only one match, get the hydration data and add it to the table
             if (matches.length === 1) {
                 await getHydratedItem(matches[0])
                     .then((item: Item) => {
-                        setLoading(false);
-                        setError('');
 
                         // set the id
                         item.id = generateId(items);

@@ -1,7 +1,7 @@
 import {SalesHistory} from "../salesHistory/SalesHistory";
-import {Condition} from "../shared/Condition";
-import {Source} from "../shared/Source";
-import {Type} from "../shared/Type";
+import {Condition} from "../_shared/Condition";
+import {Source} from "../_shared/Source";
+import {Type} from "../_shared/Type";
 import {RetailStatus} from "../retailStatus/RetailStatus";
 
 export interface Item {

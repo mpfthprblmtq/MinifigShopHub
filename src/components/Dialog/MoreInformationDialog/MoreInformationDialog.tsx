@@ -59,18 +59,26 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
                     </Box>
                 </Box>
                 <Box marginTop={'10px'}>
-                    <SalesHistoryAccordion
-                        title={<Typography>Last 6 Months Sales <strong>(New)</strong></Typography>}
-                        salesHistory={item?.newSold} />
-                    <SalesHistoryAccordion
-                        title={<Typography>Last 6 Months Sales <strong>(Used)</strong></Typography>}
-                        salesHistory={item?.usedSold} />
-                    <SalesHistoryAccordion
-                        title={<Typography>Current Items For Sale <strong>(New)</strong></Typography>}
-                        salesHistory={item?.newStock} />
-                    <SalesHistoryAccordion
-                        title={<Typography>Current Items For Sale <strong>(Used)</strong></Typography>}
-                        salesHistory={item?.usedStock} />
+                    {item?.newSold && (
+                        <SalesHistoryAccordion
+                            title={<Typography>Last 6 Months Sales <strong>(New)</strong></Typography>}
+                            salesHistory={item?.newSold} />
+                    )}
+                    {item?.usedSold && (
+                        <SalesHistoryAccordion
+                            title={<Typography>Last 6 Months Sales <strong>(Used)</strong></Typography>}
+                            salesHistory={item?.usedSold} />
+                    )}
+                    {item?.newStock && (
+                        <SalesHistoryAccordion
+                            title={<Typography>Current Items For Sale <strong>(New)</strong></Typography>}
+                            salesHistory={item?.newStock} />
+                    )}
+                    {item?.usedStock && (
+                        <SalesHistoryAccordion
+                            title={<Typography>Current Items For Sale <strong>(Used)</strong></Typography>}
+                            salesHistory={item?.usedStock} />
+                    )}
                 </Box>
             </DialogContent>
             <DialogActions>

@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {ToggleButton, ToggleButtonGroup, Typography} from "@mui/material";
 import {Item} from "../../../model/item/Item";
-import {Condition} from "../../../model/shared/Condition";
+import {Condition} from "../../../model/_shared/Condition";
 import {StyledTableCell} from "../TableComponent/TableComponent.styles";
 
 interface NewUsedToggleButtonParams {

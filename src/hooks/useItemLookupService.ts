@@ -1,4 +1,4 @@
-import {Type} from "../model/shared/Type";
+import {Type} from "../model/_shared/Type";
 import {Item} from "../model/item/Item";
 import {Category} from "../model/category/Category";
 import {RetailStatus} from "../model/retailStatus/RetailStatus";
@@ -6,9 +6,9 @@ import {AllSalesHistory} from "../model/salesHistory/AllSalesHistory";
 import {htmlDecode} from "../utils/StringUtils";
 import {useBrickEconomyService} from "./useBrickEconomyService";
 import {useBrickLinkService} from "./useBrickLinkService";
-import {Condition} from "../model/shared/Condition";
+import {Condition} from "../model/_shared/Condition";
 import {formatCurrency} from "../utils/CurrencyUtils";
-import {Source} from "../model/shared/Source";
+import {Source} from "../model/_shared/Source";
 
 export interface ItemLookupServiceHooks {
     getHydratedItem: (item: Item) => Promise<Item>;

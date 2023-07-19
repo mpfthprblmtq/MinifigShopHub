@@ -55,6 +55,7 @@ const CurrencyTextInput: FunctionComponent<CurrencyTextInputParams> =
                 readOnly: readonly ?? false,
             }}
             variant="outlined"
+            error={value === "0.00"}
         />
     );
 };

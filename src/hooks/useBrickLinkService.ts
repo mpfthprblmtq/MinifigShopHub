@@ -7,7 +7,7 @@ import {SalesHistoryResponse} from "../model/salesHistory/SalesHistoryResponse";
 import {AllSalesHistory} from "../model/salesHistory/AllSalesHistory";
 import {Category} from "../model/category/Category";
 import {CategoryResponse} from "../model/category/CategoryResponse";
-import {Type} from "../model/shared/Type";
+import {Type} from "../model/_shared/Type";
 import {filterOutOldDates} from "../utils/DateUtils";
 
 const corsProxyUrl: string = 'https://corsproxy.io/?';
@@ -65,15 +65,23 @@ export const useBrickLinkService = (): BrickLinkHooks => {
                 responses.map((response) => {
                     return filterOutOldDates(response);
                 });
-                allSalesHistory.usedSold = responses[0];
-                allSalesHistory.usedStock = responses[1];
-                allSalesHistory.newSold = responses[2];
-                allSalesHistory.newStock = responses[3];
+                allSalesHistory.usedSold = validateSalesData(responses[0]);
+                allSalesHistory.usedStock = validateSalesData(responses[1]);
+                allSalesHistory.newSold = validateSalesData(responses[2]);
+                allSalesHistory.newStock = validateSalesData(responses[3]);
             });
         }
         return allSalesHistory;
     };
 
+    /**
+     * Request function that gets the Category information from BrickLink
+     * @param id the ID of the set to get sales history from
+     * @param itemType the type of the item to get (set, minifig, bulk, or other)
+     * @param type the type of sales to get ("sold" or "stock")
+     * @param state the condition to search on ("U" for used, "N" for new)
+     * @returns a SalesHistory object
+     */
     const getSalesHistory = async (id: string, itemType: Type, type: 'sold' | 'stock', state: 'U' | 'N'): Promise<SalesHistory> => {
         // build the request and authorization header
         const request = {
@@ -89,6 +97,11 @@ export const useBrickLinkService = (): BrickLinkHooks => {
         )).data.data;
     };
 
+    /**
+     * Request function that gets the Category information from BrickLink
+     * @param id the ID of the category to get
+     * @returns a Category object
+     */
     const getCategory = async (id: number): Promise<Category> => {
         // build the request and authorization header
         const request = {
@@ -103,6 +116,24 @@ export const useBrickLinkService = (): BrickLinkHooks => {
             {headers: authHeader}
         )).data.data;
     }
+
+    /**
+     * Helper function that looks at all data on the SalesHistory object and checks if we can just set it to undefined
+     * @param salesHistory the SalesHistory to check
+     * @returns the SalesHistory object if there's valid data, or undefined if there's no valid data
+     */
+    const validateSalesData = (salesHistory: SalesHistory): SalesHistory | undefined => {
+        if (salesHistory.min_price === "0.0000" &&
+            salesHistory.max_price === "0.0000" &&
+            salesHistory.avg_price === "0.0000" &&
+            salesHistory.qty_avg_price === "0.0000" &&
+            salesHistory.unit_quantity === 0 &&
+            salesHistory.total_quantity === 0 &&
+            salesHistory.price_detail.length === 0) {
+            return undefined;
+        }
+        return salesHistory;
+    };
 
     return { getItem, getCategory, getAllSalesHistory };
 };

@@ -2,6 +2,7 @@ import React, {FunctionComponent} from "react";
 import {Slider} from "@mui/material";
 import {Item} from "../../../model/item/Item";
 import {StyledTableCell} from "../TableComponent/TableComponent.styles";
+import {Source} from "../../../model/_shared/Source";
 
 interface ManualAdjustmentSliderParams {
     item: Item;
@@ -33,13 +34,14 @@ const ManualValueAdjustmentSliderCell: FunctionComponent<ManualAdjustmentSliderP
             <Slider
                 onChange={(event) => handleSliderChange(event, item.id)}
                 valueLabelFormat={formatSliderLabel}
+                disabled={item.baseValue === 0 || item.source === Source.CUSTOM}
                 defaultValue={50}
                 marks={marks}
                 step={5}
                 valueLabelDisplay="auto"
                 min={0}
                 max={100}
-                value={item.valueAdjustment} />
+                value={item.baseValue === 0 ? 0 : item.valueAdjustment} />
         </StyledTableCell>
     );
 };

@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {Item} from "../../../model/item/Item";
-import {Type} from "../../../model/shared/Type";
+import {Type} from "../../../model/_shared/Type";
 import {StyledTableCell} from "../TableComponent/TableComponent.styles";
 
 interface SetNumberParams {

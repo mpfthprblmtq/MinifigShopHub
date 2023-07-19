@@ -5,9 +5,9 @@ import {formatCurrency, launderMoney} from "../../../utils/CurrencyUtils";
 import {Item} from "../../../model/item/Item";
 import {StyledCard} from "../Cards.styles";
 import {generateId} from "../../../utils/ArrayUtils";
-import {Source} from "../../../model/shared/Source";
-import {Condition} from "../../../model/shared/Condition";
-import {Type} from "../../../model/shared/Type";
+import {Source} from "../../../model/_shared/Source";
+import {Condition} from "../../../model/_shared/Condition";
+import {Type} from "../../../model/_shared/Type";
 import CurrencyTextInput from "../../_shared/CurrencyTextInput/CurrencyTextInput";
 
 interface CustomItemCardParams {

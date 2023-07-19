@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {Item} from "../../../model/item/Item";
 import {Box, Tooltip} from "@mui/material";
 import {Delete, InfoOutlined} from "@mui/icons-material";
-import {Source} from "../../../model/shared/Source";
+import {Source} from "../../../model/_shared/Source";
 import {StyledTableCell} from "../TableComponent/TableComponent.styles";
 
 interface IconsCellParams {

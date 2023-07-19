@@ -4,7 +4,7 @@ import NewUsedToggleButtonCell from "../TableCells/NewUsedToggleButtonCell";
 import {formatCurrency, launderMoney} from "../../../utils/CurrencyUtils";
 import {FixedWidthColumnHeading, StyledTableCell} from "./TableComponent.styles";
 import {Item} from "../../../model/item/Item";
-import {Condition} from "../../../model/shared/Condition";
+import {Condition} from "../../../model/_shared/Condition";
 import ManualValueAdjustmentSliderCell from "../TableCells/ManualValueAdjustmentSliderCell";
 import {getItemWithId} from "../../../utils/ArrayUtils";
 import ItemCommentCell from "../TableCells/ItemCommentCell";
@@ -16,8 +16,9 @@ import YearAvailabilityCell from "../TableCells/YearAvailabilityCell";
 import BrickLinkSalesCells from "../TableCells/BrickLinkSalesCells";
 import ValueCell from "../TableCells/ValueCell";
 import IconsCell from "../TableCells/IconsCell";
-import {Availability} from "../../../model/retailStatus/Availability";
 import InformationDialog from "../../_shared/InformationDialog/InformationDialog";
+import {usePriceCalculationEngine} from "../../../hooks/priceCalculation/usePriceCalculationEngine";
+import {ChangeType} from "../../../model/priceCalculation/ChangeType";
 
 interface TableComponentParams {
     items: Item[];
@@ -32,8 +33,10 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
     const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
     const [showMoreInformationDialog, setShowMoreInformationDialog] = useState<boolean>(false);
 
+    const { calculatePrice } = usePriceCalculationEngine();
+
     /**
-     * Event handler for the change event on the value adjustment slider
+     * Event handler for the change event on the condition selector
      * @param condition the condition value to set
      * @param id the id of the item to modify
      */
@@ -42,21 +45,8 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
             const newItems = [...items];
             const item = getItemWithId(newItems, id);
             if (item) {
-                // if we're changing from used to new, and the existing valueAdjustment is the valueAdjustment for used,
-                // then change the valueAdjustment to the valueAdjustment for new
-                if (item.condition === Condition.USED && condition === Condition.NEW &&
-                    item.valueAdjustment === +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100) {
-                    item.valueAdjustment = +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! * 100;
-                    // if we're changing from new to used, and the existing valueAdjustment is the valueAdjustment for new,
-                    // then change the valueAdjustment to the valueAdjustment for used
-                } else if (item.condition === Condition.NEW && condition === Condition.USED &&
-                    item.valueAdjustment === +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! * 100) {
-                    item.valueAdjustment = +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100;
-                } else {
-                    // else just leave the value adjustment as it is
-                }
                 item.condition = condition;
-                calculatePrice(item);
+                calculatePrice(item, ChangeType.CONDITION);
             }
             setItems(newItems);
         }
@@ -74,7 +64,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
             item.valueAdjustment = +event.target.value
                 .toFixed(2)
                 .replace(".00", "");
-            calculatePrice(item);
+            calculatePrice(item, ChangeType.ADJUSTMENT);
         }
         setItems(newItems);
     };
@@ -90,7 +80,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
         if (item) {
             item.value = launderMoney(event.target.value);
             item.valueDisplay = event.target.value;
-            calculateAdjustment(item);
+            calculatePrice(item, ChangeType.VALUE);
         }
         setItems(newItems);
     };
@@ -107,58 +97,6 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
             item.valueDisplay = formatCurrency(launderMoney(event.target.value));
         }
         setItems(newItems);
-    };
-
-    /**
-     * Helper function that calculates the price based on the condition and value adjustment.  Calculates the value,
-     * baseValue, and valueDisplay.
-     * @param item the item to check
-     */
-    const calculatePrice = (item: Item) => {
-        // if the set is still available at retail
-        if (item.retailStatus?.availability === Availability.RETAIL && item.retailStatus.retailPrice) {
-            // if the set is used, use BrickLink data to set value
-            if (item.condition === Condition.USED) {
-                item.value = item.usedSold?.avg_price ?
-                    +item.usedSold.avg_price * item.valueAdjustment / 100 : 0;
-            // else if the set is new, use MSRP to set value
-            } else if (item.condition === Condition.NEW) {
-                item.value = item.retailStatus.retailPrice * item.valueAdjustment / 100;
-            }
-
-        // if the set is retired
-        } else {
-            // if the set is used
-            if (item.condition === Condition.USED && item.usedSold) {
-                item.value = item.usedSold?.avg_price ?
-                    +item.usedSold.avg_price * item.valueAdjustment / 100 : 0;
-            // else if the set is new
-            } else if (item.condition === Condition.NEW && item.newSold) {
-                item.value = item.newSold?.avg_price ?
-                    +item.newSold.avg_price * item.valueAdjustment / 100 : 0;
-            }
-        }
-        item.valueDisplay = formatCurrency(item.value)!.toString().substring(1);
-    };
-
-    /**
-     * Helper function that calculates the value adjustment by taking the value and baseValue and returning a percentage
-     * of the difference between the two
-     * @param item the item to check
-     */
-    const calculateAdjustment = (item: Item) => {
-        if (item.retailStatus?.availability === Availability.RETAIL && item.retailStatus.retailPrice && item.condition === Condition.NEW) {
-            item.baseValue = item.retailStatus.retailPrice;
-        } else {
-            if (item.condition === Condition.USED) {
-                item.baseValue = item.usedSold?.avg_price ? +item.usedSold.avg_price : 0;
-            } else {
-                item.baseValue = item.newSold?.avg_price ? +item.newSold.avg_price : 0;
-            }
-        }
-        item.valueAdjustment = +((item.value / item.baseValue) * 100)
-            .toFixed(2)
-            .replace(".00", "");
     };
 
     const handleCommentChange = (comment: string, id: number) => {

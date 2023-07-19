@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {Item} from "../../../model/item/Item";
 import {Box} from "@mui/material";
-import {Source} from "../../../model/shared/Source";
-import {Type} from "../../../model/shared/Type";
+import {Source} from "../../../model/_shared/Source";
+import {Type} from "../../../model/_shared/Type";
 import {StyledTableCell} from "../TableComponent/TableComponent.styles";
 
 interface ImageCellParams {

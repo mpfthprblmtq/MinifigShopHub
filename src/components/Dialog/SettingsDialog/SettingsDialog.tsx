@@ -10,7 +10,7 @@ import {
     List,
     ListItem, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography
 } from "@mui/material";
-import {Condition} from "../../../model/shared/Condition";
+import {Condition} from "../../../model/_shared/Condition";
 import {Close, Refresh} from "@mui/icons-material";
 
 interface SettingsDialogParams {

@@ -9,9 +9,11 @@ import ConfigurationCard from "../Cards/ConfigurationCard/ConfigurationCard";
 import BrickLinkSearchCard from "../Cards/BrickLinkSearchCard/BrickLinkSearchCard";
 import {formatCurrency} from "../../utils/CurrencyUtils";
 import Version from "./Version";
-import {Condition} from "../../model/shared/Condition";
+import {Condition} from "../../model/_shared/Condition";
 import SettingsDialog from "../Dialog/SettingsDialog/SettingsDialog";
 import ConfirmDialog from "../_shared/ConfirmDialog/ConfirmDialog";
+import {usePriceCalculationEngine} from "../../hooks/priceCalculation/usePriceCalculationEngine";
+import {ChangeType} from "../../model/priceCalculation/ChangeType";
 
 interface TotalsRefProps {
     resetTotalsCalculations: () => void;
@@ -24,6 +26,8 @@ const MainComponent: FunctionComponent = () => {
     const [storeMode, setStoreMode] = useState<boolean>(true);
     const [showConfirmResetCalculationsDialog, setShowConfirmResetCalculationsDialog] = useState<boolean>(false);
     const [settingsDialogOpen, setSettingsDialogOpen] = useState<boolean>(false);
+
+    const {calculatePrice} = usePriceCalculationEngine();
 
     const resetCalculations = () => {
         items.forEach(item => {
@@ -38,23 +42,8 @@ const MainComponent: FunctionComponent = () => {
 
     const setBulkCondition = (condition: Condition) => {
         items.forEach(item => {
-            // if we're changing from used to new, and the existing valueAdjustment is the valueAdjustment for used,
-            // then change the valueAdjustment to the valueAdjustment for new
-            if (item.condition === Condition.USED && condition === Condition.NEW &&
-                item.valueAdjustment === +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100) {
-                item.valueAdjustment = +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! * 100;
-            // if we're changing from new to used, and the existing valueAdjustment is the valueAdjustment for new,
-            // then change the valueAdjustment to the valueAdjustment for used
-            } else if (item.condition === Condition.NEW && condition === Condition.USED &&
-                item.valueAdjustment === +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! * 100) {
-                item.valueAdjustment = +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100;
-            } else {
-                // else just leave the value adjustment as it is
-            }
-
             item.condition = condition;
-            item.value = item.baseValue * (item.valueAdjustment / 100);
-            item.valueDisplay = formatCurrency(item.value).toString().substring(1);
+            calculatePrice(item, ChangeType.CONDITION);
         });
         setItems([...items]);
     };
