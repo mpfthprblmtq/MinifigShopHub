@@ -4,12 +4,16 @@ import {Condition} from "../../model/_shared/Condition";
 import {Availability} from "../../model/retailStatus/Availability";
 import {formatCurrency} from "../../utils/CurrencyUtils";
 import {Source} from "../../model/_shared/Source";
+import {useSelector} from "react-redux";
 
 export interface PriceCalculationHooks {
     calculatePrice: (item: Item, changeType: ChangeType) => void;
+    roundAdjustmentWithConfidence: (item: Item) => void;
 }
 
 export const usePriceCalculationEngine = (): PriceCalculationHooks => {
+
+    const {configuration} = useSelector((state: any) => state.configurationStore);
 
     /**
      * Main function that determines the price and adjustment of the item
@@ -24,18 +28,18 @@ export const usePriceCalculationEngine = (): PriceCalculationHooks => {
             if (item.source === Source.BRICKLINK) {
                 // since we change the baseValue, the valueAdjustment might be super close to the standard valueAdjustments,
                 // so we round them with 0.05 confidence
-                roundAdjustmentWithConfidence(item);
+                roundAdjustmentWithConfidenceOnConditionChange(item);
 
                 // if we're changing from used to new, and the existing valueAdjustment is the valueAdjustment for used,
                 // then change the valueAdjustment to the valueAdjustment for new
                 if (item.condition === Condition.NEW &&
-                    item.valueAdjustment === +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100) {
-                    item.valueAdjustment = +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! * 100;
+                    (item.valueAdjustment === configuration.autoAdjustmentPercentageUsed || item.valueAdjustment === 0)) {
+                    item.valueAdjustment = configuration.autoAdjustmentPercentageNew;
                     // if we're changing from new to used, and the existing valueAdjustment is the valueAdjustment for new,
                     // then change the valueAdjustment to the valueAdjustment for used
                 } else if (item.condition === Condition.USED &&
-                    item.valueAdjustment === +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! * 100) {
-                    item.valueAdjustment = +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100;
+                    (item.valueAdjustment === configuration.autoAdjustmentPercentageNew || item.valueAdjustment === 0)) {
+                    item.valueAdjustment = configuration.autoAdjustmentPercentageUsed;
                 } else {
                     // else just leave the value adjustment as it is, since we want to take a custom value as precedent
                 }
@@ -85,6 +89,9 @@ export const usePriceCalculationEngine = (): PriceCalculationHooks => {
                     item.baseValue = item.newSold?.avg_price ? +item.newSold.avg_price : 0;
                 }
             }
+            if (item.baseValue === 0) {
+                item.valueAdjustment = 0;
+            }
         }
     }
 
@@ -93,21 +100,37 @@ export const usePriceCalculationEngine = (): PriceCalculationHooks => {
      * the valueAdjustment gets set to something like 59.98%, then we want that to really be 60%
      * @param item the item to check
      */
-    const roundAdjustmentWithConfidence = (item: Item) => {
+    const roundAdjustmentWithConfidenceOnConditionChange = (item: Item) => {
         if (item.condition === Condition.USED) {
-            const lowerThreshold: number = (+process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! * 100) - 0.05;
-            const upperThreshold: number = (+process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! * 100) + 0.05;
+            const lowerThreshold: number = (configuration.autoAdjustmentPercentageNew) - 0.05;
+            const upperThreshold: number = (configuration.autoAdjustmentPercentageNew) + 0.05;
             if (lowerThreshold < item.valueAdjustment && item.valueAdjustment < upperThreshold) {
-                item.valueAdjustment = +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100;
+                item.valueAdjustment = configuration.autoAdjustmentPercentageUsed;
             }
         } else if (item.condition === Condition.NEW) {
-            const lowerThreshold: number = (+process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100) - 0.05;
-            const upperThreshold: number = (+process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100) + 0.05;
+            const lowerThreshold: number = (configuration.autoAdjustmentPercentageUsed) - 0.05;
+            const upperThreshold: number = (configuration.autoAdjustmentPercentageUsed) + 0.05;
             if (lowerThreshold < item.valueAdjustment && item.valueAdjustment < upperThreshold) {
-                item.valueAdjustment = +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! * 100;
+                item.valueAdjustment = configuration.autoAdjustmentPercentageNew;
             }
         }
     }
 
-    return { calculatePrice };
+    const roundAdjustmentWithConfidence = (item: Item) => {
+        if (item.condition === Condition.USED) {
+            const lowerThreshold: number = (configuration.autoAdjustmentPercentageUsed) - 0.05;
+            const upperThreshold: number = (configuration.autoAdjustmentPercentageUsed) + 0.05;
+            if (lowerThreshold < item.valueAdjustment && item.valueAdjustment < upperThreshold) {
+                item.valueAdjustment = configuration.autoAdjustmentPercentageUsed;
+            }
+        } else if (item.condition === Condition.NEW) {
+            const lowerThreshold: number = (configuration.autoAdjustmentPercentageNew) - 0.05;
+            const upperThreshold: number = (configuration.autoAdjustmentPercentageNew) + 0.05;
+            if (lowerThreshold < item.valueAdjustment && item.valueAdjustment < upperThreshold) {
+                item.valueAdjustment = configuration.autoAdjustmentPercentageNew;
+            }
+        }
+    }
+
+    return { calculatePrice, roundAdjustmentWithConfidence };
 }

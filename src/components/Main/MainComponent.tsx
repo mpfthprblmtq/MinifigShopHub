@@ -1,4 +1,4 @@
-import React, {FunctionComponent, useRef, useState} from "react";
+import React, {FunctionComponent, useEffect, useRef, useState} from "react";
 import {Item} from "../../model/item/Item";
 import {Box, Typography} from "@mui/material";
 import TableComponent from "../Table/TableComponent/TableComponent";
@@ -14,6 +14,9 @@ import SettingsDialog from "../Dialog/SettingsDialog/SettingsDialog";
 import ConfirmDialog from "../_shared/ConfirmDialog/ConfirmDialog";
 import {usePriceCalculationEngine} from "../../hooks/priceCalculation/usePriceCalculationEngine";
 import {ChangeType} from "../../model/priceCalculation/ChangeType";
+import {useDispatch, useSelector} from "react-redux";
+import {useConfigurationService} from "../../hooks/dynamo/useConfigurationService";
+import {updateStoreConfiguration} from "../../redux/slices/configurationSlice";
 
 interface TotalsRefProps {
     resetTotalsCalculations: () => void;
@@ -21,19 +24,23 @@ interface TotalsRefProps {
 
 const MainComponent: FunctionComponent = () => {
 
+    const { configuration } = useSelector((state: any) => state.configurationStore);
+    const dispatch = useDispatch();
+
     const totalsRef = useRef({} as TotalsRefProps);
     const [items, setItems] = useState<Item[]>([]);
     const [storeMode, setStoreMode] = useState<boolean>(true);
+    const [overrideRowAdjustments, setOverrideRowAdjustments] = useState<boolean>(false);
     const [showConfirmResetCalculationsDialog, setShowConfirmResetCalculationsDialog] = useState<boolean>(false);
     const [settingsDialogOpen, setSettingsDialogOpen] = useState<boolean>(false);
 
     const {calculatePrice} = usePriceCalculationEngine();
+    const {initConfig} = useConfigurationService();
 
     const resetCalculations = () => {
         items.forEach(item => {
             item.valueAdjustment = item.condition === Condition.USED ?
-                +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100 :
-                +process.env.REACT_APP_AUTO_ADJUST_VALUE_NEW! * 100;
+                configuration.autoAdjustmentPercentageUsed : configuration.autoAdjustmentPercentageNew;
             item.value = item.baseValue * (item.valueAdjustment / 100);
             item.valueDisplay = formatCurrency(item.value).toString().substring(1);
         });
@@ -47,6 +54,26 @@ const MainComponent: FunctionComponent = () => {
         });
         setItems([...items]);
     };
+
+    useEffect(() => {
+        const initConfiguration = async () => {
+            await initConfig().then(config => {
+                dispatch(updateStoreConfiguration(config));
+            }).catch(error => {
+                console.error(error);
+            });
+        }
+        if (!configuration.storeCreditValueAdjustment
+            && !configuration.autoAdjustmentPercentageNew
+            && !configuration.autoAdjustmentPercentageUsed) {
+            initConfiguration().then(() => {});
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const saveQuote = () => {
+        alert("Not implemented yet!")
+    }
 
     return (
         <div className={"App"}>
@@ -67,7 +94,7 @@ const MainComponent: FunctionComponent = () => {
                     )}
                 </Box>
             <Box style={{marginTop: 20}}>
-                <TableComponent items={items} setItems={setItems} storeMode={storeMode} />
+                <TableComponent items={items} setItems={setItems} storeMode={storeMode} disableRowAdjustmentSliders={overrideRowAdjustments} />
             </Box>
             <Box>
                 <Box style={{position: 'absolute', marginTop: 20}}>
@@ -76,11 +103,12 @@ const MainComponent: FunctionComponent = () => {
                         setStoreMode={setStoreMode}
                         buttonsDisabled={!items || items.length === 0}
                         setSettingsDialogOpen={setSettingsDialogOpen}
+                        saveQuote={saveQuote}
                     />
                 </Box>
             </Box>
             {items.length > 0 && (
-                <Totals items={items} storeMode={storeMode} ref={totalsRef} />
+                <Totals items={items} storeMode={storeMode} ref={totalsRef} overrideRowAdjustments={setOverrideRowAdjustments}/>
             )}
             <ConfirmDialog
                 title='Confirm Reset Calculations'

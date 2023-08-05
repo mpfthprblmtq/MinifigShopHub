@@ -24,9 +24,10 @@ interface TableComponentParams {
     items: Item[];
     setItems: (items: Item[]) => void;
     storeMode: boolean;
+    disableRowAdjustmentSliders: boolean;
 }
 
-const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setItems, storeMode }) => {
+const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setItems, storeMode, disableRowAdjustmentSliders }) => {
 
     const [focusedItem, setFocusedItem] = useState<Item>();
     const [showImageDialog, setShowImageDialog] = useState<boolean>(false);
@@ -151,7 +152,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                                     handleValueChange={handleValueChange}
                                     storeMode={storeMode} />
                                 {storeMode && (
-                                    <ManualValueAdjustmentSliderCell item={item} handleSliderChange={handleSliderChange}/>
+                                    <ManualValueAdjustmentSliderCell item={item} handleSliderChange={handleSliderChange} disabled={disableRowAdjustmentSliders} />
                                 )}
                                 <ItemCommentCell item={item} storeMode={storeMode} handleCommentChange={handleCommentChange}/>
                                 {storeMode && (
@@ -188,7 +189,9 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                     setShowDeleteDialog(false);
                 }}
                 deleteRow={(id: number) => {
-                    setItems([...items].filter(item => item.id !== id));
+                    const filteredItems = [...items].filter(item => item.id !== id)
+                    setItems(filteredItems);
+                    // dispatch(updateQuoteInStore({items: filteredItems, total: {} as Total}));
                     setFocusedItem(undefined);
                     setShowDeleteDialog(false);
                 }} />

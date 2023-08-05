@@ -54,6 +54,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
             } else {
                 setMultipleItems(matches);
                 setMultipleItemsDialogOpen(true);
+                setLoading(false);
             }
         }).catch((error: AxiosError) => {
             setLoading(false);

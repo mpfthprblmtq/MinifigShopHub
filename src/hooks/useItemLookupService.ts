@@ -9,6 +9,7 @@ import {useBrickLinkService} from "./useBrickLinkService";
 import {Condition} from "../model/_shared/Condition";
 import {formatCurrency} from "../utils/CurrencyUtils";
 import {Source} from "../model/_shared/Source";
+import {useSelector} from "react-redux";
 
 export interface ItemLookupServiceHooks {
     getHydratedItem: (item: Item) => Promise<Item>;
@@ -16,6 +17,8 @@ export interface ItemLookupServiceHooks {
 }
 
 export const useItemLookupService = (): ItemLookupServiceHooks => {
+
+    const {configuration} = useSelector((state: any) => state.configurationStore);
 
     const { getItem, getCategory, getAllSalesHistory } = useBrickLinkService();
     const { getRetailStatus } = useBrickEconomyService();
@@ -76,9 +79,9 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
                     item.condition = Condition.USED;
                     item.baseValue = item.usedSold?.avg_price ? +item.usedSold.avg_price : 0;
                     item.value = item.usedSold?.avg_price ?
-                        +item.usedSold.avg_price * +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! : 0;
+                        +item.usedSold.avg_price * (configuration.autoAdjustmentPercentageUsed / 100) : 0;
                     item.valueDisplay = formatCurrency(item.value)!.toString().substring(1);
-                    item.valueAdjustment = +process.env.REACT_APP_AUTO_ADJUST_VALUE_USED! * 100;
+                    item.valueAdjustment = configuration.autoAdjustmentPercentageUsed;
                     item.source = Source.BRICKLINK;
                     item.type = determineType(item.no ?? '');
 

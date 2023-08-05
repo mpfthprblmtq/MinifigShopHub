@@ -8,13 +8,14 @@ interface ConfigurationCardParams {
     setStoreMode: (storeMode: boolean) => void;
     setSettingsDialogOpen: (open: boolean) => void;
     buttonsDisabled: boolean;
+    saveQuote: () => void;
 }
 
 const ConfigurationCard: FunctionComponent<ConfigurationCardParams> =
     ({storeMode, setStoreMode, setSettingsDialogOpen, buttonsDisabled}) => {
 
     return (
-       <StyledCard variant="outlined" sx={{minHeight: 80, marginLeft: "5px", width: 420}} className={"hide-in-print-preview"}>
+       <StyledCard variant="outlined" sx={{minHeight: 80, marginLeft: "5px", width: 500}} className={"hide-in-print-preview"}>
            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
                <Box sx={{ m: 1, position: 'relative' }}>
                    <FormControlLabel control={
@@ -32,9 +33,16 @@ const ConfigurationCard: FunctionComponent<ConfigurationCardParams> =
                        style={{width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px", margin: "5px"}}>
                        <Print />
                    </Button>
+                   {/*<Button*/}
+                   {/*    variant="contained"*/}
+                   {/*    color="primary"*/}
+                   {/*    onClick={saveQuote}*/}
+                   {/*    style={{width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px", margin: "5px"}}>*/}
+                   {/*    <Save />*/}
+                   {/*</Button>*/}
                    <Button
+                       sx={{backgroundColor: '#666666', ":hover": {backgroundColor: '#888888'}}}
                        variant="contained"
-                       color="primary"
                        onClick={() => setSettingsDialogOpen(true)}
                        style={{width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px", margin: "5px"}}>
                        <Settings />

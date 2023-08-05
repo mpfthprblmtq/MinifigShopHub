@@ -4,16 +4,16 @@ import {Slider} from "@mui/material";
 interface ManualTotalAdjustmentSliderParams {
     value: number;
     handleSliderChange: (event: any) => void;
-    handleSliderChangeCommitted: (event: any) => void;
+    disabled: boolean;
 }
 
-const ManualTotalAdjustmentSlider: FunctionComponent<ManualTotalAdjustmentSliderParams> = ({value, handleSliderChange, handleSliderChangeCommitted}) => {
+const ManualTotalAdjustmentSlider: FunctionComponent<ManualTotalAdjustmentSliderParams> = ({value, handleSliderChange, disabled}) => {
     const marks = [
-        { value: -50, label: "-50%" },
-        { value: -25, label: "-25%" },
-        { value: 0, label: "|" },
-        { value: 50, label: "+50%" },
-        { value: 25, label: "+25%" }
+        { value: 0, label: "0%" },
+        { value: 25, label: "25%" },
+        { value: 50, label: "50%" },
+        { value: 75, label: "75%" },
+        { value: 100, label: "100%" }
     ];
 
     /**
@@ -29,15 +29,16 @@ const ManualTotalAdjustmentSlider: FunctionComponent<ManualTotalAdjustmentSlider
     return (
         <Slider
             onChange={handleSliderChange}
-            onChangeCommitted={handleSliderChangeCommitted}
             valueLabelFormat={formatSliderLabel}
-            defaultValue={0}
+            defaultValue={50}
             marks={marks}
             step={5}
             valueLabelDisplay="auto"
-            min={-50}
-            max={50}
-            value={value} />
+            min={0}
+            max={100}
+            value={value}
+            disabled={disabled}
+        />
     );
 };
 
