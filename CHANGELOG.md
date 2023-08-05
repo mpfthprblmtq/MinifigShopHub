@@ -51,3 +51,7 @@
   - Can modify these values in the Settings dialog, which then propagates to the database
 - Total adjustment slider gets disabled when you make adjustments to individual rows.  Inversely, row sliders get disabled when you make any total adjustments
 - Added Redux
+
+### v1.2.1
+
+- Set the text color on the BrickLink sales cells to red if there are less than 5 sales, green if there are 5 or more sales, threshold was originally 10
