@@ -133,6 +133,7 @@ dist
 /.idea/QuoteBuilder.iml
 /.idea/vcs.xml
 /.idea/workspace.xml
-/build/
+/.idea/*
+/build/*
 /.idea/.gitignore
 /build.zip

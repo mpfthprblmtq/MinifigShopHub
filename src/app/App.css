@@ -1,6 +1,8 @@
 .App {
   padding: 1%;
   width: auto;
+  margin-left: 60px;
+  margin-top: 60px;
 }
 
 @media only screen and (max-width: 600px) {
