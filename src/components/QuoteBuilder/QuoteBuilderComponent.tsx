@@ -22,8 +22,7 @@ import {updateStoreConfiguration} from "../../redux/slices/configurationSlice";
 import NavBar from "../_shared/NavBar/NavBar";
 import { Tabs } from "../_shared/NavBar/Tabs";
 import { Total } from "../../model/total/Total";
-import { quoteSlice, updateItemsInStore, updateTotalInStore } from "../../redux/slices/quoteSlice";
-import { Quote } from "../../model/quote/Quote";
+import { updateItemsInStore, updateTotalInStore } from "../../redux/slices/quoteSlice";
 
 interface TotalsRefProps {
     resetTotalsCalculations: () => void;
@@ -48,7 +47,9 @@ const QuoteBuilderComponent: FunctionComponent = () => {
     const {initConfig} = useConfigurationService();
 
     useEffect(() => {
+      console.log('updating items')
       dispatch(updateItemsInStore([...items]));
+      console.log('done updating items')
       // eslint-disable-next-line
     }, [items]);
 

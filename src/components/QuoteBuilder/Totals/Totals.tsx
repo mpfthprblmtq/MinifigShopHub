@@ -10,6 +10,8 @@ import {useSelector} from "react-redux";
 import {Configuration} from "../../../model/dynamo/Configuration";
 import { Total } from "../../../model/total/Total";
 
+const _ = require('lodash');
+
 interface TotalsSectionParams {
     total: Total;
     setTotal: (total: Total) => void;
@@ -35,7 +37,8 @@ const Totals = forwardRef(({total, setTotal, items, storeMode, overrideRowAdjust
     const configuration: Configuration = useSelector((state: any) => state.configurationStore.configuration);
 
     const getAllValueAdjustments = (items: Item[]): Set<number> => {
-        let itemsCopy = items.filter(item => item.valueAdjustment !== 0).map(item => {
+        const itemsCopy: Item[] = _.cloneDeep(items);
+        itemsCopy.filter(item => item.valueAdjustment !== 0).map(item => {
             // need to round with confidence since we need to account for something like 49.98%
             roundAdjustmentWithConfidence(item);
             return item;
