@@ -15,6 +15,7 @@ export interface Item {
     year_released?: number;
     condition: Condition;
     baseValue: number;
+    valueAdjustment: number;
     value: number;
     valueDisplay?: string;
     comment?: string;
@@ -25,5 +26,4 @@ export interface Item {
     usedStock?: SalesHistory;
     newSold?: SalesHistory;
     usedSold?: SalesHistory;
-    valueAdjustment: number;
 }
