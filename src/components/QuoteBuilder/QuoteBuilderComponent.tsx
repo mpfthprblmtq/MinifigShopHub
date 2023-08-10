@@ -21,6 +21,9 @@ import {useConfigurationService} from "../../hooks/dynamo/useConfigurationServic
 import {updateStoreConfiguration} from "../../redux/slices/configurationSlice";
 import NavBar from "../_shared/NavBar/NavBar";
 import { Tabs } from "../_shared/NavBar/Tabs";
+import { Total } from "../../model/total/Total";
+import { quoteSlice, updateItemsInStore, updateTotalInStore } from "../../redux/slices/quoteSlice";
+import { Quote } from "../../model/quote/Quote";
 
 interface TotalsRefProps {
     resetTotalsCalculations: () => void;
@@ -29,10 +32,13 @@ interface TotalsRefProps {
 const QuoteBuilderComponent: FunctionComponent = () => {
 
     const { configuration } = useSelector((state: any) => state.configurationStore);
+    const { quote } = useSelector((state: any) => state.quoteStore);
+    console.log(quote)
     const dispatch = useDispatch();
 
     const totalsRef = useRef({} as TotalsRefProps);
-    const [items, setItems] = useState<Item[]>([]);
+    const [items, setItems] = useState<Item[]>(quote.items);
+    const [total, setTotal] = useState<Total>(quote.total);
     const [storeMode, setStoreMode] = useState<boolean>(true);
     const [overrideRowAdjustments, setOverrideRowAdjustments] = useState<boolean>(false);
     const [showConfirmResetCalculationsDialog, setShowConfirmResetCalculationsDialog] = useState<boolean>(false);
@@ -40,6 +46,16 @@ const QuoteBuilderComponent: FunctionComponent = () => {
 
     const {calculatePrice} = usePriceCalculationEngine();
     const {initConfig} = useConfigurationService();
+
+    useEffect(() => {
+      dispatch(updateItemsInStore([...items]));
+      // eslint-disable-next-line
+    }, [items]);
+
+    useEffect(() => {
+      dispatch(updateTotalInStore({...total}));
+      // eslint-disable-next-line
+    }, [total]);
 
     const resetCalculations = () => {
         items.forEach(item => {
@@ -109,7 +125,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
                 <TableComponent items={items} setItems={setItems} storeMode={storeMode} disableRowAdjustmentSliders={overrideRowAdjustments} />
             </Box>
             {items.length > 0 && (
-                <Totals items={items} storeMode={storeMode} ref={totalsRef} overrideRowAdjustments={setOverrideRowAdjustments}/>
+                <Totals total={total} setTotal={setTotal} items={items} storeMode={storeMode} ref={totalsRef} overrideRowAdjustments={setOverrideRowAdjustments}/>
             )}
             <ConfirmDialog
                 title='Confirm Reset Calculations'

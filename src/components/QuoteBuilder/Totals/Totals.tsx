@@ -8,24 +8,27 @@ import CurrencyTextInput from "../../_shared/CurrencyTextInput/CurrencyTextInput
 import {usePriceCalculationEngine} from "../../../hooks/priceCalculation/usePriceCalculationEngine";
 import {useSelector} from "react-redux";
 import {Configuration} from "../../../model/dynamo/Configuration";
+import { Total } from "../../../model/total/Total";
 
 interface TotalsSectionParams {
+    total: Total;
+    setTotal: (total: Total) => void;
     items: Item[];
     storeMode: boolean;
     overrideRowAdjustments: (override: boolean) => void;
 }
 
-const Totals = forwardRef(({items, storeMode, overrideRowAdjustments}: TotalsSectionParams, totalsRef) => {
+const Totals = forwardRef(({total, setTotal, items, storeMode, overrideRowAdjustments}: TotalsSectionParams, totalsRef) => {
 
     useImperativeHandle(totalsRef, () => {
         return { resetTotalsCalculations: resetCalculations };
     });
 
-    const [value, setValue] = useState<number>(0);
-    const [valueDisplay, setValueDisplay] = useState<string>('');
-    const [valueAdjustment, setValueAdjustment] = useState<number>(50);
-    const [baseValue, setBaseValue] = useState<number>(0);
-    const [storeCreditValue, setStoreCreditValue] = useState<string>('');
+    const [value, setValue] = useState<number>(total.value ?? 0);
+    const [valueDisplay, setValueDisplay] = useState<string>(formatCurrency(total.value) ?? '');
+    const [valueAdjustment, setValueAdjustment] = useState<number>(total.valueAdjustment ?? 50);
+    const [baseValue, setBaseValue] = useState<number>(total.baseValue ?? 0);
+    const [storeCreditValue, setStoreCreditValue] = useState<string>(formatCurrency(total.storeCreditValue) ?? '');
     const [sliderDisabled, setSliderDisabled] = useState<boolean>(false);
 
     const { roundAdjustmentWithConfidence } = usePriceCalculationEngine();
@@ -46,10 +49,12 @@ const Totals = forwardRef(({items, storeMode, overrideRowAdjustments}: TotalsSec
         setValue(calculatedValue);
         setBaseValue(calculatedBaseValue);
 
+        let calculatedValueAdjustment;
         const adjustmentSet = getAllValueAdjustments(items);
         if (adjustmentSet.size === 1) {
             setSliderDisabled(false);
-            setValueAdjustment(adjustmentSet.values().next().value);
+            calculatedValueAdjustment = adjustmentSet.values().next().value;
+            setValueAdjustment(calculatedValueAdjustment);
         } else {
             setSliderDisabled(true);
         }
@@ -58,9 +63,12 @@ const Totals = forwardRef(({items, storeMode, overrideRowAdjustments}: TotalsSec
 
     useEffect(() => {
         setValueDisplay(formatCurrency(value).toString().substring(1));
-        setStoreCreditValue(formatCurrency((configuration.storeCreditValueAdjustment / 100) * value).toString().substring(1));
+        const calculatedStoreCreditValue = (configuration.storeCreditValueAdjustment / 100) * value;
+        setStoreCreditValue(formatCurrency(calculatedStoreCreditValue).toString().substring(1));
+
+        setTotal({value: value, baseValue: baseValue, valueAdjustment: valueAdjustment, storeCreditValue: calculatedStoreCreditValue})
         // eslint-disable-next-line
-    }, [value]);
+    }, [value, valueAdjustment]);
 
     const resetCalculations = () => {
         setValue(baseValue * (configuration.autoAdjustmentPercentageUsed / 100));

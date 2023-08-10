@@ -19,6 +19,8 @@ import IconsCell from "../TableCells/IconsCell";
 import InformationDialog from "../../../_shared/InformationDialog/InformationDialog";
 import {usePriceCalculationEngine} from "../../../../hooks/priceCalculation/usePriceCalculationEngine";
 import {ChangeType} from "../../../../model/priceCalculation/ChangeType";
+import { updateItemsInStore } from "../../../../redux/slices/quoteSlice";
+import { useDispatch } from "react-redux";
 
 interface TableComponentParams {
     items: Item[];
@@ -35,6 +37,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
     const [showMoreInformationDialog, setShowMoreInformationDialog] = useState<boolean>(false);
 
     const { calculatePrice } = usePriceCalculationEngine();
+    const dispatch = useDispatch();
 
     /**
      * Event handler for the change event on the condition selector
@@ -191,7 +194,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                 deleteRow={(id: number) => {
                     const filteredItems = [...items].filter(item => item.id !== id)
                     setItems(filteredItems);
-                    // dispatch(updateQuoteInStore({items: filteredItems, total: {} as Total}));
+                    dispatch(updateItemsInStore(filteredItems));
                     setFocusedItem(undefined);
                     setShowDeleteDialog(false);
                 }} />
