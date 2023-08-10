@@ -165,4 +165,4 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
     )
 };
 
-export default ItemSearchCard;
+export default React.memo(ItemSearchCard);
