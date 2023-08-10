@@ -98,4 +98,4 @@ const CustomItemCard: FunctionComponent<CustomItemCardParams> = ({items, setItem
     );
 };
 
-export default CustomItemCard;
+export default React.memo(CustomItemCard);

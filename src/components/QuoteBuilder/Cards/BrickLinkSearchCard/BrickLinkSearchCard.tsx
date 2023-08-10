@@ -51,4 +51,4 @@ const BrickLinkSearchCard:FunctionComponent = () => {
     )
 };
 
-export default BrickLinkSearchCard;
+export default React.memo(BrickLinkSearchCard);

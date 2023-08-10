@@ -32,4 +32,4 @@ const IconsCell: FunctionComponent<IconsCellParams> = ({item, onDelete, onShowMo
     );
 };
 
-export default IconsCell;
+export default React.memo(IconsCell);

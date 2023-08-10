@@ -41,4 +41,4 @@ const ConfirmDialog: FunctionComponent<ConfirmDialogParams> = (
     );
 };
 
-export default ConfirmDialog;
+export default React.memo(ConfirmDialog);

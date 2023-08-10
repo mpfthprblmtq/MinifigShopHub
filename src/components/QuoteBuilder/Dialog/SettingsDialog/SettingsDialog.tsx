@@ -239,4 +239,4 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose,
     )
 };
 
-export default SettingsDialog;
+export default React.memo(SettingsDialog);

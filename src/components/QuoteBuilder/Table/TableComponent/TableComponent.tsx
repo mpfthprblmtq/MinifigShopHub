@@ -211,4 +211,4 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
     );
 }
 
-export default TableComponent;
+export default React.memo(TableComponent);

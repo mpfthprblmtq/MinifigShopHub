@@ -17,7 +17,6 @@ export interface Item {
     baseValue: number;
     value: number;
     valueDisplay?: string;
-    valueAdjustment: number;
     comment?: string;
     source: Source;
     type: Type;
@@ -26,4 +25,5 @@ export interface Item {
     usedStock?: SalesHistory;
     newSold?: SalesHistory;
     usedSold?: SalesHistory;
+    valueAdjustment: number;
 }

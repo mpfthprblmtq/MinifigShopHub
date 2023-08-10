@@ -43,4 +43,4 @@ const ManualTotalAdjustmentSlider: FunctionComponent<ManualTotalAdjustmentSlider
     );
 };
 
-export default ManualTotalAdjustmentSlider;
+export default React.memo(ManualTotalAdjustmentSlider);
