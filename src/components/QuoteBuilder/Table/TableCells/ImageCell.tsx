@@ -25,4 +25,4 @@ const ImageCell: FunctionComponent<ImageCellParams> = ({item, onClick}) => {
     );
 };
 
-export default ImageCell;
+export default React.memo(ImageCell);

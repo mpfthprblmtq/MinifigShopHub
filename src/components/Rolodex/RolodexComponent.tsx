@@ -14,4 +14,4 @@ const RolodexComponent: FunctionComponent = () => {
   );
 };
 
-export default RolodexComponent;
+export default React.memo(RolodexComponent);

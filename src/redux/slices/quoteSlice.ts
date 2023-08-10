@@ -1,7 +1,8 @@
-import {createSlice} from "@reduxjs/toolkit";
-import {Quote} from "../../model/quote/Quote";
+import { createSelector, createSlice } from "@reduxjs/toolkit";
+import { Quote } from "../../model/quote/Quote";
 import { Item } from "../../model/item/Item";
 import { Total } from "../../model/total/Total";
+import * as _ from "lodash";
 
 interface QuoteState {
     quote: Quote
@@ -19,6 +20,7 @@ const initialState: QuoteState = {
     }
 }
 
+
 export const quoteSlice = createSlice({
     name: 'quote',
     initialState,
@@ -27,13 +29,18 @@ export const quoteSlice = createSlice({
             state.quote = action.payload as Quote;
         },
         updateItemsInStore: (state, action) => {
-            state.quote.items = action.payload as Item[];
+            state.quote.items = [...action.payload] as Item[];
         },
         updateTotalInStore: (state, action) => {
             state.quote.total = action.payload as Total;
+        },
+        updateItem: (state, action) => {
+            state.quote.items[state.quote.items.findIndex(item =>
+                item.id === action.payload.id
+            )] = action.payload
         }
     }
 });
 
-export const { updateQuoteInStore, updateItemsInStore, updateTotalInStore } = quoteSlice.actions;
+export const { updateQuoteInStore, updateItemsInStore, updateTotalInStore, updateItem } = quoteSlice.actions;
 export default quoteSlice.reducer;

@@ -40,4 +40,4 @@ const BrickLinkSalesCells: FunctionComponent<BrickLinkSalesCellsParams> = ({item
     );
 };
 
-export default BrickLinkSalesCells;
+export default React.memo(BrickLinkSalesCells);

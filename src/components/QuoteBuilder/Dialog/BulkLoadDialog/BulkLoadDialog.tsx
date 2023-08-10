@@ -162,4 +162,4 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
     )
 };
 
-export default BulkLoadDialog;
+export default React.memo(BulkLoadDialog);

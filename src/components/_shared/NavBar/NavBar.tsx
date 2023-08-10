@@ -364,4 +364,4 @@ const NavBar: FunctionComponent<NavBarParams> = ({activeTab, openSettings, print
   )
 };
 
-export default NavBar;
+export default React.memo(NavBar);

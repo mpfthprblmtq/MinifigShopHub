@@ -4,7 +4,8 @@ import {Condition} from "../../model/_shared/Condition";
 import {Availability} from "../../model/retailStatus/Availability";
 import {formatCurrency} from "../../utils/CurrencyUtils";
 import {Source} from "../../model/_shared/Source";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
+import { updateItem } from "../../redux/slices/quoteSlice";
 
 export interface PriceCalculationHooks {
     calculatePrice: (item: Item, changeType: ChangeType) => void;
@@ -14,6 +15,7 @@ export interface PriceCalculationHooks {
 export const usePriceCalculationEngine = (): PriceCalculationHooks => {
 
     const {configuration} = useSelector((state: any) => state.configurationStore);
+    const dispatch = useDispatch();
 
     /**
      * Main function that determines the price and adjustment of the item
@@ -105,13 +107,13 @@ export const usePriceCalculationEngine = (): PriceCalculationHooks => {
             const lowerThreshold: number = (configuration.autoAdjustmentPercentageNew) - 0.05;
             const upperThreshold: number = (configuration.autoAdjustmentPercentageNew) + 0.05;
             if (lowerThreshold < item.valueAdjustment && item.valueAdjustment < upperThreshold) {
-                item.valueAdjustment = configuration.autoAdjustmentPercentageUsed;
+                dispatch(updateItem({...item, valueAdjustment: configuration.autoAdjustmentPercentageUsed}))
             }
         } else if (item.condition === Condition.NEW) {
             const lowerThreshold: number = (configuration.autoAdjustmentPercentageUsed) - 0.05;
             const upperThreshold: number = (configuration.autoAdjustmentPercentageUsed) + 0.05;
             if (lowerThreshold < item.valueAdjustment && item.valueAdjustment < upperThreshold) {
-                item.valueAdjustment = configuration.autoAdjustmentPercentageNew;
+                dispatch(updateItem({...item, valueAdjustment: configuration.autoAdjustmentPercentageNew}))
             }
         }
     }
@@ -121,13 +123,13 @@ export const usePriceCalculationEngine = (): PriceCalculationHooks => {
             const lowerThreshold: number = (configuration.autoAdjustmentPercentageUsed) - 0.05;
             const upperThreshold: number = (configuration.autoAdjustmentPercentageUsed) + 0.05;
             if (lowerThreshold < item.valueAdjustment && item.valueAdjustment < upperThreshold) {
-                item.valueAdjustment = configuration.autoAdjustmentPercentageUsed;
+                //item.valueAdjustment = configuration.autoAdjustmentPercentageUsed;
             }
         } else if (item.condition === Condition.NEW) {
             const lowerThreshold: number = (configuration.autoAdjustmentPercentageNew) - 0.05;
             const upperThreshold: number = (configuration.autoAdjustmentPercentageNew) + 0.05;
             if (lowerThreshold < item.valueAdjustment && item.valueAdjustment < upperThreshold) {
-                item.valueAdjustment = configuration.autoAdjustmentPercentageNew;
+                //item.valueAdjustment = configuration.autoAdjustmentPercentageNew;
             }
         }
     }

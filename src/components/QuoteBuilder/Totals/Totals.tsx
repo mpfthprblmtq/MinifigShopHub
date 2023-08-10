@@ -176,4 +176,4 @@ const Totals = forwardRef(({total, setTotal, items, storeMode, overrideRowAdjust
     );
 });
 
-export default Totals;
+export default React.memo(Totals);

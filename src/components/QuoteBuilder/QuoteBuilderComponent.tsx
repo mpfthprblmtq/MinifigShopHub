@@ -1,24 +1,24 @@
-import React, {FunctionComponent, useEffect, useRef, useState} from "react";
-import {Item} from "../../model/item/Item";
+import React, { FunctionComponent, useEffect, useRef, useState } from "react";
+import { Item } from "../../model/item/Item";
 import {
-  Box,
-  Typography
+    Box,
+    Typography
 } from "@mui/material";
 import TableComponent from "./Table/TableComponent/TableComponent";
 import ItemSearchCard from "./Cards/ItemSearchCard/ItemSearchCard";
 import CustomItemCard from "./Cards/CustomItemCard/CustomItemCard";
 import Totals from "./Totals/Totals";
 import BrickLinkSearchCard from "./Cards/BrickLinkSearchCard/BrickLinkSearchCard";
-import {formatCurrency} from "../../utils/CurrencyUtils";
+import { formatCurrency } from "../../utils/CurrencyUtils";
 import Version from "../_shared/Version/Version";
-import {Condition} from "../../model/_shared/Condition";
+import { Condition } from "../../model/_shared/Condition";
 import SettingsDialog from "./Dialog/SettingsDialog/SettingsDialog";
 import ConfirmDialog from "../_shared/ConfirmDialog/ConfirmDialog";
-import {usePriceCalculationEngine} from "../../hooks/priceCalculation/usePriceCalculationEngine";
-import {ChangeType} from "../../model/priceCalculation/ChangeType";
-import {useDispatch, useSelector} from "react-redux";
-import {useConfigurationService} from "../../hooks/dynamo/useConfigurationService";
-import {updateStoreConfiguration} from "../../redux/slices/configurationSlice";
+import { usePriceCalculationEngine } from "../../hooks/priceCalculation/usePriceCalculationEngine";
+import { ChangeType } from "../../model/priceCalculation/ChangeType";
+import { useDispatch, useSelector } from "react-redux";
+import { useConfigurationService } from "../../hooks/dynamo/useConfigurationService";
+import { updateStoreConfiguration } from "../../redux/slices/configurationSlice";
 import NavBar from "../_shared/NavBar/NavBar";
 import { Tabs } from "../_shared/NavBar/Tabs";
 import { Total } from "../../model/total/Total";
@@ -33,28 +33,24 @@ const QuoteBuilderComponent: FunctionComponent = () => {
 
     const { configuration } = useSelector((state: any) => state.configurationStore);
     const { quote } = useSelector((state: any) => state.quoteStore);
-    console.log(quote)
+    const items = quote.items as Item[];
     const dispatch = useDispatch();
 
     const totalsRef = useRef({} as TotalsRefProps);
-    const [items, setItems] = useState<Item[]>(quote.items);
     const [total, setTotal] = useState<Total>(quote.total);
     const [storeMode, setStoreMode] = useState<boolean>(true);
     const [overrideRowAdjustments, setOverrideRowAdjustments] = useState<boolean>(false);
     const [showConfirmResetCalculationsDialog, setShowConfirmResetCalculationsDialog] = useState<boolean>(false);
     const [settingsDialogOpen, setSettingsDialogOpen] = useState<boolean>(false);
 
-    const {calculatePrice} = usePriceCalculationEngine();
-    const {initConfig} = useConfigurationService();
+    const { calculatePrice } = usePriceCalculationEngine();
+    const { initConfig } = useConfigurationService();
+
+
 
     useEffect(() => {
-      dispatch(updateItemsInStore([...items]));
-      // eslint-disable-next-line
-    }, [items]);
-
-    useEffect(() => {
-      dispatch(updateTotalInStore({...total}));
-      // eslint-disable-next-line
+        dispatch(updateTotalInStore({ ...total }));
+        // eslint-disable-next-line
     }, [total]);
 
     const resetCalculations = () => {
@@ -72,7 +68,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
             item.condition = condition;
             calculatePrice(item, ChangeType.CONDITION);
         });
-        setItems([...items]);
+        dispatch((updateItemsInStore([...items])));
     };
 
     useEffect(() => {
@@ -86,34 +82,36 @@ const QuoteBuilderComponent: FunctionComponent = () => {
         if (!configuration.storeCreditValueAdjustment
             && !configuration.autoAdjustmentPercentageNew
             && !configuration.autoAdjustmentPercentageUsed) {
-            initConfiguration().then(() => {});
+            initConfiguration().then(() => { });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
         <div className={"App"}>
-          <div className={"hide-in-print-preview"}>
-            <NavBar
-              activeTab={Tabs.QUOTE_BUILDER}
-              openSettings={() => setSettingsDialogOpen(true)}
-              printQuote={() => {
-                if (items && items.length > 0) {
-                  window.print();
-                }
-              }}
-              storeMode={storeMode}
-              setStoreMode={setStoreMode}
-            />
-          </div>
+            <div className={"hide-in-print-preview"}>
+                <NavBar
+                    activeTab={Tabs.QUOTE_BUILDER}
+                    openSettings={() => setSettingsDialogOpen(true)}
+                    printQuote={() => {
+                        if (items && items.length > 0) {
+                            window.print();
+                        }
+                    }}
+                    storeMode={storeMode}
+                    setStoreMode={setStoreMode}
+                />
+            </div>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 {storeMode && (
                     <>
                         <Box sx={{ m: 1, position: 'relative' }} className={"hide-in-print-preview"}>
-                            <ItemSearchCard items={items} setItems={setItems} />
+                            <ItemSearchCard items={items} setItems={items => dispatch((updateItemsInStore([...items])))}
+                            />
                         </Box>
                         <Box sx={{ m: 1, position: 'relative' }} className={"hide-in-print-preview"}>
-                            <CustomItemCard items={items} setItems={setItems} />
+                            <CustomItemCard items={items} setItems={(items) => dispatch((updateItemsInStore([...items])))}
+                            />
                         </Box>
                         <Box sx={{ m: 1, position: 'relative' }} className={"hide-in-print-preview"}>
                             <BrickLinkSearchCard />
@@ -121,11 +119,11 @@ const QuoteBuilderComponent: FunctionComponent = () => {
                     </>
                 )}
             </Box>
-            <Box style={{marginTop: 20}}>
-                <TableComponent items={items} setItems={setItems} storeMode={storeMode} disableRowAdjustmentSliders={overrideRowAdjustments} />
+            <Box style={{ marginTop: 20 }}>
+                <TableComponent items={items} setItems={(items) => dispatch((updateItemsInStore([...items])))} storeMode={storeMode} disableRowAdjustmentSliders={overrideRowAdjustments} />
             </Box>
             {items.length > 0 && (
-                <Totals total={total} setTotal={setTotal} items={items} storeMode={storeMode} ref={totalsRef} overrideRowAdjustments={setOverrideRowAdjustments}/>
+                <Totals total={total} setTotal={setTotal} items={items} storeMode={storeMode} ref={totalsRef} overrideRowAdjustments={setOverrideRowAdjustments} />
             )}
             <ConfirmDialog
                 title='Confirm Reset Calculations'
@@ -143,7 +141,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
                 open={settingsDialogOpen}
                 onClose={() => setSettingsDialogOpen(false)}
                 resetCalculations={() => setShowConfirmResetCalculationsDialog(true)}
-                setBulkCondition={(condition) => {setBulkCondition(condition)}}
+                setBulkCondition={(condition) => { setBulkCondition(condition) }}
                 actionsDisabled={items.length === 0}
             />
             <Version />
@@ -151,4 +149,4 @@ const QuoteBuilderComponent: FunctionComponent = () => {
     );
 };
 
-export default QuoteBuilderComponent;
+export default React.memo(QuoteBuilderComponent);
