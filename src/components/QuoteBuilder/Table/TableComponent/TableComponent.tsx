@@ -22,6 +22,8 @@ import {ChangeType} from "../../../../model/priceCalculation/ChangeType";
 import { updateItemsInStore } from "../../../../redux/slices/quoteSlice";
 import { useDispatch } from "react-redux";
 
+const _ = require('lodash');
+
 interface TableComponentParams {
     items: Item[];
     setItems: (items: Item[]) => void;
@@ -46,7 +48,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
      */
     const handleConditionChange = (condition: Condition, id: number) => {
         if (condition) {
-            const newItems = [...items];
+            const newItems = _.cloneDeep(items);
             const item = getItemWithId(newItems, id);
             if (item) {
                 item.condition = condition;
@@ -62,7 +64,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
      * @param id the id of the item to modify
      */
     const handleSliderChange = (event: any, id: number) => {
-        const newItems = [...items];
+        const newItems = _.cloneDeep(items);
         const item = getItemWithId(newItems, id);
         if (item) {
             item.valueAdjustment = +event.target.value
@@ -79,7 +81,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
      * @param id the id of the item to modify
      */
     const handleValueChange = (event: any, id: number) => {
-        const newItems = [...items];
+        const newItems = _.cloneDeep(items);
         const item = getItemWithId(newItems, id);
         if (item) {
             item.value = launderMoney(event.target.value);
@@ -95,7 +97,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
      * @param id the id of the item to modify
      */
     const handleValueBlur = (event: any, id: number) => {
-        const newItems = [...items];
+        const newItems = _.cloneDeep(items);
         const item = getItemWithId(newItems, id);
         if (item) {
             item.valueDisplay = formatCurrency(launderMoney(event.target.value));
@@ -104,7 +106,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
     };
 
     const handleCommentChange = (comment: string, id: number) => {
-        const newItems = [...items];
+        const newItems = _.cloneDeep(items);
         const item = getItemWithId(newItems, id);
         if (item) {
             item.comment = comment;
