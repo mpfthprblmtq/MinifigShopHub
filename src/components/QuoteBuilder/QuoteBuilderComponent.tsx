@@ -23,6 +23,7 @@ import NavBar from "../_shared/NavBar/NavBar";
 import { Tabs } from "../_shared/NavBar/Tabs";
 import { Total } from "../../model/total/Total";
 import { updateItemsInStore, updateTotalInStore } from "../../redux/slices/quoteSlice";
+const _ = require('lodash');
 
 interface TotalsRefProps {
     resetTotalsCalculations: () => void;
@@ -45,29 +46,30 @@ const QuoteBuilderComponent: FunctionComponent = () => {
     const { calculatePrice } = usePriceCalculationEngine();
     const { initConfig } = useConfigurationService();
 
-
-
     useEffect(() => {
         dispatch(updateTotalInStore({ ...total }));
         // eslint-disable-next-line
     }, [total]);
 
     const resetCalculations = () => {
-        items.forEach(item => {
-            item.valueAdjustment = item.condition === Condition.USED ?
-                configuration.autoAdjustmentPercentageUsed : configuration.autoAdjustmentPercentageNew;
-            item.value = item.baseValue * (item.valueAdjustment / 100);
-            item.valueDisplay = formatCurrency(item.value).toString().substring(1);
-        });
-        totalsRef.current.resetTotalsCalculations();
+      const clonedItems: Item[] = _.cloneDeep(items);
+      clonedItems.forEach(item => {
+          item.valueAdjustment = item.condition === Condition.USED ?
+              configuration.autoAdjustmentPercentageUsed : configuration.autoAdjustmentPercentageNew;
+          item.value = item.baseValue * (item.valueAdjustment / 100);
+          item.valueDisplay = formatCurrency(item.value).toString().substring(1);
+      });
+      dispatch((updateItemsInStore([...clonedItems])));
+      totalsRef.current.resetTotalsCalculations();
     };
 
     const setBulkCondition = (condition: Condition) => {
-        items.forEach(item => {
+        const clonedItems: Item[] = _.cloneDeep(items);
+        clonedItems.forEach(item => {
             item.condition = condition;
             calculatePrice(item, ChangeType.CONDITION);
         });
-        dispatch((updateItemsInStore([...items])));
+        dispatch((updateItemsInStore([...clonedItems])));
     };
 
     useEffect(() => {
@@ -92,6 +94,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
                 <NavBar
                     activeTab={Tabs.QUOTE_BUILDER}
                     openSettings={() => setSettingsDialogOpen(true)}
+                    clearAll={() => dispatch(updateItemsInStore([]))}
                     printQuote={() => {
                         if (items && items.length > 0) {
                             window.print();
@@ -105,12 +108,10 @@ const QuoteBuilderComponent: FunctionComponent = () => {
                 {storeMode && (
                     <>
                         <Box sx={{ m: 1, position: 'relative' }} className={"hide-in-print-preview"}>
-                            <ItemSearchCard items={items} setItems={items => dispatch((updateItemsInStore([...items])))}
-                            />
+                            <ItemSearchCard items={items} setItems={items => dispatch(updateItemsInStore([...items]))} />
                         </Box>
                         <Box sx={{ m: 1, position: 'relative' }} className={"hide-in-print-preview"}>
-                            <CustomItemCard items={items} setItems={(items) => dispatch((updateItemsInStore([...items])))}
-                            />
+                            <CustomItemCard items={items} setItems={(items) => dispatch(updateItemsInStore([...items]))} />
                         </Box>
                         <Box sx={{ m: 1, position: 'relative' }} className={"hide-in-print-preview"}>
                             <BrickLinkSearchCard />
@@ -119,7 +120,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
                 )}
             </Box>
             <Box style={{ marginTop: 20 }}>
-                <TableComponent items={items} setItems={(items) => dispatch((updateItemsInStore([...items])))} storeMode={storeMode} disableRowAdjustmentSliders={overrideRowAdjustments} />
+                <TableComponent storeMode={storeMode} disableRowAdjustmentSliders={overrideRowAdjustments} />
             </Box>
             {items.length > 0 && (
                 <Totals total={total} setTotal={setTotal} items={items} storeMode={storeMode} ref={totalsRef} overrideRowAdjustments={setOverrideRowAdjustments} />

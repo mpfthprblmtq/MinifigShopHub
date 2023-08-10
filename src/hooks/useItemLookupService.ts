@@ -80,6 +80,7 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
                     item.baseValue = item.usedSold?.avg_price ? +item.usedSold.avg_price : 0;
                     item.value = item.usedSold?.avg_price ?
                         +item.usedSold.avg_price * (configuration.autoAdjustmentPercentageUsed / 100) : 0;
+                    item.value = +item.value.toFixed(2);
                     item.valueDisplay = formatCurrency(item.value)!.toString().substring(1);
                     item.valueAdjustment = configuration.autoAdjustmentPercentageUsed;
                     item.source = Source.BRICKLINK;

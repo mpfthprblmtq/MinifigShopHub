@@ -4,18 +4,15 @@ import {Condition} from "../../model/_shared/Condition";
 import {Availability} from "../../model/retailStatus/Availability";
 import {formatCurrency} from "../../utils/CurrencyUtils";
 import {Source} from "../../model/_shared/Source";
-import {useDispatch, useSelector} from "react-redux";
-import { updateItem } from "../../redux/slices/quoteSlice";
+import {useSelector} from "react-redux";
 
 export interface PriceCalculationHooks {
     calculatePrice: (item: Item, changeType: ChangeType) => void;
-    roundAdjustmentWithConfidence: (item: Item) => void;
 }
 
 export const usePriceCalculationEngine = (): PriceCalculationHooks => {
 
     const {configuration} = useSelector((state: any) => state.configurationStore);
-    const dispatch = useDispatch();
 
     /**
      * Main function that determines the price and adjustment of the item
@@ -28,9 +25,6 @@ export const usePriceCalculationEngine = (): PriceCalculationHooks => {
         if (changeType === ChangeType.CONDITION) {
 
             if (item.source === Source.BRICKLINK) {
-                // since we change the baseValue, the valueAdjustment might be super close to the standard valueAdjustments,
-                // so we round them with 0.05 confidence
-                roundAdjustmentWithConfidenceOnConditionChange(item);
 
                 // if we're changing from used to new, and the existing valueAdjustment is the valueAdjustment for used,
                 // then change the valueAdjustment to the valueAdjustment for new
@@ -47,14 +41,14 @@ export const usePriceCalculationEngine = (): PriceCalculationHooks => {
                 }
 
                 // then set the value based on the determined valueAdjustment
-                item.value = (item.valueAdjustment / 100) * item.baseValue;
+                item.value = +((item.valueAdjustment / 100) * item.baseValue).toFixed(2);
                 item.valueDisplay = formatCurrency(item.value);
             }
 
         } else if (changeType === ChangeType.ADJUSTMENT) {
 
             // nothing fancy here, just need to set the value to the new adjustment * baseValue
-            item.value = (item.valueAdjustment / 100) * item.baseValue;
+            item.value = +((item.valueAdjustment / 100) * item.baseValue).toFixed(2);
             item.valueDisplay = formatCurrency(item.value);
 
         } else if (changeType === ChangeType.VALUE) {
@@ -64,9 +58,7 @@ export const usePriceCalculationEngine = (): PriceCalculationHooks => {
             // the slider for the row will be set to 0 and disabled if it detects that the baseValue is 0
             setBaseValue(item);
             if (item.baseValue !== 0) {
-                item.valueAdjustment = +((item.value / item.baseValue) * 100)
-                    .toFixed(2)
-                    .replace(".00", "");
+                item.valueAdjustment = Math.round((item.value / item.baseValue) * 100);
             }
         }
     };
@@ -97,42 +89,5 @@ export const usePriceCalculationEngine = (): PriceCalculationHooks => {
         }
     }
 
-    /**
-     * Helper function that rounds the value adjustment to the nearest valid value.  Sometimes, if the value changes and
-     * the valueAdjustment gets set to something like 59.98%, then we want that to really be 60%
-     * @param item the item to check
-     */
-    const roundAdjustmentWithConfidenceOnConditionChange = (item: Item) => {
-        if (item.condition === Condition.USED) {
-            const lowerThreshold: number = (configuration.autoAdjustmentPercentageNew) - 0.05;
-            const upperThreshold: number = (configuration.autoAdjustmentPercentageNew) + 0.05;
-            if (lowerThreshold < item.valueAdjustment && item.valueAdjustment < upperThreshold) {
-                dispatch(updateItem({...item, valueAdjustment: configuration.autoAdjustmentPercentageUsed}))
-            }
-        } else if (item.condition === Condition.NEW) {
-            const lowerThreshold: number = (configuration.autoAdjustmentPercentageUsed) - 0.05;
-            const upperThreshold: number = (configuration.autoAdjustmentPercentageUsed) + 0.05;
-            if (lowerThreshold < item.valueAdjustment && item.valueAdjustment < upperThreshold) {
-                dispatch(updateItem({...item, valueAdjustment: configuration.autoAdjustmentPercentageNew}))
-            }
-        }
-    }
-
-    const roundAdjustmentWithConfidence = (item: Item) => {
-        if (item.condition === Condition.USED) {
-            const lowerThreshold: number = (configuration.autoAdjustmentPercentageUsed) - 0.05;
-            const upperThreshold: number = (configuration.autoAdjustmentPercentageUsed) + 0.05;
-            if (lowerThreshold < item.valueAdjustment && item.valueAdjustment < upperThreshold) {
-                //item.valueAdjustment = configuration.autoAdjustmentPercentageUsed;
-            }
-        } else if (item.condition === Condition.NEW) {
-            const lowerThreshold: number = (configuration.autoAdjustmentPercentageNew) - 0.05;
-            const upperThreshold: number = (configuration.autoAdjustmentPercentageNew) + 0.05;
-            if (lowerThreshold < item.valueAdjustment && item.valueAdjustment < upperThreshold) {
-                //item.valueAdjustment = configuration.autoAdjustmentPercentageNew;
-            }
-        }
-    }
-
-    return { calculatePrice, roundAdjustmentWithConfidence };
+    return { calculatePrice };
 }

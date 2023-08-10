@@ -1,12 +1,12 @@
-import React, {FunctionComponent, useState} from "react";
-import {Table, TableBody, TableContainer, TableHead, TableRow} from "@mui/material";
+import React, { FunctionComponent, useState } from "react";
+import { Table, TableBody, TableContainer, TableHead, TableRow } from "@mui/material";
 import NewUsedToggleButtonCell from "../TableCells/NewUsedToggleButtonCell";
-import {formatCurrency, launderMoney} from "../../../../utils/CurrencyUtils";
-import {FixedWidthColumnHeading, StyledTableCell} from "./TableComponent.styles";
-import {Item} from "../../../../model/item/Item";
-import {Condition} from "../../../../model/_shared/Condition";
+import { formatCurrency, launderMoney } from "../../../../utils/CurrencyUtils";
+import { FixedWidthColumnHeading, StyledTableCell } from "./TableComponent.styles";
+import { Item } from "../../../../model/item/Item";
+import { Condition } from "../../../../model/_shared/Condition";
 import ManualValueAdjustmentSliderCell from "../TableCells/ManualValueAdjustmentSliderCell";
-import {getItemWithId} from "../../../../utils/ArrayUtils";
+import { getItemWithId } from "../../../../utils/ArrayUtils";
 import ItemCommentCell from "../TableCells/ItemCommentCell";
 import ConfirmItemDeleteDialog from "../../Dialog/ConfirmItemDeleteDialog/ConfirmItemDeleteDialog";
 import MoreInformationDialog from "../../Dialog/MoreInformationDialog/MoreInformationDialog";
@@ -17,21 +17,18 @@ import BrickLinkSalesCells from "../TableCells/BrickLinkSalesCells";
 import ValueCell from "../TableCells/ValueCell";
 import IconsCell from "../TableCells/IconsCell";
 import InformationDialog from "../../../_shared/InformationDialog/InformationDialog";
-import {usePriceCalculationEngine} from "../../../../hooks/priceCalculation/usePriceCalculationEngine";
-import {ChangeType} from "../../../../model/priceCalculation/ChangeType";
-import { updateItemsInStore } from "../../../../redux/slices/quoteSlice";
-import { useDispatch } from "react-redux";
-
+import { usePriceCalculationEngine } from "../../../../hooks/priceCalculation/usePriceCalculationEngine";
+import { ChangeType } from "../../../../model/priceCalculation/ChangeType";
+import { updateItem, updateItemsInStore } from "../../../../redux/slices/quoteSlice";
+import { useDispatch, useSelector } from "react-redux";
 const _ = require('lodash');
 
 interface TableComponentParams {
-    items: Item[];
-    setItems: (items: Item[]) => void;
     storeMode: boolean;
     disableRowAdjustmentSliders: boolean;
 }
 
-const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setItems, storeMode, disableRowAdjustmentSliders }) => {
+const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, disableRowAdjustmentSliders }) => {
 
     const [focusedItem, setFocusedItem] = useState<Item>();
     const [showImageDialog, setShowImageDialog] = useState<boolean>(false);
@@ -40,6 +37,8 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
 
     const { calculatePrice } = usePriceCalculationEngine();
     const dispatch = useDispatch();
+    const { quote } = useSelector((state: any) => state.quoteStore);
+    const items = quote.items as Item[];
 
     /**
      * Event handler for the change event on the condition selector
@@ -48,13 +47,12 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
      */
     const handleConditionChange = (condition: Condition, id: number) => {
         if (condition) {
-            const newItems = _.cloneDeep(items);
-            const item = getItemWithId(newItems, id);
-            if (item) {
-                item.condition = condition;
-                calculatePrice(item, ChangeType.CONDITION);
+            const itemCopy = _.cloneDeep(getItemWithId(items, id));
+            if (itemCopy) {
+                itemCopy.condition = condition;
+                calculatePrice(itemCopy, ChangeType.CONDITION);
             }
-            setItems(newItems);
+            dispatch(updateItem(itemCopy));
         }
     };
 
@@ -64,15 +62,14 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
      * @param id the id of the item to modify
      */
     const handleSliderChange = (event: any, id: number) => {
-        const newItems = _.cloneDeep(items);
-        const item = getItemWithId(newItems, id);
-        if (item) {
-            item.valueAdjustment = +event.target.value
-                .toFixed(2)
-                .replace(".00", "");
-            calculatePrice(item, ChangeType.ADJUSTMENT);
+        const itemCopy = _.cloneDeep(getItemWithId(items, id));
+        if (itemCopy) {
+            itemCopy.valueAdjustment = +event.target.value
+              .toFixed(2)
+              .replace(".00", "");
+            calculatePrice(itemCopy, ChangeType.ADJUSTMENT);
         }
-        setItems(newItems);
+        dispatch(updateItem(itemCopy));
     };
 
     /**
@@ -81,14 +78,13 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
      * @param id the id of the item to modify
      */
     const handleValueChange = (event: any, id: number) => {
-        const newItems = _.cloneDeep(items);
-        const item = getItemWithId(newItems, id);
-        if (item) {
-            item.value = launderMoney(event.target.value);
-            item.valueDisplay = event.target.value;
-            calculatePrice(item, ChangeType.VALUE);
+        const itemCopy = _.cloneDeep(getItemWithId(items, id));
+        if (itemCopy) {
+            itemCopy.value = launderMoney(event.target.value);
+            itemCopy.valueDisplay = event.target.value;
+            calculatePrice(itemCopy, ChangeType.VALUE);
         }
-        setItems(newItems);
+        dispatch(updateItem(itemCopy));
     };
 
     /**
@@ -97,21 +93,20 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
      * @param id the id of the item to modify
      */
     const handleValueBlur = (event: any, id: number) => {
-        const newItems = _.cloneDeep(items);
-        const item = getItemWithId(newItems, id);
-        if (item) {
-            item.valueDisplay = formatCurrency(launderMoney(event.target.value));
+        const itemCopy = _.cloneDeep(getItemWithId(items, id));
+        if (itemCopy) {
+            itemCopy.valueDisplay = formatCurrency(launderMoney(event.target.value));
         }
-        setItems(newItems);
+        dispatch(updateItem(itemCopy));
     };
 
     const handleCommentChange = (comment: string, id: number) => {
-        const newItems = _.cloneDeep(items);
-        const item = getItemWithId(newItems, id);
-        if (item) {
-            item.comment = comment;
+        const item = getItemWithId(items, id);
+        const itemCopy = _.cloneDeep(item);
+        if (itemCopy) {
+            itemCopy.comment = comment;
         }
-        setItems(newItems);
+        dispatch(updateItem(itemCopy));
     }
 
     return (
@@ -195,7 +190,6 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ items, setIte
                 }}
                 deleteRow={(id: number) => {
                     const filteredItems = [...items].filter(item => item.id !== id)
-                    setItems(filteredItems);
                     dispatch(updateItemsInStore(filteredItems));
                     setFocusedItem(undefined);
                     setShowDeleteDialog(false);

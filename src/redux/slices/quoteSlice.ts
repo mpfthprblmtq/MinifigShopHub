@@ -1,8 +1,7 @@
-import { createSelector, createSlice } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import { Quote } from "../../model/quote/Quote";
 import { Item } from "../../model/item/Item";
 import { Total } from "../../model/total/Total";
-import * as _ from "lodash";
 
 interface QuoteState {
     quote: Quote
@@ -19,7 +18,6 @@ const initialState: QuoteState = {
         }
     }
 }
-
 
 export const quoteSlice = createSlice({
     name: 'quote',

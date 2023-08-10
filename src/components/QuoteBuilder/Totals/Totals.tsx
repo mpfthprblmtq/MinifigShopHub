@@ -5,12 +5,9 @@ import {Item} from "../../../model/item/Item";
 import {formatCurrency, launderMoney} from "../../../utils/CurrencyUtils";
 import ManualTotalAdjustmentSlider from "./ManualTotalAdjustmentSlider";
 import CurrencyTextInput from "../../_shared/CurrencyTextInput/CurrencyTextInput";
-import {usePriceCalculationEngine} from "../../../hooks/priceCalculation/usePriceCalculationEngine";
 import {useSelector} from "react-redux";
 import {Configuration} from "../../../model/dynamo/Configuration";
 import { Total } from "../../../model/total/Total";
-
-const _ = require('lodash');
 
 interface TotalsSectionParams {
     total: Total;
@@ -33,18 +30,7 @@ const Totals = forwardRef(({total, setTotal, items, storeMode, overrideRowAdjust
     const [storeCreditValue, setStoreCreditValue] = useState<string>(formatCurrency(total.storeCreditValue) ?? '');
     const [sliderDisabled, setSliderDisabled] = useState<boolean>(false);
 
-    const { roundAdjustmentWithConfidence } = usePriceCalculationEngine();
     const configuration: Configuration = useSelector((state: any) => state.configurationStore.configuration);
-
-    const getAllValueAdjustments = (items: Item[]): Set<number> => {
-        const itemsCopy: Item[] = _.cloneDeep(items);
-        itemsCopy.filter(item => item.valueAdjustment !== 0).map(item => {
-            // need to round with confidence since we need to account for something like 49.98%
-            roundAdjustmentWithConfidence(item);
-            return item;
-        });
-        return new Set(itemsCopy.map(item => item.valueAdjustment));
-    }
 
     useEffect(() => {
         const calculatedValue: number = items.reduce((sum, item) => sum + item.value, 0);
@@ -53,7 +39,7 @@ const Totals = forwardRef(({total, setTotal, items, storeMode, overrideRowAdjust
         setBaseValue(calculatedBaseValue);
 
         let calculatedValueAdjustment;
-        const adjustmentSet = getAllValueAdjustments(items);
+        const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
         if (adjustmentSet.size === 1) {
             setSliderDisabled(false);
             calculatedValueAdjustment = adjustmentSet.values().next().value;
@@ -103,7 +89,7 @@ const Totals = forwardRef(({total, setTotal, items, storeMode, overrideRowAdjust
     const handleSliderChange = (event: any) => {
         setValueAdjustment(event.target.value);
         setValue(baseValue * (event.target.value / 100));
-        const adjustmentSet = getAllValueAdjustments(items);
+        const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
         if (adjustmentSet.size === 1 && adjustmentSet.values().next().value === event.target.value) {
             overrideRowAdjustments(false);
         } else {

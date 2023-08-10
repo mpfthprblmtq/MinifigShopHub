@@ -22,16 +22,16 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import PrintIcon from "@mui/icons-material/Print";
 import SaveIcon from "@mui/icons-material/Save";
 import DriveFileMoveIcon from "@mui/icons-material/DriveFileMove";
-// import PersonIcon from "@mui/icons-material/Person";
-// import StoreIcon from "@mui/icons-material/Store";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import ClearAllIcon from "@mui/icons-material/ClearAll";
 import { useNavigate } from "react-router-dom";
 import { Tabs } from "./Tabs";
 
 interface NavBarParams {
   activeTab: string;
   openSettings?: () => void;
+  clearAll?: () => void;
   printQuote?: () => void;
   storeMode?: boolean;
   setStoreMode?: (storeMode: boolean) => void;
@@ -109,7 +109,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
-const NavBar: FunctionComponent<NavBarParams> = ({activeTab, openSettings, printQuote, storeMode, setStoreMode}) => {
+const NavBar: FunctionComponent<NavBarParams> = ({activeTab, openSettings, clearAll, printQuote, storeMode, setStoreMode}) => {
 
   const [open, setOpen] = useState<boolean>(false);
 
@@ -282,6 +282,26 @@ const NavBar: FunctionComponent<NavBarParams> = ({activeTab, openSettings, print
                       : <VisibilityOffIcon sx={{color: '#1976d2'}} />}
                   </ListItemIcon>
                   <ListItemText primary={'Store Mode Visibility'} sx={{ opacity: open ? 1 : 0 }} />
+                </ListItemButton>
+              </Tooltip>
+            </ListItem>
+            <ListItem disablePadding sx={{ display: 'block' }} onClick={clearAll}>
+              <Tooltip title={!open ? 'Clear All Items' : ''} placement={'right'}>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5,
+                  }}>
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : 'auto',
+                      justifyContent: 'center',
+                    }}>
+                    <ClearAllIcon />
+                  </ListItemIcon>
+                  <ListItemText primary={'Clear All Items'} sx={{ opacity: open ? 1 : 0 }} />
                 </ListItemButton>
               </Tooltip>
             </ListItem>
