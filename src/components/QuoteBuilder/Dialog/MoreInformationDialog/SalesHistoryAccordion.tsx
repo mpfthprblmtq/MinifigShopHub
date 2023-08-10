@@ -8,6 +8,7 @@ import Chart from 'react-apexcharts';
 import {formatDate} from "../../../../utils/DateUtils";
 import {formatCurrency} from "../../../../utils/CurrencyUtils";
 import {ApexOptions} from "apexcharts";
+import { PriceDetail } from "../../../../model/salesHistory/PriceDetail";
 
 interface SalesHistoryAccordionParams {
     title: ReactNode;
@@ -35,10 +36,10 @@ const SalesHistoryAccordion: FunctionComponent<SalesHistoryAccordionParams> = ({
 
             const data: any[] = [];
             // sort it by date first since sometimes it doesn't come back sorted
-            salesHistory.price_detail = salesHistory.price_detail
-                .sort((a, b) => a.date_ordered!.localeCompare(b.date_ordered!));
+            const salesHistoryList: PriceDetail[] = [...salesHistory.price_detail]
+              .sort((a, b) => a.date_ordered!.localeCompare(b.date_ordered!));
             // then populate the chart data in its x/y format
-            salesHistory.price_detail.forEach((priceDetail) => {
+            salesHistoryList.forEach((priceDetail) => {
                 data.push({x: formatDate(priceDetail.date_ordered), y: priceDetail.unit_price});
             });
             seriesData[0].data = data;
