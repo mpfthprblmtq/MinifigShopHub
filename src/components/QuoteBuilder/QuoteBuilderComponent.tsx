@@ -37,19 +37,14 @@ const QuoteBuilderComponent: FunctionComponent = () => {
     const dispatch = useDispatch();
 
     const totalsRef = useRef({} as TotalsRefProps);
-    const [total, setTotal] = useState<Total>(quote.total);
     const [storeMode, setStoreMode] = useState<boolean>(true);
     const [overrideRowAdjustments, setOverrideRowAdjustments] = useState<boolean>(false);
+    const [overrideTotalAdjustments, setOverrideTotalAdjustments] = useState<boolean>(false);
     const [showConfirmResetCalculationsDialog, setShowConfirmResetCalculationsDialog] = useState<boolean>(false);
     const [settingsDialogOpen, setSettingsDialogOpen] = useState<boolean>(false);
 
     const { calculatePrice } = usePriceCalculationEngine();
     const { initConfig } = useConfigurationService();
-
-    useEffect(() => {
-        dispatch(updateTotalInStore({ ...total }));
-        // eslint-disable-next-line
-    }, [total]);
 
     const resetCalculations = () => {
       const clonedItems: Item[] = _.cloneDeep(items);
@@ -59,8 +54,10 @@ const QuoteBuilderComponent: FunctionComponent = () => {
           item.value = item.baseValue * (item.valueAdjustment / 100);
           item.valueDisplay = formatCurrency(item.value).toString().substring(1);
       });
-      dispatch((updateItemsInStore([...clonedItems])));
+      setOverrideRowAdjustments(false);
+      setOverrideTotalAdjustments(false);
       totalsRef.current.resetTotalsCalculations();
+      dispatch((updateItemsInStore([...clonedItems])));
     };
 
     const setBulkCondition = (condition: Condition) => {
@@ -71,6 +68,11 @@ const QuoteBuilderComponent: FunctionComponent = () => {
         });
         dispatch((updateItemsInStore([...clonedItems])));
     };
+
+    useEffect(() => {
+      const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
+      setOverrideTotalAdjustments(adjustmentSet.size !== 1);
+    }, [items]);
 
     useEffect(() => {
         const initConfiguration = async () => {
@@ -94,7 +96,10 @@ const QuoteBuilderComponent: FunctionComponent = () => {
                 <NavBar
                     activeTab={Tabs.QUOTE_BUILDER}
                     openSettings={() => setSettingsDialogOpen(true)}
-                    clearAll={() => dispatch(updateItemsInStore([]))}
+                    clearAll={() => {
+                      dispatch(updateItemsInStore([]));
+                      dispatch(updateTotalInStore({value: 0, baseValue: 0, storeCreditValue: 0, valueAdjustment: 50} as Total));
+                    }}
                     printQuote={() => {
                         if (items && items.length > 0) {
                             window.print();
@@ -120,10 +125,21 @@ const QuoteBuilderComponent: FunctionComponent = () => {
                 )}
             </Box>
             <Box style={{ marginTop: 20 }}>
-                <TableComponent storeMode={storeMode} disableRowAdjustmentSliders={overrideRowAdjustments} />
+                <TableComponent
+                  storeMode={storeMode}
+                  overrideRowAdjustments={overrideRowAdjustments}
+                />
             </Box>
             {items.length > 0 && (
-                <Totals total={total} setTotal={setTotal} items={items} storeMode={storeMode} ref={totalsRef} overrideRowAdjustments={setOverrideRowAdjustments} />
+                <Totals
+                  total={quote.total}
+                  setTotal={total => dispatch(updateTotalInStore(total))}
+                  items={items}
+                  storeMode={storeMode}
+                  ref={totalsRef}
+                  overrideTotalAdjustments={overrideTotalAdjustments}
+                  setOverrideRowAdjustments={setOverrideRowAdjustments}
+                />
             )}
             <ConfirmDialog
                 title='Confirm Reset Calculations'

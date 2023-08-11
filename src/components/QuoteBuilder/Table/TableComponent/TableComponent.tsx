@@ -24,10 +24,10 @@ import { useDispatch, useSelector } from "react-redux";
 
 interface TableComponentParams {
     storeMode: boolean;
-    disableRowAdjustmentSliders: boolean;
+    overrideRowAdjustments: boolean;
 }
 
-const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, disableRowAdjustmentSliders }) => {
+const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, overrideRowAdjustments }) => {
 
     const [focusedItem, setFocusedItem] = useState<Item>();
     const [showImageDialog, setShowImageDialog] = useState<boolean>(false);
@@ -96,7 +96,9 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, di
         if (itemCopy) {
             itemCopy.valueDisplay = formatCurrency(launderMoney(event.target.value));
         }
-        dispatch(updateItem(itemCopy));
+        if (!overrideRowAdjustments) {
+            dispatch(updateItem(itemCopy));
+        }
     };
 
     const handleCommentChange = (comment: string, id: number) => {
@@ -148,9 +150,11 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, di
                                     item={item}
                                     handleValueBlur={handleValueBlur}
                                     handleValueChange={handleValueChange}
-                                    storeMode={storeMode} />
+                                    storeMode={storeMode}
+                                    editable={overrideRowAdjustments}
+                                />
                                 {storeMode && (
-                                    <ManualValueAdjustmentSliderCell item={item} handleSliderChange={handleSliderChange} disabled={disableRowAdjustmentSliders} />
+                                    <ManualValueAdjustmentSliderCell item={item} handleSliderChange={handleSliderChange} disabled={overrideRowAdjustments} />
                                 )}
                                 <ItemCommentCell item={item} storeMode={storeMode} handleCommentChange={handleCommentChange}/>
                                 {storeMode && (

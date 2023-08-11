@@ -14,10 +14,11 @@ interface TotalsSectionParams {
     setTotal: (total: Total) => void;
     items: Item[];
     storeMode: boolean;
-    overrideRowAdjustments: (override: boolean) => void;
+    setOverrideRowAdjustments: (override: boolean) => void;
+    overrideTotalAdjustments: boolean;
 }
 
-const Totals = forwardRef(({total, setTotal, items, storeMode, overrideRowAdjustments}: TotalsSectionParams, totalsRef) => {
+const Totals = forwardRef(({total, setTotal, items, storeMode, setOverrideRowAdjustments, overrideTotalAdjustments}: TotalsSectionParams, totalsRef) => {
 
     useImperativeHandle(totalsRef, () => {
         return { resetTotalsCalculations: resetCalculations };
@@ -28,7 +29,6 @@ const Totals = forwardRef(({total, setTotal, items, storeMode, overrideRowAdjust
     const [valueAdjustment, setValueAdjustment] = useState<number>(total.valueAdjustment ?? 50);
     const [baseValue, setBaseValue] = useState<number>(total.baseValue ?? 0);
     const [storeCreditValue, setStoreCreditValue] = useState<string>(formatCurrency(total.storeCreditValue) ?? '');
-    const [sliderDisabled, setSliderDisabled] = useState<boolean>(false);
 
     const configuration: Configuration = useSelector((state: any) => state.configurationStore.configuration);
 
@@ -37,16 +37,6 @@ const Totals = forwardRef(({total, setTotal, items, storeMode, overrideRowAdjust
         const calculatedBaseValue: number = items.reduce((sum, item) => sum + item.baseValue, 0);
         setValue(calculatedValue);
         setBaseValue(calculatedBaseValue);
-
-        let calculatedValueAdjustment;
-        const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
-        if (adjustmentSet.size === 1) {
-            setSliderDisabled(false);
-            calculatedValueAdjustment = adjustmentSet.values().next().value;
-            setValueAdjustment(calculatedValueAdjustment);
-        } else {
-            setSliderDisabled(true);
-        }
         // eslint-disable-next-line
     }, [items]);
 
@@ -80,10 +70,17 @@ const Totals = forwardRef(({total, setTotal, items, storeMode, overrideRowAdjust
      */
     const handleValueBlur = (event: any) => {
         const launderedValue: number = launderMoney(event.target.value);
+        const calculatedAdjustment: number = Math.round((launderedValue / baseValue) * 100);
         setValue(launderedValue);
         setValueDisplay(formatCurrency(launderedValue));
-        setValueAdjustment((launderedValue / baseValue) * 100);
-        overrideRowAdjustments(true);
+        setValueAdjustment(calculatedAdjustment);
+
+        const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
+        if (adjustmentSet.size === 1 && adjustmentSet.values().next().value === calculatedAdjustment) {
+            setOverrideRowAdjustments(false);
+        } else {
+            setOverrideRowAdjustments(true);
+        }
     };
 
     const handleSliderChange = (event: any) => {
@@ -91,9 +88,9 @@ const Totals = forwardRef(({total, setTotal, items, storeMode, overrideRowAdjust
         setValue(baseValue * (event.target.value / 100));
         const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
         if (adjustmentSet.size === 1 && adjustmentSet.values().next().value === event.target.value) {
-            overrideRowAdjustments(false);
+            setOverrideRowAdjustments(false);
         } else {
-            overrideRowAdjustments(true);
+            setOverrideRowAdjustments(true);
         }
     };
 
@@ -145,12 +142,12 @@ const Totals = forwardRef(({total, setTotal, items, storeMode, overrideRowAdjust
                         )}
                         <FixedWidthColumnHeading width={120}>
                             <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
-                                <CurrencyTextInput value={valueDisplay} onChange={handleValueChange} onBlur={handleValueBlur} />
+                                <CurrencyTextInput value={valueDisplay} onChange={handleValueChange} onBlur={handleValueBlur} readonly={overrideTotalAdjustments} />
                             </div>
                         </FixedWidthColumnHeading>
                         {storeMode &&
                             <FixedWidthColumnHeading width={200}>
-                                <ManualTotalAdjustmentSlider value={valueAdjustment} handleSliderChange={handleSliderChange} disabled={sliderDisabled}/>
+                                <ManualTotalAdjustmentSlider value={valueAdjustment} handleSliderChange={handleSliderChange} disabled={overrideTotalAdjustments}/>
                             </FixedWidthColumnHeading>}
                         <FixedWidthColumnHeading width={200}>
                             <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
