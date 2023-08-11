@@ -26,8 +26,7 @@ const ManualValueAdjustmentSliderCell: FunctionComponent<ManualAdjustmentSliderP
      * @param value the value to format
      */
     const formatSliderLabel = (value: number): string => {
-        const label = value.toFixed(2);
-        return label.replace(".00", "") + "%";
+        return value + "%";
     };
 
     return (
