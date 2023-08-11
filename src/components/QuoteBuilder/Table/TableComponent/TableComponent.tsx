@@ -21,7 +21,6 @@ import { usePriceCalculationEngine } from "../../../../hooks/priceCalculation/us
 import { ChangeType } from "../../../../model/priceCalculation/ChangeType";
 import { updateItem, updateItemsInStore } from "../../../../redux/slices/quoteSlice";
 import { useDispatch, useSelector } from "react-redux";
-const _ = require('lodash');
 
 interface TableComponentParams {
     storeMode: boolean;
@@ -47,7 +46,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, di
      */
     const handleConditionChange = (condition: Condition, id: number) => {
         if (condition) {
-            const itemCopy = _.cloneDeep(getItemWithId(items, id));
+            const itemCopy = {...getItemWithId(items, id)} as Item;
             if (itemCopy) {
                 itemCopy.condition = condition;
                 calculatePrice(itemCopy, ChangeType.CONDITION);
@@ -62,7 +61,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, di
      * @param id the id of the item to modify
      */
     const handleSliderChange = (event: any, id: number) => {
-        const itemCopy = _.cloneDeep(getItemWithId(items, id));
+        const itemCopy = {...getItemWithId(items, id)} as Item;
         if (itemCopy) {
             itemCopy.valueAdjustment = +event.target.value
               .toFixed(2)
@@ -78,7 +77,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, di
      * @param id the id of the item to modify
      */
     const handleValueChange = (event: any, id: number) => {
-        const itemCopy = _.cloneDeep(getItemWithId(items, id));
+        const itemCopy = {...getItemWithId(items, id)} as Item;
         if (itemCopy) {
             itemCopy.value = launderMoney(event.target.value);
             itemCopy.valueDisplay = event.target.value;
@@ -93,7 +92,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, di
      * @param id the id of the item to modify
      */
     const handleValueBlur = (event: any, id: number) => {
-        const itemCopy = _.cloneDeep(getItemWithId(items, id));
+        const itemCopy = {...getItemWithId(items, id)} as Item;
         if (itemCopy) {
             itemCopy.valueDisplay = formatCurrency(launderMoney(event.target.value));
         }
@@ -101,8 +100,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, di
     };
 
     const handleCommentChange = (comment: string, id: number) => {
-        const item = getItemWithId(items, id);
-        const itemCopy = _.cloneDeep(item);
+        const itemCopy = {...getItemWithId(items, id)} as Item;
         if (itemCopy) {
             itemCopy.comment = comment;
         }
