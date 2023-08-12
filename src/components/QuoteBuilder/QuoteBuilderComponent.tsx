@@ -23,7 +23,7 @@ import NavBar from "../_shared/NavBar/NavBar";
 import { Tabs } from "../_shared/NavBar/Tabs";
 import { Total } from "../../model/total/Total";
 import { updateItemsInStore, updateTotalInStore } from "../../redux/slices/quoteSlice";
-const _ = require('lodash');
+import _ from 'lodash';
 
 interface TotalsRefProps {
     resetTotalsCalculations: () => void;

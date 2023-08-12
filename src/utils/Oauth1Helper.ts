@@ -1,5 +1,5 @@
 import * as crypto from "crypto-js"
-const oauth1a = require('oauth-1.0a');
+import oauth1a from 'oauth-1.0a';
 
 /**
  * Helper function that builds the Oauth1.0 header from the request object (url + method)
@@ -7,15 +7,16 @@ const oauth1a = require('oauth-1.0a');
  * @param request the request object (url + method) for the API call we're authenticating for
  */
 export const getAuthHeader = (request: any) => {
+    // @ts-ignore
     const oauth = oauth1a({
-        consumer: { key: process.env.REACT_APP_CONSUMER_KEY, secret: process.env.REACT_APP_CONSUMER_SECRET },
+        consumer: { key: import.meta.env.REACT_APP_CONSUMER_KEY, secret: import.meta.env.REACT_APP_CONSUMER_SECRET },
         signature_method: 'HMAC-SHA1',
         hash_function: hash_function_sha1
     });
 
     const authorization = oauth.authorize(request, {
-        key: process.env.REACT_APP_TOKEN_VALUE,
-        secret: process.env.REACT_APP_TOKEN_SECRET,
+        key: import.meta.env.REACT_APP_TOKEN_VALUE,
+        secret: import.meta.env.REACT_APP_TOKEN_SECRET,
     });
 
     return oauth.toHeader(authorization);
