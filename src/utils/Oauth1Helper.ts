@@ -9,14 +9,14 @@ import oauth1a from 'oauth-1.0a';
 export const getAuthHeader = (request: any) => {
     // @ts-ignore
     const oauth = oauth1a({
-        consumer: { key: import.meta.env.REACT_APP_CONSUMER_KEY, secret: import.meta.env.REACT_APP_CONSUMER_SECRET },
+        consumer: { key: import.meta.env.VITE_REACT_APP_CONSUMER_KEY, secret: import.meta.env.VITE_REACT_APP_CONSUMER_SECRET },
         signature_method: 'HMAC-SHA1',
         hash_function: hash_function_sha1
     });
 
     const authorization = oauth.authorize(request, {
-        key: import.meta.env.REACT_APP_TOKEN_VALUE,
-        secret: import.meta.env.REACT_APP_TOKEN_SECRET,
+        key: import.meta.env.VITE_REACT_APP_TOKEN_VALUE,
+        secret: import.meta.env.VITE_REACT_APP_TOKEN_SECRET,
     });
 
     return oauth.toHeader(authorization);
