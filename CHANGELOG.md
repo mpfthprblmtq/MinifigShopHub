@@ -36,3 +36,22 @@
 - Modified the adjustment sliders, row items are now 0% to 100%, starting at the new/used base percentage, total slider is now -50% to 50%, starting at 0%
 - Added a Settings Dialog, which has the functionality to set bulk condition, reset calculations, and some disabled fields for auto adjustment fields (coming soon to a future release near you)
 - Added a Multiple Match Dialog, which tells you if the id you put in has multiple matches found in Bricklink (i.e. 7670-1 and 7670-2)
+
+### v1.1.0 - Pricing Bugs and small visual enhancements
+
+- Fixed bug where with no sales data, base value, value, and adjustment would go wonky and not look right
+  - Now, if there is no sales data for either new or used, value gets set to 0 and the manual adjustment slider is locked at 0% and disabled, since there's no good data to base a baseline off of
+  - Also refactored the price calculation to live in its own priceCalculationEngine hook, so all the logic is centralized
+- Made the Value text field have a red outline if the value in it is $0.00
+- Disabled and locked the manual adjustment slider to 0% if the item is custom
+
+### v1.2.0 - Database functionality and adjustment slider updates
+
+- Configuration (store credit adjustment percentage, used auto-adjustment percentage, new auto-adjustment percentage) are all now sourced from database
+  - Can modify these values in the Settings dialog, which then propagates to the database
+- Total adjustment slider gets disabled when you make adjustments to individual rows.  Inversely, row sliders get disabled when you make any total adjustments
+- Added Redux
+
+### v1.2.1
+
+- Set the text color on the BrickLink sales cells to red if there are less than 5 sales, green if there are 5 or more sales, threshold was originally 10

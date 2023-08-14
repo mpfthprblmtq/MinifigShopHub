@@ -1,3 +1,6 @@
 export enum RouterPaths {
-    Empty = '/'
+    Empty = '/',
+    QuoteBuilder = '/quote-builder',
+    LabelMaker = '/label-maker',
+    Rolodex = '/rolodex'
 }

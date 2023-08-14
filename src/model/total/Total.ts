@@ -1,6 +1,6 @@
 export interface Total {
     value: number;
-    valueDisplay: string;
+    storeCreditValue: number;
     valueAdjustment: number;
     baseValue: number;
 }

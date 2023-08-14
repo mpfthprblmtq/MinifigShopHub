@@ -1,4 +1,4 @@
-import {Meta} from "../shared/Meta";
+import {Meta} from "../_shared/Meta";
 import {SalesHistory} from "./SalesHistory";
 
 export interface SalesHistoryResponse {

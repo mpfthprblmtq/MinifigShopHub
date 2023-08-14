@@ -50,12 +50,12 @@ const CurrencyTextInput: FunctionComponent<CurrencyTextInputParams> =
             value={value}
             onChange={onChange}
             onBlur={onBlur}
-            id="formatted-currency-input"
             InputProps={{
                 inputComponent: NumericFormatCustom as any,
                 readOnly: readonly ?? false,
             }}
             variant="outlined"
+            error={value === "0.00"}
         />
     );
 };
