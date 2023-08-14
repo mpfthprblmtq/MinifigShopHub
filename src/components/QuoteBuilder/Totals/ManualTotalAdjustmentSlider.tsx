@@ -22,24 +22,23 @@ const ManualTotalAdjustmentSlider: FunctionComponent<ManualTotalAdjustmentSlider
      * @param value the value to format
      */
     const formatSliderLabel = (value: number): string => {
-        const label = value.toFixed(2);
-        return label.replace(".00", "") + "%";
+        return value + "%";
     };
 
     return (
-        <Slider
-            onChange={handleSliderChange}
-            valueLabelFormat={formatSliderLabel}
-            defaultValue={50}
-            marks={marks}
-            step={5}
-            valueLabelDisplay="auto"
-            min={0}
-            max={100}
-            value={value}
-            disabled={disabled}
-            sx={{marginLeft: '-10px'}}
-        />
+      <Slider
+        onChange={handleSliderChange}
+        valueLabelFormat={formatSliderLabel}
+        defaultValue={50}
+        marks={marks}
+        step={5}
+        valueLabelDisplay="auto"
+        min={0}
+        max={100}
+        value={value}
+        disabled={disabled}
+        sx={{marginLeft: '-10px'}}
+      />
     );
 };
 

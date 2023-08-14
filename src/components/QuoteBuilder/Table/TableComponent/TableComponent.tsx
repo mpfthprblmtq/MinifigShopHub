@@ -24,10 +24,10 @@ import { useDispatch, useSelector } from "react-redux";
 
 interface TableComponentParams {
     storeMode: boolean;
-    disableRowAdjustmentSliders: boolean;
+    overrideRowAdjustments: boolean;
 }
 
-const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, disableRowAdjustmentSliders }) => {
+const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, overrideRowAdjustments }) => {
 
     const [focusedItem, setFocusedItem] = useState<Item>();
     const [showImageDialog, setShowImageDialog] = useState<boolean>(false);
@@ -96,7 +96,9 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, di
         if (itemCopy) {
             itemCopy.valueDisplay = formatCurrency(launderMoney(event.target.value));
         }
-        dispatch(updateItem(itemCopy));
+        if (!overrideRowAdjustments) {
+            dispatch(updateItem(itemCopy));
+        }
     };
 
     const handleCommentChange = (comment: string, id: number) => {
@@ -108,98 +110,100 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, di
     }
 
     return (
-        <>
-            <TableContainer style={{width: "100%"}}>
-                <Table size="small">
-                    <TableHead>
-                        <TableRow>
-                            <FixedWidthColumnHeading width={80} />
-                            <FixedWidthColumnHeading width={80}>Set No.</FixedWidthColumnHeading>
-                            <FixedWidthColumnHeading width={150}>Name</FixedWidthColumnHeading>
-                            <FixedWidthColumnHeading width={50}>Year</FixedWidthColumnHeading>
-                            <FixedWidthColumnHeading width={100}>Condition</FixedWidthColumnHeading>
+      <>
+          <TableContainer style={{width: "100%"}}>
+              <Table size="small">
+                  <TableHead>
+                      <TableRow>
+                          <FixedWidthColumnHeading width={80} />
+                          <FixedWidthColumnHeading width={80}>Set No.</FixedWidthColumnHeading>
+                          <FixedWidthColumnHeading width={150}>Name</FixedWidthColumnHeading>
+                          <FixedWidthColumnHeading width={50}>Year</FixedWidthColumnHeading>
+                          <FixedWidthColumnHeading width={100}>Condition</FixedWidthColumnHeading>
+                          {storeMode && (
+                            <>
+                                <FixedWidthColumnHeading width={100}>New Sales</FixedWidthColumnHeading>
+                                <FixedWidthColumnHeading width={100}>Used Sales</FixedWidthColumnHeading>
+                            </>
+                          )}
+                          <FixedWidthColumnHeading width={120}>Trade-In Value</FixedWidthColumnHeading>
+                          {storeMode && <FixedWidthColumnHeading width={200}>Manual Adjustment</FixedWidthColumnHeading>}
+                          <FixedWidthColumnHeading width={200}>Notes/Comments</FixedWidthColumnHeading>
+                          <FixedWidthColumnHeading width={100} />
+                      </TableRow>
+                  </TableHead>
+                  <TableBody>
+                      {items.map(item => (
+                        <TableRow key={item.id}>
+                            <ImageCell item={item} onClick={() => {
+                                setFocusedItem(item);
+                                setShowImageDialog(true);
+                            }}/>
+                            <SetNumberCell item={item} />
+                            <StyledTableCell>{item.name}</StyledTableCell>
+                            <YearAvailabilityCell item={item} storeMode={storeMode} />
+                            <NewUsedToggleButtonCell item={item} handleConditionChange={handleConditionChange} storeMode={storeMode} />
                             {storeMode && (
-                                <>
-                                    <FixedWidthColumnHeading width={100}>New Sales</FixedWidthColumnHeading>
-                                    <FixedWidthColumnHeading width={100}>Used Sales</FixedWidthColumnHeading>
-                                </>
+                              <BrickLinkSalesCells item={item} />
                             )}
-                            <FixedWidthColumnHeading width={120}>Trade-In Value</FixedWidthColumnHeading>
-                            {storeMode && <FixedWidthColumnHeading width={200}>Manual Adjustment</FixedWidthColumnHeading>}
-                            <FixedWidthColumnHeading width={200}>Notes/Comments</FixedWidthColumnHeading>
-                            <FixedWidthColumnHeading width={100} />
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {items.map(item => (
-                            <TableRow key={item.id}>
-                                <ImageCell item={item} onClick={() => {
+                            <ValueCell
+                              item={item}
+                              handleValueBlur={handleValueBlur}
+                              handleValueChange={handleValueChange}
+                              storeMode={storeMode}
+                              editable={overrideRowAdjustments}
+                            />
+                            {storeMode && (
+                              <ManualValueAdjustmentSliderCell item={item} handleSliderChange={handleSliderChange} disabled={overrideRowAdjustments} />
+                            )}
+                            <ItemCommentCell item={item} storeMode={storeMode} handleCommentChange={handleCommentChange}/>
+                            {storeMode && (
+                              <IconsCell
+                                item={item}
+                                onDelete={() => {
                                     setFocusedItem(item);
-                                    setShowImageDialog(true);
-                                }}/>
-                                <SetNumberCell item={item} />
-                                <StyledTableCell>{item.name}</StyledTableCell>
-                                <YearAvailabilityCell item={item} storeMode={storeMode} />
-                                <NewUsedToggleButtonCell item={item} handleConditionChange={handleConditionChange} storeMode={storeMode} />
-                                {storeMode && (
-                                    <BrickLinkSalesCells item={item} />
-                                )}
-                                <ValueCell
-                                    item={item}
-                                    handleValueBlur={handleValueBlur}
-                                    handleValueChange={handleValueChange}
-                                    storeMode={storeMode} />
-                                {storeMode && (
-                                    <ManualValueAdjustmentSliderCell item={item} handleSliderChange={handleSliderChange} disabled={disableRowAdjustmentSliders} />
-                                )}
-                                <ItemCommentCell item={item} storeMode={storeMode} handleCommentChange={handleCommentChange}/>
-                                {storeMode && (
-                                    <IconsCell
-                                        item={item}
-                                        onDelete={() => {
-                                            setFocusedItem(item);
-                                            setShowDeleteDialog(true);
-                                        }}
-                                        onShowMoreInfo={() => {
-                                            setFocusedItem(item);
-                                            setShowMoreInformationDialog(true);
-                                        }}
-                                    />
-                                )}
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-            <InformationDialog
-                open={showImageDialog && focusedItem !== undefined}
-                onClose={() => {
-                    setFocusedItem(undefined);
-                    setShowImageDialog(false);
-                }}
-                title={focusedItem?.name ?? ''}
-                content={<img src={focusedItem?.image_url} alt="bricklink-img" />} />
-            <ConfirmItemDeleteDialog
-                open={showDeleteDialog && focusedItem !== undefined}
-                item={focusedItem}
-                onCancel={() => {
-                    setFocusedItem(undefined);
-                    setShowDeleteDialog(false);
-                }}
-                deleteRow={(id: number) => {
-                    const filteredItems = [...items].filter(item => item.id !== id)
-                    dispatch(updateItemsInStore(filteredItems));
-                    setFocusedItem(undefined);
-                    setShowDeleteDialog(false);
-                }} />
-            <MoreInformationDialog
-                open={showMoreInformationDialog && focusedItem !== undefined}
-                onClose={() => {
-                    setFocusedItem(undefined);
-                    setShowMoreInformationDialog(false);
-                }}
-                item={focusedItem} />
-        </>
+                                    setShowDeleteDialog(true);
+                                }}
+                                onShowMoreInfo={() => {
+                                    setFocusedItem(item);
+                                    setShowMoreInformationDialog(true);
+                                }}
+                              />
+                            )}
+                        </TableRow>
+                      ))}
+                  </TableBody>
+              </Table>
+          </TableContainer>
+          <InformationDialog
+            open={showImageDialog && focusedItem !== undefined}
+            onClose={() => {
+                setFocusedItem(undefined);
+                setShowImageDialog(false);
+            }}
+            title={focusedItem?.name ?? ''}
+            content={<img src={focusedItem?.image_url} alt="bricklink-img" />} />
+          <ConfirmItemDeleteDialog
+            open={showDeleteDialog && focusedItem !== undefined}
+            item={focusedItem}
+            onCancel={() => {
+                setFocusedItem(undefined);
+                setShowDeleteDialog(false);
+            }}
+            deleteRow={(id: number) => {
+                const filteredItems = [...items].filter(item => item.id !== id)
+                dispatch(updateItemsInStore(filteredItems));
+                setFocusedItem(undefined);
+                setShowDeleteDialog(false);
+            }} />
+          <MoreInformationDialog
+            open={showMoreInformationDialog && focusedItem !== undefined}
+            onClose={() => {
+                setFocusedItem(undefined);
+                setShowMoreInformationDialog(false);
+            }}
+            item={focusedItem} />
+      </>
     );
 }
 
