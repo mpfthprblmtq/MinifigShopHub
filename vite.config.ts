@@ -27,15 +27,13 @@ export default defineConfig({
   ],
   server: {
     port: 3000,
-    proxy: {
-      '/api-server/': '...',
-      '/authorization/': '...',
-    },
   },
   build: {
     outDir: 'build'
   },
+  publicDir: 'public',
   define: {
+    _global: ({}),
     global: {}
   }
 });
