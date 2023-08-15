@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useRef, useState } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import { Item } from "../../model/item/Item";
 import {
   Box,
@@ -22,26 +22,24 @@ import { updateStoreConfiguration } from "../../redux/slices/configurationSlice"
 import NavBar from "../_shared/NavBar/NavBar";
 import { Tabs } from "../_shared/NavBar/Tabs";
 import { Total } from "../../model/total/Total";
-import { updateItemsInStore, updateTotalInStore } from "../../redux/slices/quoteSlice";
-const _ = require('lodash');
-
-interface TotalsRefProps {
-  resetTotalsCalculations: () => void;
-}
+import { updateItemsInStore, updateQuoteInStore, updateTotalInStore } from "../../redux/slices/quoteSlice";
+import _ from "lodash";
+import { Configuration } from "../../model/dynamo/Configuration";
+import { Quote } from "../../model/quote/Quote";
 
 const QuoteBuilderComponent: FunctionComponent = () => {
 
-  const { configuration } = useSelector((state: any) => state.configurationStore);
-  const { quote } = useSelector((state: any) => state.quoteStore);
+  const configuration: Configuration = useSelector((state: any) => state.configurationStore.configuration);
+  const quote: Quote = useSelector((state: any) => state.quoteStore.quote);
   const items = quote.items as Item[];
   const dispatch = useDispatch();
 
-  const totalsRef = useRef({} as TotalsRefProps);
   const [storeMode, setStoreMode] = useState<boolean>(true);
   const [overrideRowAdjustments, setOverrideRowAdjustments] = useState<boolean>(false);
   const [overrideTotalAdjustments, setOverrideTotalAdjustments] = useState<boolean>(false);
   const [showConfirmResetCalculationsDialog, setShowConfirmResetCalculationsDialog] = useState<boolean>(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState<boolean>(false);
+  const [mounted, setMounted] = useState<boolean>(false);
 
   const { calculatePrice } = usePriceCalculationEngine();
   const { initConfig } = useConfigurationService();
@@ -54,10 +52,18 @@ const QuoteBuilderComponent: FunctionComponent = () => {
       item.value = item.baseValue * (item.valueAdjustment / 100);
       item.valueDisplay = formatCurrency(item.value).toString().substring(1);
     });
+
+    const calculatedValue: number = quote.total.baseValue * (configuration.autoAdjustmentPercentageUsed / 100);
+    const total: Total = {
+      ...quote.total,
+      value: calculatedValue,
+      valueAdjustment: configuration.autoAdjustmentPercentageUsed,
+      storeCreditValue: (configuration.storeCreditValueAdjustment / 100) * calculatedValue
+    };
+
+    dispatch(updateQuoteInStore({ items: [...clonedItems], total: total } as Quote));
     setOverrideRowAdjustments(false);
     setOverrideTotalAdjustments(false);
-    totalsRef.current.resetTotalsCalculations();
-    dispatch((updateItemsInStore([...clonedItems])));
   };
 
   const setBulkCondition = (condition: Condition) => {
@@ -69,12 +75,41 @@ const QuoteBuilderComponent: FunctionComponent = () => {
     dispatch((updateItemsInStore([...clonedItems])));
   };
 
+  /**
+   * This useEffect is confusing.  Basically, we want to take into consideration that the total value adjustment might
+   * not match the rows on load.
+   * Before this, when you would refresh the page and have multiple rows with the same value adjustment, but a different
+   * total value adjustment, the total value adjustment would be set to the adjustment that matches the rows.
+   * This was bad, because I want to load the most accurate quote information possible.
+   * This NEARLY works, but there has to be a better way.
+   */
   useEffect(() => {
+    // TODO   figure out why sometimes all value adjustment sliders get disabled
+    //        when changing the row sliders.
+    //        Have two rows, set total to 50%, move one row slider to 60%, then
+    //        start to move the other one but make the mouse move off the slider
+    //        or something like that.  Not 100% sure how to reproduce consistently
     const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
-    // if (adjustmentSet.size === 1) {
-    //   dispatch(updateTotalInStore({...quote.total, valueAdjustment: adjustmentSet.values().next().value}))
-    // }
-    setOverrideTotalAdjustments(adjustmentSet.size !== 1);
+
+    if (adjustmentSet.size === 1) {
+      if (quote.total.valueAdjustment !== adjustmentSet.values().next().value) {
+        if (mounted) {
+          setOverrideRowAdjustments(false);
+          setOverrideTotalAdjustments(false);
+          dispatch(updateTotalInStore({...quote.total, valueAdjustment: adjustmentSet.values().next().value} as Total));
+        } else {
+          setOverrideRowAdjustments(true);
+          setOverrideTotalAdjustments(false);
+          setMounted(true);
+        }
+      } else {
+        setOverrideRowAdjustments(false);
+        setOverrideTotalAdjustments(false);
+      }
+    } else {
+      setOverrideTotalAdjustments(true);
+    }
+    // eslint-disable-next-line
   }, [items]);
 
   useEffect(() => {
@@ -136,11 +171,8 @@ const QuoteBuilderComponent: FunctionComponent = () => {
       </Box>
       {items.length > 0 && (
         <Totals
-          total={quote.total}
-          setTotal={total => dispatch(updateTotalInStore(total))}
           items={items}
           storeMode={storeMode}
-          ref={totalsRef}
           overrideTotalAdjustments={overrideTotalAdjustments}
           setOverrideRowAdjustments={setOverrideRowAdjustments}
         />

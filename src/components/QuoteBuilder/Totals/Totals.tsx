@@ -1,65 +1,47 @@
-import React, {forwardRef, useEffect, useImperativeHandle, useState} from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import {Table, TableBody, tableCellClasses, TableContainer, TableRow} from "@mui/material";
 import {FixedWidthColumnHeading} from "../Table/TableComponent/TableComponent.styles";
 import {Item} from "../../../model/item/Item";
 import {formatCurrency, launderMoney} from "../../../utils/CurrencyUtils";
 import ManualTotalAdjustmentSlider from "./ManualTotalAdjustmentSlider";
 import CurrencyTextInput from "../../_shared/CurrencyTextInput/CurrencyTextInput";
-import {useSelector} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {Configuration} from "../../../model/dynamo/Configuration";
 import { Total } from "../../../model/total/Total";
+import { Quote } from "../../../model/quote/Quote";
+import { updateTotalInStore } from "../../../redux/slices/quoteSlice";
 
 interface TotalsSectionParams {
-    total: Total;
-    setTotal: (total: Total) => void;
     items: Item[];
     storeMode: boolean;
     setOverrideRowAdjustments: (override: boolean) => void;
     overrideTotalAdjustments: boolean;
 }
 
-const Totals = forwardRef(({total, setTotal, items, storeMode, setOverrideRowAdjustments, overrideTotalAdjustments}: TotalsSectionParams, totalsRef) => {
-
-    useImperativeHandle(totalsRef, () => {
-        return { resetTotalsCalculations: resetCalculations };
-    });
-
-    const [value, setValue] = useState<number>(total.value ?? 0);
-    const [valueDisplay, setValueDisplay] = useState<string>(formatCurrency(total.value) ?? '');
-    const [valueAdjustment, setValueAdjustment] = useState<number>(total.valueAdjustment ?? 50);
-    const [baseValue, setBaseValue] = useState<number>(total.baseValue ?? 0);
-    const [storeCreditValue, setStoreCreditValue] = useState<string>(formatCurrency(total.storeCreditValue) ?? '');
+const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, setOverrideRowAdjustments, overrideTotalAdjustments}) => {
 
     const configuration: Configuration = useSelector((state: any) => state.configurationStore.configuration);
+    const quote: Quote = useSelector((state: any) => state.quoteStore.quote);
+    const dispatch = useDispatch();
+
+    const [valueDisplay, setValueDisplay] = useState<string>(formatCurrency(quote.total.value) ?? '');
+    const [storeCreditValue, setStoreCreditValue] = useState<string>(formatCurrency(quote.total.storeCreditValue) ?? '');
 
     useEffect(() => {
         const calculatedValue: number = items.reduce((sum, item) => sum + item.value, 0);
         const calculatedBaseValue: number = items.reduce((sum, item) => sum + item.baseValue, 0);
-        setValue(calculatedValue);
-        setBaseValue(calculatedBaseValue);
-
-        const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
-        if (adjustmentSet.size === 1) {
-            setValueAdjustment(adjustmentSet.values().next().value);
-        }
+        dispatch(updateTotalInStore({...quote.total, value: calculatedValue, baseValue: calculatedBaseValue}));
         // eslint-disable-next-line
     }, [items]);
 
     useEffect(() => {
-        setValueDisplay(formatCurrency(value).toString().substring(1));
-        const calculatedStoreCreditValue = (configuration.storeCreditValueAdjustment / 100) * value;
+        setValueDisplay(formatCurrency(quote.total.value).toString().substring(1));
+        const calculatedStoreCreditValue = (configuration.storeCreditValueAdjustment / 100) * quote.total.value;
         setStoreCreditValue(formatCurrency(calculatedStoreCreditValue).toString().substring(1));
 
-        setTotal({value: value, baseValue: baseValue, valueAdjustment: valueAdjustment, storeCreditValue: calculatedStoreCreditValue})
+        dispatch(updateTotalInStore({...quote.total, storeCreditValue: calculatedStoreCreditValue} as Total));
         // eslint-disable-next-line
-    }, [value, valueAdjustment]);
-
-    const resetCalculations = () => {
-        setValue(baseValue * (configuration.autoAdjustmentPercentageUsed / 100));
-        setValueDisplay(formatCurrency(baseValue * 0.5).toString().substring(1));
-        setStoreCreditValue(formatCurrency((configuration.storeCreditValueAdjustment / 100) * value).toString().substring(1));
-        setValueAdjustment(50);
-    };
+    }, [quote.total.value]);
 
     /**
      * Event handler for the change event on the value text field, just sets the value
@@ -75,10 +57,9 @@ const Totals = forwardRef(({total, setTotal, items, storeMode, setOverrideRowAdj
      */
     const handleValueBlur = (event: any) => {
         const launderedValue: number = launderMoney(event.target.value);
-        const calculatedAdjustment: number = Math.round((launderedValue / baseValue) * 100);
-        setValue(launderedValue);
+        const calculatedAdjustment: number = Math.round((launderedValue / quote.total.baseValue) * 100);
         setValueDisplay(formatCurrency(launderedValue));
-        setValueAdjustment(calculatedAdjustment);
+        dispatch(updateTotalInStore({...quote.total, value: launderedValue, valueAdjustment: calculatedAdjustment} as Total));
 
         const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
         if (adjustmentSet.size === 1 && adjustmentSet.values().next().value === calculatedAdjustment) {
@@ -89,8 +70,7 @@ const Totals = forwardRef(({total, setTotal, items, storeMode, setOverrideRowAdj
     };
 
     const handleSliderChange = (event: any) => {
-        setValueAdjustment(event.target.value);
-        setValue(baseValue * (event.target.value / 100));
+        dispatch(updateTotalInStore({...quote.total, value: quote.total.baseValue * (event.target.value / 100), valueAdjustment: event.target.value} as Total));
         const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
         if (adjustmentSet.size === 1 && adjustmentSet.values().next().value === event.target.value) {
             setOverrideRowAdjustments(false);
@@ -152,7 +132,7 @@ const Totals = forwardRef(({total, setTotal, items, storeMode, setOverrideRowAdj
                       </FixedWidthColumnHeading>
                       {storeMode &&
                         <FixedWidthColumnHeading width={200}>
-                            <ManualTotalAdjustmentSlider value={valueAdjustment} handleSliderChange={handleSliderChange} disabled={overrideTotalAdjustments}/>
+                            <ManualTotalAdjustmentSlider value={quote.total.valueAdjustment} handleSliderChange={handleSliderChange} disabled={overrideTotalAdjustments}/>
                         </FixedWidthColumnHeading>}
                       <FixedWidthColumnHeading width={200}>
                           <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
@@ -165,6 +145,6 @@ const Totals = forwardRef(({total, setTotal, items, storeMode, setOverrideRowAdj
           </Table>
       </TableContainer>
     );
-});
+};
 
 export default React.memo(Totals);
