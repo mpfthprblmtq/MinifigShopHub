@@ -63,9 +63,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, ov
     const handleSliderChange = (event: any, id: number) => {
         const itemCopy = {...getItemWithId(items, id)} as Item;
         if (itemCopy) {
-            itemCopy.valueAdjustment = +event.target.value
-              .toFixed(2)
-              .replace(".00", "");
+            itemCopy.valueAdjustment = +event.target.value;
             calculatePrice(itemCopy, ChangeType.ADJUSTMENT);
         }
         dispatch(updateItem(itemCopy));
