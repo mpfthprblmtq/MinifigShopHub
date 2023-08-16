@@ -18,6 +18,8 @@ import {useDispatch, useSelector} from "react-redux";
 import {updateStoreConfiguration} from "../../../../redux/slices/configurationSlice";
 import {Configuration} from "../../../../model/dynamo/Configuration";
 import {green} from "@mui/material/colors";
+import TooltipConfirmationModal from "../../../_shared/TooltipConfirmationModal/TooltipConfirmationModal";
+import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
 
 interface SettingsDialogParams {
     open: boolean;
@@ -25,12 +27,6 @@ interface SettingsDialogParams {
     resetCalculations: () => void;
     setBulkCondition: (condition: Condition) => void;
     actionsDisabled: boolean;
-}
-
-interface SnackbarState {
-    open: boolean;
-    message?: string;
-    severity?: 'error' | 'warning' | 'info' | 'success';
 }
 
 const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose, resetCalculations, setBulkCondition, actionsDisabled}) => {
@@ -47,6 +43,7 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose,
     const [condition, setCondition] = useState<Condition>();
     const [updateConfigLoading, setUpdateConfigLoading] = useState<boolean>(false);
     const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
+    const [confirmResetCalculationsModalOpen, setConfirmResetCalculationsModalOpen] = useState<boolean>(false);
 
     const {updateConfig} = useConfigurationService();
 
@@ -178,15 +175,27 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose,
                                     Reset Calculations
                                 </Box>
                                 <Box sx={{ m: 1, position: 'relative', float: 'right'}}>
-                                    <Button
-                                        variant='contained'
-                                        color='error'
-                                        disabled={actionsDisabled}
-                                        onClick={resetCalculations}
-                                        sx={{width: 120}}
-                                        startIcon={<Refresh/>}
-                                    >Reset
-                                    </Button>
+                                    <TooltipConfirmationModal
+                                      open={confirmResetCalculationsModalOpen}
+                                      text={'Are you sure you want to reset all calculations?'}
+                                      onConfirm={() => {
+                                          onClose();
+                                          resetCalculations();
+                                      }}
+                                      onClose={() => setConfirmResetCalculationsModalOpen(false)}
+                                      placement={'top'}
+                                      confirmButtonText={'Reset'}
+                                    >
+                                        <Button
+                                            variant='contained'
+                                            color='error'
+                                            disabled={actionsDisabled}
+                                            onClick={() => setConfirmResetCalculationsModalOpen(true)}
+                                            sx={{width: 120}}
+                                            startIcon={<Refresh/>}
+                                        >Reset
+                                        </Button>
+                                    </TooltipConfirmationModal>
                                 </Box>
                             </Box>
                         </ListItem>

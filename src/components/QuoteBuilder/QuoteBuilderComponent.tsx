@@ -1,8 +1,8 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { Item } from "../../model/item/Item";
 import {
-  Box,
-  Typography
+  Alert,
+  Box, Portal, Snackbar,
 } from "@mui/material";
 import TableComponent from "./Table/TableComponent/TableComponent";
 import ItemSearchCard from "./Cards/ItemSearchCard/ItemSearchCard";
@@ -13,7 +13,6 @@ import { formatCurrency } from "../../utils/CurrencyUtils";
 import Version from "../_shared/Version/Version";
 import { Condition } from "../../model/_shared/Condition";
 import SettingsDialog from "./Dialog/SettingsDialog/SettingsDialog";
-import ConfirmDialog from "../_shared/ConfirmDialog/ConfirmDialog";
 import { usePriceCalculationEngine } from "../../hooks/priceCalculation/usePriceCalculationEngine";
 import { ChangeType } from "../../model/priceCalculation/ChangeType";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,6 +25,7 @@ import { updateItemsInStore, updateQuoteInStore, updateTotalInStore } from "../.
 import _ from "lodash";
 import { Configuration } from "../../model/dynamo/Configuration";
 import { Quote } from "../../model/quote/Quote";
+import { SnackbarState } from "../_shared/Snackbar/SnackbarState";
 
 const QuoteBuilderComponent: FunctionComponent = () => {
 
@@ -35,11 +35,11 @@ const QuoteBuilderComponent: FunctionComponent = () => {
   const dispatch = useDispatch();
 
   const [storeMode, setStoreMode] = useState<boolean>(true);
-  const [overrideRowAdjustments, setOverrideRowAdjustments] = useState<boolean>(false);
-  const [overrideTotalAdjustments, setOverrideTotalAdjustments] = useState<boolean>(false);
-  const [showConfirmResetCalculationsDialog, setShowConfirmResetCalculationsDialog] = useState<boolean>(false);
+  const [rowAdjustmentsDisabled, setRowAdjustmentsDisabled] = useState<boolean>(false);
+  const [totalAdjustmentDisabled, setTotalAdjustmentDisabled] = useState<boolean>(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState<boolean>(false);
   const [mounted, setMounted] = useState<boolean>(false);
+  const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
 
   const { calculatePrice } = usePriceCalculationEngine();
   const { initConfig } = useConfigurationService();
@@ -62,8 +62,10 @@ const QuoteBuilderComponent: FunctionComponent = () => {
     };
 
     dispatch(updateQuoteInStore({ items: [...clonedItems], total: total } as Quote));
-    setOverrideRowAdjustments(false);
-    setOverrideTotalAdjustments(false);
+    setRowAdjustmentsDisabled(false);
+    setTotalAdjustmentDisabled(false);
+
+    setSnackbarState({open: true, severity: "success", message: 'Successfully reset calculations!'} as SnackbarState);
   };
 
   const setBulkCondition = (condition: Condition) => {
@@ -94,20 +96,20 @@ const QuoteBuilderComponent: FunctionComponent = () => {
     if (adjustmentSet.size === 1) {
       if (quote.total.valueAdjustment !== adjustmentSet.values().next().value) {
         if (mounted) {
-          setOverrideRowAdjustments(false);
-          setOverrideTotalAdjustments(false);
+          setRowAdjustmentsDisabled(false);
+          setTotalAdjustmentDisabled(false);
           dispatch(updateTotalInStore({...quote.total, valueAdjustment: adjustmentSet.values().next().value} as Total));
         } else {
-          setOverrideRowAdjustments(true);
-          setOverrideTotalAdjustments(false);
+          setRowAdjustmentsDisabled(true);
+          setTotalAdjustmentDisabled(false);
           setMounted(true);
         }
       } else {
-        setOverrideRowAdjustments(false);
-        setOverrideTotalAdjustments(false);
+        setRowAdjustmentsDisabled(false);
+        setTotalAdjustmentDisabled(false);
       }
     } else {
-      setOverrideTotalAdjustments(true);
+      setTotalAdjustmentDisabled(true);
     }
     // eslint-disable-next-line
   }, [items]);
@@ -136,7 +138,8 @@ const QuoteBuilderComponent: FunctionComponent = () => {
           openSettings={() => setSettingsDialogOpen(true)}
           clearAll={items.length > 0 ? () => {
             dispatch(updateItemsInStore([]));
-            dispatch(updateTotalInStore({value: 0, baseValue: 0, storeCreditValue: 0, valueAdjustment: 50} as Total));
+            dispatch(updateTotalInStore({value: 0, baseValue: 0, storeCreditValue: 0, valueAdjustment: configuration.autoAdjustmentPercentageUsed} as Total));
+            setSnackbarState({open: true, severity: 'success', message: 'All items cleared!'});
           } : undefined}
           printQuote={items.length > 0 ? () => {
             if (items && items.length > 0) {
@@ -166,37 +169,36 @@ const QuoteBuilderComponent: FunctionComponent = () => {
       <Box style={{ marginTop: 20 }}>
         <TableComponent
           storeMode={storeMode}
-          overrideRowAdjustments={overrideRowAdjustments}
+          rowAdjustmentsDisabled={rowAdjustmentsDisabled}
         />
       </Box>
       {items.length > 0 && (
         <Totals
           items={items}
           storeMode={storeMode}
-          overrideTotalAdjustments={overrideTotalAdjustments}
-          setOverrideRowAdjustments={setOverrideRowAdjustments}
+          totalAdjustmentDisabled={totalAdjustmentDisabled}
+          setRowAdjustmentsDisabled={setRowAdjustmentsDisabled}
         />
       )}
-      <ConfirmDialog
-        title='Confirm Reset Calculations'
-        confirmText='Reset'
-        confirmButtonColor='error'
-        open={showConfirmResetCalculationsDialog}
-        onClose={() => setShowConfirmResetCalculationsDialog(false)}
-        onConfirm={() => {
-          setShowConfirmResetCalculationsDialog(false);
-          resetCalculations();
-        }}
-        content={<Typography>Are you sure you want to reset all calculations?  This cannot be undone.</Typography>}
-      />
       <SettingsDialog
         open={settingsDialogOpen}
         onClose={() => setSettingsDialogOpen(false)}
-        resetCalculations={() => setShowConfirmResetCalculationsDialog(true)}
+        resetCalculations={resetCalculations}
         setBulkCondition={(condition) => { setBulkCondition(condition) }}
         actionsDisabled={items.length === 0}
       />
       <Version />
+      <Portal>
+        <Snackbar
+          anchorOrigin={{ horizontal: "right", vertical: "top" }}
+          autoHideDuration={5000}
+          onClose={() => setSnackbarState({open: false})}
+          open={snackbarState.open}>
+          <Alert severity={snackbarState.severity} onClose={() => setSnackbarState({open: false})}>
+            {snackbarState.message}
+          </Alert>
+        </Snackbar>
+      </Portal>
     </div>
   );
 };

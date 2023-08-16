@@ -14,11 +14,11 @@ import { updateTotalInStore } from "../../../redux/slices/quoteSlice";
 interface TotalsSectionParams {
     items: Item[];
     storeMode: boolean;
-    setOverrideRowAdjustments: (override: boolean) => void;
-    overrideTotalAdjustments: boolean;
+    totalAdjustmentDisabled: boolean;
+    setRowAdjustmentsDisabled: (rowAdjustmentsDisabled: boolean) => void;
 }
 
-const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, setOverrideRowAdjustments, overrideTotalAdjustments}) => {
+const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, totalAdjustmentDisabled, setRowAdjustmentsDisabled}) => {
 
     const configuration: Configuration = useSelector((state: any) => state.configurationStore.configuration);
     const quote: Quote = useSelector((state: any) => state.quoteStore.quote);
@@ -30,7 +30,8 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, setO
     useEffect(() => {
         const calculatedValue: number = items.reduce((sum, item) => sum + item.value, 0);
         const calculatedBaseValue: number = items.reduce((sum, item) => sum + item.baseValue, 0);
-        dispatch(updateTotalInStore({...quote.total, value: calculatedValue, baseValue: calculatedBaseValue}));
+
+        dispatch(updateTotalInStore({...quote.total, value: calculatedValue, baseValue: calculatedBaseValue} as Total));
         // eslint-disable-next-line
     }, [items]);
 
@@ -59,24 +60,16 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, setO
         const launderedValue: number = launderMoney(event.target.value);
         const calculatedAdjustment: number = Math.round((launderedValue / quote.total.baseValue) * 100);
         setValueDisplay(formatCurrency(launderedValue));
-        dispatch(updateTotalInStore({...quote.total, value: launderedValue, valueAdjustment: calculatedAdjustment} as Total));
 
+        dispatch(updateTotalInStore({...quote.total, value: launderedValue, valueAdjustment: calculatedAdjustment} as Total));
         const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
-        if (adjustmentSet.size === 1 && adjustmentSet.values().next().value === calculatedAdjustment) {
-            setOverrideRowAdjustments(false);
-        } else {
-            setOverrideRowAdjustments(true);
-        }
+        setRowAdjustmentsDisabled(adjustmentSet.size === 1 && adjustmentSet.values().next().value !== event.target.value);
     };
 
     const handleSliderChange = (event: any) => {
         dispatch(updateTotalInStore({...quote.total, value: quote.total.baseValue * (event.target.value / 100), valueAdjustment: event.target.value} as Total));
         const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
-        if (adjustmentSet.size === 1 && adjustmentSet.values().next().value === event.target.value) {
-            setOverrideRowAdjustments(false);
-        } else {
-            setOverrideRowAdjustments(true);
-        }
+        setRowAdjustmentsDisabled(adjustmentSet.size === 1 && adjustmentSet.values().next().value !== event.target.value);
     };
 
     return (
@@ -127,12 +120,12 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, setO
                       )}
                       <FixedWidthColumnHeading width={120}>
                           <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
-                              <CurrencyTextInput value={valueDisplay} onChange={handleValueChange} onBlur={handleValueBlur} readonly={overrideTotalAdjustments} />
+                              <CurrencyTextInput value={valueDisplay} onChange={handleValueChange} onBlur={handleValueBlur} readonly={totalAdjustmentDisabled} />
                           </div>
                       </FixedWidthColumnHeading>
                       {storeMode &&
                         <FixedWidthColumnHeading width={200}>
-                            <ManualTotalAdjustmentSlider value={quote.total.valueAdjustment} handleSliderChange={handleSliderChange} disabled={overrideTotalAdjustments}/>
+                            <ManualTotalAdjustmentSlider value={quote.total.valueAdjustment} handleSliderChange={handleSliderChange} disabled={totalAdjustmentDisabled}/>
                         </FixedWidthColumnHeading>}
                       <FixedWidthColumnHeading width={200}>
                           <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
