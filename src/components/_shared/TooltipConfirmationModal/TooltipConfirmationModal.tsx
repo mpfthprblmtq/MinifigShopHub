@@ -30,6 +30,7 @@ interface TooltipConfirmationModalParams {
     | 'top-start'
     | 'top';
   children: React.ReactElement<any, any>;
+  arrow?: boolean;
 }
 
 const TooltipConfirmationModal: FunctionComponent<TooltipConfirmationModalParams> =
@@ -42,7 +43,8 @@ const TooltipConfirmationModal: FunctionComponent<TooltipConfirmationModalParams
      onConfirm,
      onClose,
      onCancel,
-     placement
+     placement,
+     arrow,
   }) => {
 
   return (
@@ -53,6 +55,7 @@ const TooltipConfirmationModal: FunctionComponent<TooltipConfirmationModalParams
         disableHoverListener
         disableFocusListener
         placement={placement}
+        arrow={!!arrow}
         title={<>
           <Typography sx={{fontSize: '14px'}}>{text}</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-around' }}>

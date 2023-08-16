@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useState } from "react";
-import { Table, TableBody, TableContainer, TableHead, TableRow } from "@mui/material";
+import { Alert, Portal, Snackbar, Table, TableBody, TableContainer, TableHead, TableRow } from "@mui/material";
 import NewUsedToggleButtonCell from "../TableCells/NewUsedToggleButtonCell";
 import { formatCurrency, launderMoney } from "../../../../utils/CurrencyUtils";
 import { FixedWidthColumnHeading, StyledTableCell } from "./TableComponent.styles";
@@ -8,7 +8,6 @@ import { Condition } from "../../../../model/_shared/Condition";
 import ManualValueAdjustmentSliderCell from "../TableCells/ManualValueAdjustmentSliderCell";
 import { getItemWithId } from "../../../../utils/ArrayUtils";
 import ItemCommentCell from "../TableCells/ItemCommentCell";
-import ConfirmItemDeleteDialog from "../../Dialog/ConfirmItemDeleteDialog/ConfirmItemDeleteDialog";
 import MoreInformationDialog from "../../Dialog/MoreInformationDialog/MoreInformationDialog";
 import ImageCell from "../TableCells/ImageCell";
 import SetNumberCell from "../TableCells/SetNumberCell";
@@ -21,18 +20,19 @@ import { usePriceCalculationEngine } from "../../../../hooks/priceCalculation/us
 import { ChangeType } from "../../../../model/priceCalculation/ChangeType";
 import { updateItem, updateItemsInStore } from "../../../../redux/slices/quoteSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
 
 interface TableComponentParams {
     storeMode: boolean;
-    overrideRowAdjustments: boolean;
+    rowAdjustmentsDisabled: boolean;
 }
 
-const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, overrideRowAdjustments }) => {
+const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, rowAdjustmentsDisabled }) => {
 
     const [focusedItem, setFocusedItem] = useState<Item>();
     const [showImageDialog, setShowImageDialog] = useState<boolean>(false);
-    const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
     const [showMoreInformationDialog, setShowMoreInformationDialog] = useState<boolean>(false);
+    const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
 
     const { calculatePrice } = usePriceCalculationEngine();
     const dispatch = useDispatch();
@@ -94,7 +94,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, ov
         if (itemCopy) {
             itemCopy.valueDisplay = formatCurrency(launderMoney(event.target.value));
         }
-        if (!overrideRowAdjustments) {
+        if (!rowAdjustmentsDisabled) {
             dispatch(updateItem(itemCopy));
         }
     };
@@ -149,18 +149,18 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, ov
                               handleValueBlur={handleValueBlur}
                               handleValueChange={handleValueChange}
                               storeMode={storeMode}
-                              editable={overrideRowAdjustments}
+                              editable={rowAdjustmentsDisabled}
                             />
                             {storeMode && (
-                              <ManualValueAdjustmentSliderCell item={item} handleSliderChange={handleSliderChange} disabled={overrideRowAdjustments} />
+                              <ManualValueAdjustmentSliderCell item={item} handleSliderChange={handleSliderChange} disabled={rowAdjustmentsDisabled} />
                             )}
                             <ItemCommentCell item={item} storeMode={storeMode} handleCommentChange={handleCommentChange}/>
                             {storeMode && (
                               <IconsCell
                                 item={item}
-                                onDelete={() => {
-                                    setFocusedItem(item);
-                                    setShowDeleteDialog(true);
+                                onDelete={(id: number) => {
+                                    dispatch(updateItemsInStore([...items].filter(item => item.id !== id)));
+                                    setSnackbarState({open: true, message: `Item ${item.no ? item.no : ''} successfully deleted!`, severity: 'success'})
                                 }}
                                 onShowMoreInfo={() => {
                                     setFocusedItem(item);
@@ -181,19 +181,6 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, ov
             }}
             title={focusedItem?.name ?? ''}
             content={<img src={focusedItem?.image_url} alt="bricklink-img" />} />
-          <ConfirmItemDeleteDialog
-            open={showDeleteDialog && focusedItem !== undefined}
-            item={focusedItem}
-            onCancel={() => {
-                setFocusedItem(undefined);
-                setShowDeleteDialog(false);
-            }}
-            deleteRow={(id: number) => {
-                const filteredItems = [...items].filter(item => item.id !== id)
-                dispatch(updateItemsInStore(filteredItems));
-                setFocusedItem(undefined);
-                setShowDeleteDialog(false);
-            }} />
           <MoreInformationDialog
             open={showMoreInformationDialog && focusedItem !== undefined}
             onClose={() => {
@@ -201,6 +188,17 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, ov
                 setShowMoreInformationDialog(false);
             }}
             item={focusedItem} />
+          <Portal>
+              <Snackbar
+                anchorOrigin={{ horizontal: "right", vertical: "top" }}
+                autoHideDuration={5000}
+                onClose={() => setSnackbarState({open: false})}
+                open={snackbarState.open}>
+                  <Alert severity={snackbarState.severity} onClose={() => setSnackbarState({open: false})}>
+                      {snackbarState.message}
+                  </Alert>
+              </Snackbar>
+          </Portal>
       </>
     );
 }
