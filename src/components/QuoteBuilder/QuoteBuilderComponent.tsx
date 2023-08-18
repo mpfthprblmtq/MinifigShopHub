@@ -131,7 +131,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
   }, []);
 
   return (
-    <div className={"App"}>
+    <div className={"App quote-builder-print-configuration"}>
       <div className={"hide-in-print-preview"}>
         <NavBar
           activeTab={Tabs.QUOTE_BUILDER}
@@ -141,7 +141,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
             dispatch(updateTotalInStore({value: 0, baseValue: 0, storeCreditValue: 0, valueAdjustment: configuration.autoAdjustmentPercentageUsed} as Total));
             setSnackbarState({open: true, severity: 'success', message: 'All items cleared!'});
           } : undefined}
-          printQuote={items.length > 0 ? () => {
+          print={items.length > 0 ? () => {
             if (items && items.length > 0) {
               window.print();
             }
