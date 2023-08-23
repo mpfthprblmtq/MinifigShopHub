@@ -29,14 +29,14 @@ interface NavBarParams {
   activeTab: string;
   openSettings?: () => void;
   clearAll?: () => void;
-  printQuote?: () => void;
+  print?: () => void;
   saveQuote?: () => void;
   loadQuote?: () => void;
   storeMode?: boolean;
   setStoreMode?: () => void;
 }
 
-const NavBar: FunctionComponent<NavBarParams> = ({ activeTab, openSettings, clearAll, printQuote, saveQuote, loadQuote, storeMode, setStoreMode}) => {
+const NavBar: FunctionComponent<NavBarParams> = ({ activeTab, openSettings, clearAll, print, saveQuote, loadQuote, storeMode, setStoreMode}) => {
 
   const [open, setOpen] = useState<boolean>(false);
   const [clearConfirmationTooltipOpen, setClearConfirmationTooltipOpen] = useState<boolean>(false);
@@ -98,7 +98,7 @@ const NavBar: FunctionComponent<NavBarParams> = ({ activeTab, openSettings, clea
             </TooltipConfirmationModal>
             <NavBarActionIconButton
               navBarOpen={open}
-              action={printQuote}
+              action={print}
               icon={<PrintIcon />}
               text={'Print Quote'} />
             <NavBarActionIconButton
@@ -119,7 +119,13 @@ const NavBar: FunctionComponent<NavBarParams> = ({ activeTab, openSettings, clea
           </List>
         )}
         {activeTab === Tabs.LABEL_MAKER && (
-          <></>
+          <List>
+            <NavBarActionIconButton
+              navBarOpen={open}
+              action={print}
+              icon={<PrintIcon />}
+              text={'Print Label'} />
+          </List>
         )}
         {activeTab === Tabs.ROLODEX && (
           <></>

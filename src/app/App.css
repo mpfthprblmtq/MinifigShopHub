@@ -21,18 +21,32 @@ input[type=number]::-webkit-outer-spin-button {
   margin: 0;
 }
 
-@page {
-  size: landscape;
-  margin: 1%;
-}
-
 @media print {
-  body {
-    -webkit-filter: grayscale(1);
-    filter: grayscale(1);
-  }
-
   .hide-in-print-preview {
     display: none;
+  }
+  @page {
+    size: auto;
+    margin: 0;
+  }
+}
+
+.quote-builder-print-configuration {
+  @page {
+    size: landscape;
+    margin: 1%;
+  }
+
+  @media print {
+    body {
+      -webkit-filter: grayscale(1);
+      filter: grayscale(1);
+    }
+  }
+}
+
+.label-maker-print-configuration {
+  @page {
+    size: portrait;
   }
 }
