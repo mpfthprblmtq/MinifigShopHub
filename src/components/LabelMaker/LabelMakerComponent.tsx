@@ -5,7 +5,6 @@ import {
   Checkbox,
   CircularProgress, FormControl,
   FormControlLabel, InputLabel, MenuItem, Select,
-  Slider,
   TextField,
   Tooltip,
   Typography
@@ -27,6 +26,7 @@ import { InfoOutlined } from "@mui/icons-material";
 import CurrencyTextInput from "../_shared/CurrencyTextInput/CurrencyTextInput";
 import MoreInformationDialog from "../QuoteBuilder/Dialog/MoreInformationDialog/MoreInformationDialog";
 import { Status } from "../../model/labelMaker/Status";
+import ValueAdjustmentSlider from "../_shared/ValueAdjustmentSlider/ValueAdjustmentSlider";
 
 const LabelMakerComponent: FunctionComponent = () => {
 
@@ -105,14 +105,6 @@ const LabelMakerComponent: FunctionComponent = () => {
       setItem(item);
     });
   };
-
-  const marks = [
-    { value: 0, label: "0%" },
-    { value: 25, label: "25%" },
-    { value: 50, label: "50%" },
-    { value: 75, label: "75%" },
-    { value: 100, label: "100%"}
-  ];
 
   const handleSliderChange = (event: any) => {
     if (item) {
@@ -221,17 +213,7 @@ const LabelMakerComponent: FunctionComponent = () => {
                   <Typography>{formatCurrency(item.retailStatus?.retailPrice)}</Typography>
                 </Box>
               </Box>
-              <Slider
-                onChange={handleSliderChange}
-                valueLabelFormat={(value: any) => { return value + "%"; }}
-                defaultValue={50}
-                marks={marks}
-                step={5}
-                valueLabelDisplay="auto"
-                min={0}
-                max={100}
-                value={item.valueAdjustment}
-              />
+              <ValueAdjustmentSlider value={item.valueAdjustment} handleSliderChange={handleSliderChange} />
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                 <Box sx={{m: 1, position: 'relative'}}>
                   <Typography sx={{ fontSize: 20, fontFamily: 'Didact Gothic' }}>Value:</Typography>
