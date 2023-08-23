@@ -34,7 +34,7 @@ interface CurrencyTextInputParams {
     label?: string;
     readonly?: boolean;
     onChange: (event: any) => void;
-    onBlur: (event: any) => void;
+    onBlur?: (event: any) => void;
     color?: string;
 }
 
