@@ -1,9 +1,8 @@
 import React, { FunctionComponent, useEffect, useRef, useState } from "react";
 import {
   Box,
-  Button,
   Checkbox,
-  CircularProgress, FormControl,
+  FormControl,
   FormControlLabel, InputLabel, MenuItem, Select,
   TextField,
   Tooltip,
@@ -14,12 +13,7 @@ import Version from "../_shared/Version/Version";
 import { Tabs } from "../_shared/NavBar/Tabs";
 import LabelContent from "./LabelContent/LabelContent";
 import { useReactToPrint } from "react-to-print";
-import { green } from "@mui/material/colors";
 import { Item } from "../../model/item/Item";
-import { AxiosError } from "axios";
-import { useItemLookupService } from "../../hooks/useItemLookupService";
-import MultipleItemsFoundDialog from "../QuoteBuilder/Dialog/MultipleItemsFoundDialog/MultipleItemsFoundDialog";
-import { SetNameStyledTypography } from "../QuoteBuilder/QuoteBuilderComponent.styles";
 import { LabelData } from "../../model/labelMaker/LabelData";
 import { formatCurrency, launderMoney } from "../../utils/CurrencyUtils";
 import { InfoOutlined } from "@mui/icons-material";
@@ -27,14 +21,9 @@ import CurrencyTextInput from "../_shared/CurrencyTextInput/CurrencyTextInput";
 import MoreInformationDialog from "../QuoteBuilder/Dialog/MoreInformationDialog/MoreInformationDialog";
 import { Status } from "../../model/labelMaker/Status";
 import ValueAdjustmentSlider from "../_shared/ValueAdjustmentSlider/ValueAdjustmentSlider";
+import ItemSearchBar from "../_shared/ItemSearchBar/ItemSearchBar";
 
 const LabelMakerComponent: FunctionComponent = () => {
-
-  const [setNumber, setSetNumber] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
-  const [multipleItemsDialogOpen, setMultipleItemsDialogOpen] = useState<boolean>(false);
-  const [multipleItems, setMultipleItems] = useState<Item[]>([]);
 
   const [item, setItem] = useState<Item>();
   const [labelData, setLabelData] = useState<LabelData>({
@@ -45,8 +34,6 @@ const LabelMakerComponent: FunctionComponent = () => {
   });
 
   const [moreInformationDialogOpen, setMoreInformationDialogOpen] = useState<boolean>(false);
-
-  const { getHydratedItem, getItemMatches } = useItemLookupService();
 
   const componentRef = useRef(null);
   const reactToPrintContent = React.useCallback(() => {
@@ -64,46 +51,11 @@ const LabelMakerComponent: FunctionComponent = () => {
     // eslint-disable-next-line
   }, [item]);
 
-  const searchForSet = async () => {
-    setLoading(true);
-    setError('');
-
-    await getItemMatches(setNumber).then(async (matches) => {
-      // if there's only one match, get the hydration data and add it to the table
-      if (matches.length === 1) {
-        await getHydratedItem(matches[0])
-          .then((item: Item) => {
-            item.valueAdjustment = 90;  // TODO get value from DB
-            item.value = item.baseValue * (item.valueAdjustment / 100);
-            item.valueDisplay = formatCurrency(item.value);
-            setItem(item);
-            // update graphics
-            setLoading(false);
-            setSetNumber('');
-          })
-      } else {
-        setMultipleItems(matches);
-        setMultipleItemsDialogOpen(true);
-        setLoading(false);
-      }
-    }).catch((error: AxiosError) => {
-      setLoading(false);
-      if (error.response?.status === 404) {
-        setError(`Item not found: ${setNumber}`);
-      } else {
-        setError("Issue with BrickLink service!");
-      }
-    });
-  };
-
-  const addItem = async (item: Item) => {
-    const itemToAdd = {...item};
-    await getHydratedItem(itemToAdd).then(item => {
-      item.valueAdjustment = 90;  // TODO get value from DB
-      item.value = item.baseValue * (item.valueAdjustment / 100);
-      item.valueDisplay = formatCurrency(item.value);
-      setItem(item);
-    });
+  const processItem = (item: Item) => {
+    item.valueAdjustment = 90;  // TODO get value from DB
+    item.value = item.baseValue * (item.valueAdjustment / 100);
+    item.valueDisplay = formatCurrency(item.value);
+    setItem(item);
   };
 
   const handleSliderChange = (event: any) => {
@@ -126,43 +78,7 @@ const LabelMakerComponent: FunctionComponent = () => {
       <Version />
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Box sx={{ m: 1, position: 'relative', width: '360px' }}>
-          <form>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Box sx={{ m: 1, position: 'relative' }}>
-                <TextField
-                  placeholder={'Set Number'}
-                  value={setNumber}
-                  onChange={(event) => setSetNumber(event.target.value)} />
-              </Box>
-              <Box sx={{ m: 1, position: 'relative' }}>
-                <Button
-                  variant="contained"
-                  disabled={loading || !setNumber}
-                  onClick={searchForSet}
-                  sx={{minWidth: "100px", height: "50px"}}
-                  type='submit'>
-                  Search
-                </Button>
-                {loading && (
-                  <CircularProgress
-                    size={24}
-                    sx={{
-                      color: green[500],
-                      position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      marginTop: '-12px',
-                      marginLeft: '-12px',
-                    }}
-                  />
-                )}
-              </Box>
-            </Box>
-          </form>
-          <Box>
-            {error &&
-              <SetNameStyledTypography sx={{ paddingTop: 0}} color={'error'}>{error}</SetNameStyledTypography>}
-          </Box>
+          <ItemSearchBar processItem={processItem} />
 
           {item && (
             <>
@@ -284,11 +200,6 @@ const LabelMakerComponent: FunctionComponent = () => {
           <LabelContent ref={componentRef} labelData={labelData}/>
         </Box>
       </Box>
-      <MultipleItemsFoundDialog
-        open={multipleItemsDialogOpen}
-        onClose={() => setMultipleItemsDialogOpen(false)}
-        items={multipleItems}
-        addItem={addItem} />
       <MoreInformationDialog
         open={moreInformationDialogOpen && item !== undefined}
         onClose={() => setMoreInformationDialogOpen(false)}
