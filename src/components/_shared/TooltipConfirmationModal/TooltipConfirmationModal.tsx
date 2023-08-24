@@ -1,18 +1,22 @@
-import { FunctionComponent } from "react";
+import { FunctionComponent, ReactElement } from "react";
 import * as React from "react";
 import {
   Box,
   Button,
   ClickAwayListener,
   Tooltip,
-  Typography
 } from "@mui/material";
+import { OverridableStringUnion } from "@mui/types";
+import { ButtonPropsColorOverrides } from "@mui/material/Button/Button";
 
 interface TooltipConfirmationModalParams {
   open: boolean;
-  text: string;
+  content: ReactElement;
   confirmButtonText?: string;
   cancelButtonText?: string;
+  confirmButtonColor?: OverridableStringUnion<
+    'inherit' | 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning',
+    ButtonPropsColorOverrides>;
   onConfirm: () => void;
   onClose: () => void;
   onCancel?: () => void;
@@ -29,15 +33,16 @@ interface TooltipConfirmationModalParams {
     | 'top-end'
     | 'top-start'
     | 'top';
-  children: React.ReactElement<any, any>;
+  children: ReactElement;
   arrow?: boolean;
 }
 
 const TooltipConfirmationModal: FunctionComponent<TooltipConfirmationModalParams> =
   ({
      open,
-     text,
+     content,
      confirmButtonText,
+     confirmButtonColor,
      cancelButtonText,
      children,
      onConfirm,
@@ -57,7 +62,7 @@ const TooltipConfirmationModal: FunctionComponent<TooltipConfirmationModalParams
         placement={placement}
         arrow={!!arrow}
         title={<>
-          <Typography sx={{fontSize: '14px'}}>{text}</Typography>
+          {content}
           <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-around' }}>
             <Box sx={{ m: 1, position: 'relative' }} >
               <Button variant='contained' color='primary' onClick={onCancel ?? onClose}>
@@ -65,7 +70,7 @@ const TooltipConfirmationModal: FunctionComponent<TooltipConfirmationModalParams
               </Button>
             </Box>
             <Box sx={{ m: 1, position: 'relative' }} >
-              <Button variant='contained' color='error' onClick={onConfirm}>
+              <Button variant='contained' color={confirmButtonColor ?? 'error'} onClick={onConfirm}>
                 {confirmButtonText ? confirmButtonText : 'Confirm'}
               </Button>
             </Box>

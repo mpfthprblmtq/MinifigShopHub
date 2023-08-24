@@ -10,6 +10,7 @@ export interface ConfigurationServiceHooks {
 export const STORE_CREDIT_VALUE_ADJUSTMENT: string = 'STORE_CREDIT_VALUE_ADJUSTMENT';
 export const AUTO_ADJUSTMENT_PERCENTAGE_NEW: string = 'AUTO_ADJUSTMENT_PERCENTAGE_NEW';
 export const AUTO_ADJUSTMENT_PERCENTAGE_USED: string = 'AUTO_ADJUSTMENT_PERCENTAGE_USED';
+export const AUTO_ADJUSTMENT_PERCENTAGE_CERTIFIED_PREOWNED: string = 'AUTO_ADJUSTMENT_PERCENTAGE_CERTIFIED_PREOWNED';
 
 export const useConfigurationService = (): ConfigurationServiceHooks => {
 
@@ -20,15 +21,21 @@ export const useConfigurationService = (): ConfigurationServiceHooks => {
             const items = data.Items;
             if (items) {
                 return {
-                    storeCreditValueAdjustment: items?.find(e => e.key === STORE_CREDIT_VALUE_ADJUSTMENT)!.value,
-                    autoAdjustmentPercentageNew: items?.find(e => e.key === AUTO_ADJUSTMENT_PERCENTAGE_NEW)!.value,
-                    autoAdjustmentPercentageUsed: items?.find(e => e.key === AUTO_ADJUSTMENT_PERCENTAGE_USED)!.value,
+                    storeCreditValueAdjustment: items?.find(
+                      e => e.key === STORE_CREDIT_VALUE_ADJUSTMENT)!.value,
+                    autoAdjustmentPercentageNew: items?.find(
+                      e => e.key === AUTO_ADJUSTMENT_PERCENTAGE_NEW)!.value,
+                    autoAdjustmentPercentageUsed: items?.find(
+                      e => e.key === AUTO_ADJUSTMENT_PERCENTAGE_USED)!.value,
+                    autoAdjustmentPercentageCertifiedPreOwned: items?.find(
+                      e => e.key === AUTO_ADJUSTMENT_PERCENTAGE_CERTIFIED_PREOWNED)!.value
                 } as Configuration;
             } else {
                 return {
                     storeCreditValueAdjustment: 0,
                     autoAdjustmentPercentageNew: 0,
                     autoAdjustmentPercentageUsed: 0,
+                    autoAdjustmentPercentageCertifiedPreOwned: 0,
                 };
             }
         } catch (error) {
@@ -69,6 +76,16 @@ export const useConfigurationService = (): ConfigurationServiceHooks => {
                 }
             });
         }
+        if (config.autoAdjustmentPercentageCertifiedPreOwned !==
+          updatedConfig.autoAdjustmentPercentageCertifiedPreOwned) {
+            paramsList.push({
+                TableName: Table,
+                Item: {
+                    key: AUTO_ADJUSTMENT_PERCENTAGE_CERTIFIED_PREOWNED,
+                    value: updatedConfig.autoAdjustmentPercentageCertifiedPreOwned
+                }
+            });
+        }
 
         paramsList.forEach((params) => {
             db.put(params, (err) => {
@@ -82,7 +99,9 @@ export const useConfigurationService = (): ConfigurationServiceHooks => {
         return {
             storeCreditValueAdjustment: updatedConfig.storeCreditValueAdjustment,
             autoAdjustmentPercentageNew: updatedConfig.autoAdjustmentPercentageNew,
-            autoAdjustmentPercentageUsed: updatedConfig.autoAdjustmentPercentageUsed} as Configuration;
+            autoAdjustmentPercentageUsed: updatedConfig.autoAdjustmentPercentageUsed,
+            autoAdjustmentPercentageCertifiedPreOwned: updatedConfig.autoAdjustmentPercentageCertifiedPreOwned
+        } as Configuration;
     }
 
     return {initConfig, updateConfig};

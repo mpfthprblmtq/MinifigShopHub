@@ -12,11 +12,11 @@ const NavBarActionIconButton = forwardRef(({navBarOpen, action, icon, text}: Men
   return (
     <ListItem
       onClick={action}
-      disabled={!action}
       disablePadding
       sx={{ display: 'block' }}>
       <Tooltip title={!navBarOpen && !!action ? text : ''} placement={'right'} ref={ref}>
         <ListItemButton
+          disabled={!action}
           sx={{
             minHeight: 48,
             justifyContent: navBarOpen ? 'initial' : 'center',

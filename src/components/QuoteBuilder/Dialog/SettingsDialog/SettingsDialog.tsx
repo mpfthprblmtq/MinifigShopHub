@@ -71,6 +71,7 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose,
     const updateConfiguration = async () => {
         setUpdateConfigLoading(true);
         await updateConfig(configuration, {
+            ...configuration,
             storeCreditValueAdjustment: storeCreditAdjustmentPercentage,
             autoAdjustmentPercentageNew: newAutoAdjustmentPercentage,
             autoAdjustmentPercentageUsed: usedAutoAdjustmentPercentage
@@ -177,7 +178,10 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose,
                                 <Box sx={{ m: 1, position: 'relative', float: 'right'}}>
                                     <TooltipConfirmationModal
                                       open={confirmResetCalculationsModalOpen}
-                                      text={'Are you sure you want to reset all calculations?'}
+                                      content={
+                                          <Typography sx={{fontSize: '14px'}}>
+                                              Are you sure you want to reset all calculations?
+                                          </Typography>}
                                       onConfirm={() => {
                                           onClose();
                                           resetCalculations();

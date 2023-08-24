@@ -86,11 +86,6 @@ const QuoteBuilderComponent: FunctionComponent = () => {
    * This NEARLY works, but there has to be a better way.
    */
   useEffect(() => {
-    // TODO   figure out why sometimes all value adjustment sliders get disabled
-    //        when changing the row sliders.
-    //        Have two rows, set total to 50%, move one row slider to 60%, then
-    //        start to move the other one but make the mouse move off the slider
-    //        or something like that.  Not 100% sure how to reproduce consistently
     const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
 
     if (adjustmentSet.size === 1) {
@@ -124,7 +119,9 @@ const QuoteBuilderComponent: FunctionComponent = () => {
     }
     if (!configuration.storeCreditValueAdjustment
       && !configuration.autoAdjustmentPercentageNew
-      && !configuration.autoAdjustmentPercentageUsed) {
+      && !configuration.autoAdjustmentPercentageUsed
+      && !configuration.autoAdjustmentPercentageCertifiedPreOwned
+    ) {
       initConfiguration().then(() => { });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
