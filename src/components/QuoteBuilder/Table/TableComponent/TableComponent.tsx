@@ -5,7 +5,6 @@ import { formatCurrency, launderMoney } from "../../../../utils/CurrencyUtils";
 import { FixedWidthColumnHeading, StyledTableCell } from "./TableComponent.styles";
 import { Item } from "../../../../model/item/Item";
 import { Condition } from "../../../../model/_shared/Condition";
-import ManualValueAdjustmentSliderCell from "../TableCells/ManualValueAdjustmentSliderCell";
 import { getItemWithId } from "../../../../utils/ArrayUtils";
 import ItemCommentCell from "../TableCells/ItemCommentCell";
 import MoreInformationDialog from "../../Dialog/MoreInformationDialog/MoreInformationDialog";
@@ -21,6 +20,7 @@ import { ChangeType } from "../../../../model/priceCalculation/ChangeType";
 import { updateItem, updateItemsInStore } from "../../../../redux/slices/quoteSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
+import ValueAdjustmentSlider from "../../../_shared/ValueAdjustmentSlider/ValueAdjustmentSlider";
 
 interface TableComponentParams {
     storeMode: boolean;
@@ -152,7 +152,13 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, ro
                               editable={rowAdjustmentsDisabled}
                             />
                             {storeMode && (
-                              <ManualValueAdjustmentSliderCell item={item} handleSliderChange={handleSliderChange} disabled={rowAdjustmentsDisabled} />
+                              <StyledTableCell>
+                                  <ValueAdjustmentSlider
+                                    value={item.baseValue === 0 ? 0 : item.valueAdjustment}
+                                    handleSliderChange={(event: any) => handleSliderChange(event, item.id)}
+                                    disabled={rowAdjustmentsDisabled}
+                                    sx={{ marginLeft: '-10px' }} />
+                              </StyledTableCell>
                             )}
                             <ItemCommentCell item={item} storeMode={storeMode} handleCommentChange={handleCommentChange}/>
                             {storeMode && (

@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useState } from "react";
 import {Item} from "../../../../model/item/Item";
-import {Box, Tooltip} from "@mui/material";
+import { Box, Tooltip, Typography } from "@mui/material";
 import {Delete, InfoOutlined} from "@mui/icons-material";
 import {Source} from "../../../../model/_shared/Source";
 import {StyledTableCell} from "../TableComponent/TableComponent.styles";
@@ -22,7 +22,10 @@ const IconsCell: FunctionComponent<IconsCellParams> = ({item, onDelete, onShowMo
                 <Box sx={{ m: 1, position: 'relative', padding: 0, margin: 0}} className={"clickable"} onClick={() => setConfirmDeleteModalOpen(true)}>
                     <TooltipConfirmationModal
                       open={confirmDeleteModalOpen}
-                      text={`Are you sure you want to delete ${item.no ? item.no : 'this item'}?`}
+                      content={
+                        <Typography sx={{fontSize: '14px'}}>
+                          {`Are you sure you want to delete ${item.no ? item.no : 'this item'}?`}
+                        </Typography>}
                       onConfirm={() => onDelete(item.id)}
                       onClose={() => setConfirmDeleteModalOpen(false)}
                       placement={'top'}

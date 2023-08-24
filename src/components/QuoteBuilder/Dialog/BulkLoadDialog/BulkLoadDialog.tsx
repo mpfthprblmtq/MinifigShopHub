@@ -20,11 +20,11 @@ import {green} from "@mui/material/colors";
 interface BulkLoadDialogParams {
     open: boolean;
     onClose: () => void;
-    addItems: (items: Item[]) => void;
+    processItems: (items: Item[]) => void;
     addMultipleMatchItems: (items: Item[]) => void;
 }
 
-const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose, addItems, addMultipleMatchItems}) => {
+const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose, processItems, addMultipleMatchItems}) => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [setNumbers, setSetNumbers] = useState<string>('');
@@ -72,7 +72,7 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
         for (const item of items) {
             await getHydratedItem(item).then(hydratedItem => hydratedItems.push(hydratedItem));
         }
-        addItems(hydratedItems);
+        processItems(hydratedItems);
 
         // add the items with multiple matches
         addMultipleMatchItems(itemsWithMultipleMatches);
