@@ -78,9 +78,9 @@ export const usePriceCalculationEngine = (): PriceCalculationHooks => {
                 item.baseValue = item.retailStatus.retailPrice;
             } else {
                 if (item.condition === Condition.USED) {
-                    item.baseValue = item.usedSold?.avg_price ? +item.usedSold.avg_price : 0;
+                    item.baseValue = item.salesData?.usedSold?.avg_price ? +item.salesData.usedSold.avg_price : 0;
                 } else {
-                    item.baseValue = item.newSold?.avg_price ? +item.newSold.avg_price : 0;
+                    item.baseValue = item.salesData?.newSold?.avg_price ? +item.salesData.newSold.avg_price : 0;
                 }
             }
             if (item.baseValue === 0) {

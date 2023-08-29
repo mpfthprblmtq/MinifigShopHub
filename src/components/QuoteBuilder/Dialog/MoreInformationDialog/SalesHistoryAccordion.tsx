@@ -51,7 +51,7 @@ const SalesHistoryAccordion: FunctionComponent<SalesHistoryAccordionParams> = ({
     // custom chart options
     const options: ApexOptions = {
         chart: { id: "basic-bar", type: 'area' },
-        title: { text: `Sales history for ${salesHistory?.item.no}`, align: 'left' },
+        title: { text: `Sales history for ${salesHistory?.item.setId}`, align: 'left' },
         xaxis: { type: 'datetime', title: { text: 'Sale Date' }},
         yaxis: {
             labels: { formatter: (value: number) => { return formatCurrency(value).replace(".00", ""); }, },

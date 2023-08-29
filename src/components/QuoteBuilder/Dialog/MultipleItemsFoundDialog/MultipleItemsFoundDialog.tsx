@@ -26,11 +26,11 @@ const MultipleItemsFoundDialog: FunctionComponent<MultipleItemsFoundDialogParams
 
     useEffect(() => {
         if (items.length === 1) {
-            setMultipleMatchItemsHeader(items[0].no?.replace("-1", "") ?? '');
+            setMultipleMatchItemsHeader(items[0].setId?.replace("-1", "") ?? '');
         } else if (items.length > 1) {
             const setNumbers: string[] = [];
             for (const item of items) {
-                setNumbers.push(item.no?.split('-')[0] ?? '');
+                setNumbers.push(item.setId?.split('-')[0] ?? '');
             }
             setMultipleMatchItemsHeader(
                 setNumbers
@@ -53,10 +53,10 @@ const MultipleItemsFoundDialog: FunctionComponent<MultipleItemsFoundDialogParams
                             <ListItem>
                                 <Box sx={{ display: 'flex', alignItems: 'center', width: '100%'}}>
                                     <Box sx={{ m: 1, position: 'relative' }}>
-                                        <img src={item.image_url} width={100} alt={'bricklink-img'} />
+                                        <img src={item.imageUrl} width={100} alt={'bricklink-img'} />
                                     </Box>
                                     <Box sx={{ m: 1, position: 'relative', flexGrow: 4 }}>
-                                        <Typography>{item.no}</Typography>
+                                        <Typography>{item.setId}</Typography>
                                         <Typography>{item.name}</Typography>
                                     </Box>
                                     <Box sx={{ m: 1, position: 'relative' }}>

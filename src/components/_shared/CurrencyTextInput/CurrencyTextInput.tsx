@@ -36,10 +36,12 @@ interface CurrencyTextInputParams {
     onChange: (event: any) => void;
     onBlur?: (event: any) => void;
     color?: string;
+    error?: boolean;
+    helperText?: string;
 }
 
 const CurrencyTextInput: FunctionComponent<CurrencyTextInputParams> =
-    ({value, label, readonly, onChange, onBlur, color}) => {
+    ({value, label, readonly, onChange, onBlur, color, error, helperText}) => {
 
     return (
         <TextField
@@ -55,7 +57,8 @@ const CurrencyTextInput: FunctionComponent<CurrencyTextInputParams> =
                 readOnly: readonly ?? false,
             }}
             variant="outlined"
-            error={value === "0.00"}
+            error={error}
+            helperText={helperText}
         />
     );
 };

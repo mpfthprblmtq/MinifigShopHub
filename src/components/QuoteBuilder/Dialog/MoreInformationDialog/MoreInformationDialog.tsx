@@ -30,7 +30,7 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
                 height: '80vh'
             }
         }}>
-            <DialogTitle>Item Details for {item?.no}</DialogTitle>
+            <DialogTitle>Item Details for {item?.setId}</DialogTitle>
             <Box position="absolute" top={0} right={0} onClick={onClose}>
                 <IconButton>
                     <Close />
@@ -38,17 +38,18 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
             </Box>
             <DialogContent>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    {item?.image_url && item?.thumbnail_url && (
+                    {item?.imageUrl && item?.thumbnailUrl && (
                         <Box sx={{ m: 1, position: 'relative' }}>
-                            <img width="200" alt="bricklink-set-img" src={item.image_url}/>
+                            <img width="200" alt="bricklink-set-img" src={item.imageUrl}/>
                         </Box>
                     )}
                     <Box sx={{ m: 1, position: 'relative' }}>
                         <Typography>
-                            <strong>Set ID: </strong>{item?.no}<br/>
+                            <strong>Set ID: </strong>{item?.setId}<br/>
                             <strong>Name: </strong>{item?.name}<br/>
-                            <strong>Year: </strong>{item?.year_released}<br/>
-                            <strong>Category: </strong>{item?.category_name}<br/>
+                            <strong>Year: </strong>{item?.yearReleased}<br/>
+                            <strong>Theme: </strong>{item?.theme}<br/>
+                            <strong>SubTheme: </strong>{item?.subTheme}<br/>
                         </Typography>
                         {item?.retailStatus?.availability && item.retailStatus.retailPrice && (
                             <Typography style={{marginTop: 10}}>
@@ -59,25 +60,25 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
                     </Box>
                 </Box>
                 <Box marginTop={'10px'}>
-                    {item?.newSold && (
+                    {item?.salesData?.newSold && (
                         <SalesHistoryAccordion
                             title={<Typography>Last 6 Months Sales <strong>(New)</strong></Typography>}
-                            salesHistory={item?.newSold} />
+                            salesHistory={item?.salesData?.newSold} />
                     )}
-                    {item?.usedSold && (
+                    {item?.salesData?.usedSold && (
                         <SalesHistoryAccordion
                             title={<Typography>Last 6 Months Sales <strong>(Used)</strong></Typography>}
-                            salesHistory={item?.usedSold} />
+                            salesHistory={item?.salesData?.usedSold} />
                     )}
-                    {item?.newStock && (
+                    {item?.salesData?.newStock && (
                         <SalesHistoryAccordion
                             title={<Typography>Current Items For Sale <strong>(New)</strong></Typography>}
-                            salesHistory={item?.newStock} />
+                            salesHistory={item?.salesData?.newStock} />
                     )}
-                    {item?.usedStock && (
+                    {item?.salesData?.usedStock && (
                         <SalesHistoryAccordion
                             title={<Typography>Current Items For Sale <strong>(Used)</strong></Typography>}
-                            salesHistory={item?.usedStock} />
+                            salesHistory={item?.salesData?.usedStock} />
                     )}
                 </Box>
             </DialogContent>

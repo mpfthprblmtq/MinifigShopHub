@@ -22,7 +22,8 @@ const LabelMakerComponent: FunctionComponent = () => {
     partsIndicator: true,
     manualIndicator: true,
     minifigsIndicator: true,
-    status: Status.PRE_OWNED
+    status: Status.PRE_OWNED,
+    validatedBy: ''
   });
 
   const [settingsDialogOpen, setSettingsDialogOpen] = useState<boolean>(false);
@@ -44,11 +45,15 @@ const LabelMakerComponent: FunctionComponent = () => {
     setItem(item);
   };
 
+  const validate = (): boolean => {
+    return !!labelData.validatedBy || !!labelData.title || labelData.value !== 0;
+  }
+
   return (
     <div className={"App label-maker-print-configuration"}>
       <NavBar
         activeTab={Tabs.LABEL_MAKER}
-        print={!labelData.validatedBy ? undefined : handlePrint}
+        print={validate() ? handlePrint : undefined}
         openSettings={() => setSettingsDialogOpen(true)}
         clearAll={!item ? undefined : () => {
           setItem(undefined);

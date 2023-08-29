@@ -1,15 +1,13 @@
 import {Type} from "../model/_shared/Type";
 import {Item} from "../model/item/Item";
-import {Category} from "../model/category/Category";
-import {RetailStatus} from "../model/retailStatus/RetailStatus";
 import {AllSalesHistory} from "../model/salesHistory/AllSalesHistory";
 import {htmlDecode} from "../utils/StringUtils";
-import {useBrickEconomyService} from "./useBrickEconomyService";
 import {useBrickLinkService} from "./useBrickLinkService";
 import {Condition} from "../model/_shared/Condition";
 import {formatCurrency} from "../utils/CurrencyUtils";
 import {Source} from "../model/_shared/Source";
 import {useSelector} from "react-redux";
+import { useBricksetService } from "./useBricksetService";
 
 export interface ItemLookupServiceHooks {
     getHydratedItem: (item: Item) => Promise<Item>;
@@ -20,14 +18,14 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
 
     const {configuration} = useSelector((state: any) => state.configurationStore);
 
-    const { getItem, getCategory, getAllSalesHistory } = useBrickLinkService();
-    const { getRetailStatus } = useBrickEconomyService();
+    const { getBricklinkData, getAllSalesHistory } = useBrickLinkService();
+    const { getBricksetData } = useBricksetService();
 
     const getItemMatches = async (id: string): Promise<Item[]> => {
         try {
             // get the first item with the id
             // also acts as an error checker for bad ids given
-            const item: Item = await getItem(id, determineType(id));
+            const item: Item = await getBricklinkData(id, determineType(id));
 
             // check to see if there are other sets by appending sequential numbers
             const items: Item[] = [item];
@@ -35,8 +33,8 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
             let index: number = 2;
             while (matchesFound) {
                 try {
-                    const setNumber: string = item.no!.split("-")[0] + "-" + index;
-                    const matchedItem = await getItem(setNumber, determineType(setNumber));
+                    const setNumber: string = item.setId!.split("-")[0] + "-" + index;
+                    const matchedItem = await getBricklinkData(setNumber, determineType(setNumber));
                     if (matchedItem) {
                         items.push(matchedItem);
                         index++;
@@ -48,7 +46,7 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
             return items;
         } catch (error) {
             // error handler for the first search, throws the error for the UI to catch (no items found with that id)
-            console.log(error);
+            console.error(error);
             throw error;
         }
     };
@@ -56,39 +54,29 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
     const getHydratedItem = async (item: Item): Promise<Item> => {
         try {
             // grab the category, retailStatus, and sales history from the given item
-            if (item.category_id && item.no) {
+            if (item.setId) {
                 await Promise.all(
                     [
-                        getCategory(item.category_id),
-                        getRetailStatus(item.no),
+                        getBricksetData(item),
                         getAllSalesHistory(item)
                     ]
                 ).then(itemHydrationData => {
-                    const category: Category = itemHydrationData[0];
-                    const retailStatus: RetailStatus = itemHydrationData[1];
-                    const allSalesHistory: AllSalesHistory = itemHydrationData[2];
-
-                    item.category_name = category.category_name;
-                    item.retailStatus = retailStatus;
-                    item.usedSold = allSalesHistory.usedSold;
-                    item.usedStock = allSalesHistory.usedStock;
-                    item.newSold = allSalesHistory.newSold;
-                    item.newStock = allSalesHistory.newStock;
+                    item = { ...item, ...itemHydrationData[0] as Item, salesData: itemHydrationData[1] as AllSalesHistory};
 
                     // by default, set the condition to used and use the average sold value for the value attribute
                     item.condition = Condition.USED;
-                    item.baseValue = item.usedSold?.avg_price ? +item.usedSold.avg_price : 0;
-                    item.value = item.usedSold?.avg_price ?
-                        +item.usedSold.avg_price * (configuration.autoAdjustmentPercentageUsed / 100) : 0;
+                    item.baseValue = item.salesData?.usedSold?.avg_price ? +item.salesData.usedSold.avg_price : 0;
+                    item.value = item.salesData?.usedSold?.avg_price ?
+                        +item.salesData.usedSold.avg_price * (configuration.autoAdjustmentPercentageUsed / 100) : 0;
                     item.value = +item.value.toFixed(2);
                     item.valueDisplay = formatCurrency(item.value)!.toString().substring(1);
                     item.valueAdjustment = configuration.autoAdjustmentPercentageUsed;
                     item.source = Source.BRICKLINK;
-                    item.type = determineType(item.no ?? '');
+                    item.type = determineType(item.setId ?? '');
 
                     // remove the "-1" for display purposes
-                    if (new RegExp(".+-\\d").test(item.no ?? '')) {
-                        item.no = item.no?.substring(0, item.no?.length - 2);
+                    if (new RegExp(".+-\\d").test(item.setId ?? '')) {
+                        item.setId = item.setId?.substring(0, item.setId?.length - 2);
                     }
                 });
             }
@@ -99,7 +87,7 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
             // return the hydrated item
             return item;
         } catch (error) {
-            console.log(error);
+            console.error(error);
             throw error;
         }
     }
