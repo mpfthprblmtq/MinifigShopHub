@@ -5,6 +5,7 @@ import { RouterPaths } from "../../../../utils/RouterPaths";
 import TableViewIcon from "@mui/icons-material/TableView";
 import BookmarksIcon from "@mui/icons-material/Bookmarks";
 import CollectionsBookmarkIcon from "@mui/icons-material/CollectionsBookmark";
+import FactCheckIcon from "@mui/icons-material/FactCheck";
 import { List } from "@mui/material";
 
 interface AppNavigationActionsParams {
@@ -33,6 +34,12 @@ const AppNavigationActions: FunctionComponent<AppNavigationActionsParams> = ({ n
         route={RouterPaths.Rolodex}
         icon={<CollectionsBookmarkIcon />}
         active={activeTab === Tabs.ROLODEX} />
+      <NavBarAppIconButton
+        navBarOpen={navBarOpen}
+        title={Tabs.PART_COLLECTOR}
+        route={RouterPaths.PartCollector}
+        icon={<FactCheckIcon />}
+        active={activeTab === Tabs.PART_COLLECTOR} />
     </List>
   )
 };
