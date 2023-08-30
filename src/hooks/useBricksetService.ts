@@ -55,7 +55,10 @@ export const useBricksetService = (): BricksetServiceHooks => {
     return `${baseUrl}/getSets?apiKey=${process.env.REACT_APP_BRICKSET_API_KEY}&userHash=&params={"setNumber": "${id}"}`;
   }
 
-  const determineAvailability = (date: string): Availability => {
+  const determineAvailability = (date: string): Availability | undefined => {
+    if (!date) {
+      return undefined;
+    }
     return dayjs().isAfter(date) ? Availability.RETIRED : Availability.RETAIL;
   }
 

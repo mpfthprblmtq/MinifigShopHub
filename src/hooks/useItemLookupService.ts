@@ -8,6 +8,7 @@ import {formatCurrency} from "../utils/CurrencyUtils";
 import {Source} from "../model/_shared/Source";
 import {useSelector} from "react-redux";
 import { useBricksetService } from "./useBricksetService";
+import { useBrickEconomyService } from "./useBrickEconomyService";
 
 export interface ItemLookupServiceHooks {
     getHydratedItem: (item: Item) => Promise<Item>;
@@ -20,6 +21,7 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
 
     const { getBricklinkData, getAllSalesHistory } = useBrickLinkService();
     const { getBricksetData } = useBricksetService();
+    const { getRetailStatus } = useBrickEconomyService();
 
     const getItemMatches = async (id: string): Promise<Item[]> => {
         try {
@@ -60,8 +62,15 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
                         getBricksetData(item),
                         getAllSalesHistory(item)
                     ]
-                ).then(itemHydrationData => {
+                ).then(async itemHydrationData => {
                     item = { ...item, ...itemHydrationData[0] as Item, salesData: itemHydrationData[1] as AllSalesHistory};
+
+                    // fallback on BrickEconomy if the RetailStatus is blank, since Brickset might not have it
+                    if (!item.retailStatus?.retailPrice && !item.retailStatus?.availability) {
+                        if (item.setId) {
+                            item.retailStatus = await getRetailStatus(item.setId);
+                        }
+                    }
 
                     // by default, set the condition to used and use the average sold value for the value attribute
                     item.condition = Condition.USED;

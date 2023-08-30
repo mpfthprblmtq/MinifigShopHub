@@ -134,7 +134,8 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
                             <ValueAdjustmentSlider
                               value={quote.total.valueAdjustment}
                               handleSliderChange={handleSliderChange}
-                              disabled={totalAdjustmentDisabled} />
+                              disabled={totalAdjustmentDisabled}
+                              sx={{ marginLeft: '-10px' }} />
                         </FixedWidthColumnHeading>}
                       <FixedWidthColumnHeading width={200}>
                           <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
