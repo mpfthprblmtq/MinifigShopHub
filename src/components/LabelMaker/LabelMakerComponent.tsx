@@ -43,25 +43,26 @@ const LabelMakerComponent: FunctionComponent = () => {
     // retail sets are set at 80% of the MSRP, rounded to the nearest 5
     // retired sets won't have a value, since they will most often be overridden
     if (item.retailStatus?.retailPrice && item.retailStatus?.availability === Availability.RETAIL) {
+      item.baseValue = item.retailStatus.retailPrice;
       item.valueAdjustment = configuration.autoAdjustmentPercentageCertifiedPreOwned;
       item.value = roundToNearestFive(item.retailStatus.retailPrice * (item.valueAdjustment / 100));
     } else {
       item.valueAdjustment = 0;
-      item.value = 0;
+      item.value = 0.00;
     }
     item.valueDisplay = formatCurrency(item.value);
     setItem(item);
   };
 
-  const validate = (): boolean => {
-    return !!labelData.validatedBy || !!labelData.title || labelData.value !== 0;
+  const canPrint = (): boolean => {
+    return !!item && !!labelData.validatedBy && !!labelData.title && item.valueDisplay !== '$0.00';
   }
 
   return (
     <div className={"App label-maker-print-configuration"}>
       <NavBar
         activeTab={Tabs.LABEL_MAKER}
-        print={validate() ? handlePrint : undefined}
+        print={canPrint() ? handlePrint : undefined}
         openSettings={() => setSettingsDialogOpen(true)}
         clearAll={!item ? undefined : () => {
           setItem(undefined);
