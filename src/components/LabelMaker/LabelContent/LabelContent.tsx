@@ -13,12 +13,12 @@ const LabelContent = forwardRef(({labelData}: LabelContentParams, ref) => {
 
   useEffect(() => {
     if (labelData && labelData.value?.toString() === "0.00") {
-      setBarCodeLabel('/assets/images/upc-codes/UPC_VAR.png');
+      setBarCodeLabel('assets/images/upc-codes/UPC_VAR.png');
     } else {
       if (labelData && labelData.value && labelData.value % 5 === 0 && labelData.value <= 100) {
-        setBarCodeLabel(`/assets/images/upc-codes/UPC_${labelData.value.toString().replace('.00', '').padStart(3, '0')}.png`);
+        setBarCodeLabel(`assets/images/upc-codes/UPC_${labelData.value.toString().replace('.00', '').padStart(3, '0')}.png`);
       } else {
-        setBarCodeLabel('/assets/images/upc-codes/UPC_VAR.png');
+        setBarCodeLabel('assets/images/upc-codes/UPC_VAR.png');
       }
     }
     // eslint-disable-next-line
