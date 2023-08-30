@@ -22,3 +22,7 @@ export const launderMoney = (s: string): number => {
         .replace(" ", "")
         .replace("$", "");
 };
+
+export const roundToNearestFive = (n: number): number => {
+    return Math.round(n / 5) * 5;
+}

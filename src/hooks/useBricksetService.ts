@@ -32,7 +32,7 @@ export const useBricksetService = (): BricksetServiceHooks => {
           minifigCount: set.minifigs,
           retailStatus: {
             retailPrice: set.LEGOCom.US.retailPrice,
-            availability: determineAvailability(set.LEGOCom.US.dateLastAvailable),
+            availability: determineAvailability(set.LEGOCom.US.dateFirstAvailable, set.LEGOCom.US.dateLastAvailable),
           } as RetailStatus
         } as Item;
       } catch (error) {
@@ -55,11 +55,16 @@ export const useBricksetService = (): BricksetServiceHooks => {
     return `${baseUrl}/getSets?apiKey=${process.env.REACT_APP_BRICKSET_API_KEY}&userHash=&params={"setNumber": "${id}"}`;
   }
 
-  const determineAvailability = (date: string): Availability | undefined => {
-    if (!date) {
+  const determineAvailability = (dateFirstAvailable: string, dateLastAvailable: string): Availability | undefined => {
+    // if we have a dateFirstAvailable and not a dateLastAvailable, then the set is at Retail
+    if (dateFirstAvailable && !dateLastAvailable) {
+      return Availability.RETAIL;
+    } else if (!dateFirstAvailable && !dateLastAvailable) {
+      // if we have neither, then brickset doesn't have the data
       return undefined;
     }
-    return dayjs().isAfter(date) ? Availability.RETIRED : Availability.RETAIL;
+    // if we have both for some reason, then just check if the date is after
+    return dayjs().isAfter(dateLastAvailable) ? Availability.RETIRED : Availability.RETAIL;
   }
 
   return { getBricksetData };
