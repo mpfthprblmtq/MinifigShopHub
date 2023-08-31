@@ -9,7 +9,7 @@ interface LabelContentParams {
 
 const LabelContent = forwardRef(({labelData}: LabelContentParams, ref) => {
 
-  const [barCodeLabel, setBarCodeLabel] = useState<string>('/assets/images/upc-codes/UPC_VAR.png');
+  const [barCodeLabel, setBarCodeLabel] = useState<string>('assets/images/upc-codes/UPC_VAR.png');
 
   useEffect(() => {
     if (labelData && labelData.value?.toString() === "0.00") {
