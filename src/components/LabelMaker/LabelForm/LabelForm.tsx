@@ -32,7 +32,15 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData
   useEffect(() => {
     if (item) {
       item.valueDisplay = formatCurrency(item.value);
-      setLabelData({...labelData, title: `${item.no} - ${item.name}`, image_url: item.image_url, value: item.value} as LabelData);
+      setLabelData({
+        ...labelData,
+        title: item.setId && labelData.title?.startsWith(item.setId) ? labelData.title : `${item.setId} - ${item.name}`,
+        image_url: item.imageUrl,
+        value: item.value,
+        pieces: item.pieceCount,
+        minifigs: item.minifigCount,
+        minifigsIndicator: item.minifigCount !== undefined
+      } as LabelData);
     }
     // eslint-disable-next-line
   }, [item]);
@@ -66,32 +74,38 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData
       <TextField
         value={labelData.title ?? ''}
         placeholder={'Set ID / Name'}
+        error={!labelData.title}
+        label={!labelData.title ? 'Required *' : ''}
         disabled={!item}
         fullWidth
         onChange={(event) => setLabelData({...labelData, title: event.target.value} as LabelData)} />
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Box sx={{ m: 1, position: 'relative' }}>
-          <Typography>New Sales</Typography>
-          {item.newSold?.price_detail && item.newSold.price_detail.length > 0 && (
-            <Tooltip title={`Based on ${item.newSold?.unit_quantity} ${+item.newSold?.unit_quantity === 1 ? 'sale' : 'sales'}`} arrow>
-              <Box sx={{color: item.newSold?.unit_quantity && item.newSold?.unit_quantity >= 5 ? '#008000' : '#BD0000' }}>
-                Min: {formatCurrency(item.newSold?.min_price)}<br/>
-                <strong>Avg: {formatCurrency(item.newSold?.avg_price)}</strong><br/>
-                Max: {formatCurrency(item.newSold?.max_price)}
-              </Box>
-            </Tooltip>
+          {item.salesData?.newSold?.price_detail && item.salesData.newSold.price_detail.length > 0 && (
+            <>
+              <Typography>New Sales</Typography>
+              <Tooltip title={`Based on ${item.salesData?.newSold?.unit_quantity} ${+item.salesData.newSold?.unit_quantity === 1 ? 'sale' : 'sales'}`} arrow>
+                <Box sx={{color: item.salesData?.newSold?.unit_quantity && item.salesData.newSold?.unit_quantity >= 5 ? '#008000' : '#BD0000' }}>
+                  Min: {formatCurrency(item.salesData?.newSold?.min_price)}<br/>
+                  <strong>Avg: {formatCurrency(item.salesData?.newSold?.avg_price)}</strong><br/>
+                  Max: {formatCurrency(item.salesData?.newSold?.max_price)}
+                </Box>
+              </Tooltip>
+            </>
           )}
         </Box>
         <Box sx={{ m: 1, position: 'relative' }}>
-          <Typography>Used Sales</Typography>
-          {item.usedSold?.price_detail && item.usedSold.price_detail.length > 0 && (
-            <Tooltip title={`Based on ${item.usedSold?.unit_quantity} ${+item.usedSold?.unit_quantity === 1 ? 'sale' : 'sales'}`} arrow>
-              <Box sx={{color: item.usedSold?.unit_quantity && item.usedSold?.unit_quantity >= 5 ? '#008000' : '#BD0000' }}>
-                Min: {formatCurrency(item.usedSold?.min_price)}<br/>
-                <strong>Avg: {formatCurrency(item.usedSold?.avg_price)}</strong><br/>
-                Max: {formatCurrency(item.usedSold?.max_price)}
-              </Box>
-            </Tooltip>
+          {item.salesData?.usedSold?.price_detail && item.salesData.usedSold.price_detail.length > 0 && (
+            <>
+              <Typography>Used Sales</Typography>
+              <Tooltip title={`Based on ${item.salesData?.usedSold?.unit_quantity} ${+item.salesData.usedSold?.unit_quantity === 1 ? 'sale' : 'sales'}`} arrow>
+                <Box sx={{color: item.salesData?.usedSold?.unit_quantity && item.salesData?.usedSold?.unit_quantity >= 5 ? '#008000' : '#BD0000' }}>
+                  Min: {formatCurrency(item.salesData?.usedSold?.min_price)}<br/>
+                  <strong>Avg: {formatCurrency(item.salesData?.usedSold?.avg_price)}</strong><br/>
+                  Max: {formatCurrency(item.salesData?.usedSold?.max_price)}
+                </Box>
+              </Tooltip>
+            </>
           )}
         </Box>
         <Box sx={{ m: 1, position: 'relative' }}>
@@ -109,7 +123,10 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData
           <CurrencyTextInput
             onChange={(event: any) => setItem({...item, value: event.target.value})}
             onBlur={handleValueBlur}
-            value={item.valueDisplay} />
+            value={item.valueDisplay}
+            error={item.valueDisplay?.toString() === '$0.00'}
+            label={item.valueDisplay?.toString() === '$0.00' ? 'Value cannot be $0' : ''}
+          />
         </Box>
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
@@ -122,12 +139,17 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData
           />
         </Box>
         <Box sx={{m: 1, position: 'relative'}}>
-          <FormControlLabel
-            checked={labelData.minifigsIndicator}
-            control={<Checkbox />}
-            label={<Typography sx={{ fontFamily: "Didact Gothic", fontSize: 16 }}>Minifigs</Typography>}
-            onChange={(event: any) => setLabelData({ ...labelData, minifigsIndicator: event.target.checked } as LabelData)}
-          />
+          <Tooltip title={!item.minifigCount ? 'Set has no Minifigs!' : ''} followCursor>
+            <div>
+              <FormControlLabel
+                disabled={!item.minifigCount}
+                checked={labelData.minifigsIndicator}
+                control={<Checkbox />}
+                label={<Typography sx={{ fontFamily: "Didact Gothic", fontSize: 16, color: !item.minifigCount ? "grey" : "inherit" }}>Minifigs</Typography>}
+                onChange={(event: any) => setLabelData({ ...labelData, minifigsIndicator: event.target.checked } as LabelData)}
+              />
+            </div>
+          </Tooltip>
         </Box>
         <Box sx={{m: 1, position: 'relative'}}>
           <FormControlLabel
@@ -142,7 +164,7 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData
         <Box sx={{m: 1, position: 'relative'}}>
           <TextField
             error={!labelData.validatedBy}
-            helperText={!labelData.validatedBy ? 'Required *' : ''}
+            label={!labelData.validatedBy ? 'Required *' : ''}
             value={labelData.validatedBy}
             placeholder={'Validated By (Initials)'}
             onChange={(event) => {

@@ -10,5 +10,5 @@ export interface LabelData {
   partsIndicator: boolean;
   minifigsIndicator: boolean;
   manualIndicator: boolean;
-  validatedBy?: string;
+  validatedBy: string;
 }

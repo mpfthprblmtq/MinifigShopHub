@@ -8,14 +8,14 @@ const oauth1a = require('oauth-1.0a');
  */
 export const getAuthHeader = (request: any) => {
     const oauth = oauth1a({
-        consumer: { key: process.env.REACT_APP_CONSUMER_KEY, secret: process.env.REACT_APP_CONSUMER_SECRET },
+        consumer: { key: process.env.REACT_APP_BRICKLINK_CONSUMER_KEY, secret: process.env.REACT_APP_BRICKLINK_CONSUMER_SECRET },
         signature_method: 'HMAC-SHA1',
         hash_function: hash_function_sha1
     });
 
     const authorization = oauth.authorize(request, {
-        key: process.env.REACT_APP_TOKEN_VALUE,
-        secret: process.env.REACT_APP_TOKEN_SECRET,
+        key: process.env.REACT_APP_BRICKLINK_TOKEN_VALUE,
+        secret: process.env.REACT_APP_BRICKLINK_TOKEN_SECRET,
     });
 
     return oauth.toHeader(authorization);

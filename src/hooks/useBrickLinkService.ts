@@ -1,12 +1,10 @@
 import axios from "axios";
 import {getAuthHeader} from "../utils/Oauth1Helper";
-import {ItemResponse} from "../model/item/ItemResponse";
+import {BricklinkItemResponse} from "../model/item/BricklinkItemResponse";
 import {Item} from "../model/item/Item";
 import {SalesHistory} from "../model/salesHistory/SalesHistory";
 import {SalesHistoryResponse} from "../model/salesHistory/SalesHistoryResponse";
 import {AllSalesHistory} from "../model/salesHistory/AllSalesHistory";
-import {Category} from "../model/category/Category";
-import {CategoryResponse} from "../model/category/CategoryResponse";
 import {Type} from "../model/_shared/Type";
 import {filterOutOldDates} from "../utils/DateUtils";
 
@@ -14,8 +12,7 @@ const corsProxyUrl: string = 'https://corsproxy.io/?';
 const baseUrl: string = "https://api.bricklink.com/api/store/v1";
 
 export interface BrickLinkHooks {
-    getItem: (id: string, type: Type) => Promise<Item>;
-    getCategory: (id: number) => Promise<Category>;
+    getBricklinkData: (id: string, type: Type) => Promise<Item>;
     getAllSalesHistory: (item: Item) => Promise<AllSalesHistory>;
 }
 
@@ -28,39 +25,62 @@ export const useBrickLinkService = (): BrickLinkHooks => {
         headers: {}
     });
 
-    /**
-     * Get function that retrieves basic set information (name, year released, etc)
-     * @param id the id of the set
-     * @param type the type of item to get
-     */
-    const getItem = async (id: string, type: Type): Promise<Item> => {
-        // append a '-1' onto the end of the id, since that's how BrickLink stores their data
-        if (type === Type.SET && !id.match(".*-\\d+")) {
-            id += "-1";
-        }
-
+    const get = async <T,>(url: string): Promise<T> => {
         // build the request and authorization header
         const request = {
-            url: `${baseUrl}/items/${type}/${id}`,
+            url: url,
             method: 'GET'
         };
         const authHeader = getAuthHeader(request);
 
         // make the request
-        return (await brickLinkAxiosInstance.get<ItemResponse>(
-            `${corsProxyUrl}${baseUrl}/items/${type}/${id}`,
-            {headers: authHeader}
-        )).data.data;
+        return (await brickLinkAxiosInstance.get<T>(
+          `${corsProxyUrl}${url}`,
+          {headers: authHeader}
+        )).data;
+    };
+
+    /**
+     * Get function that retrieves basic set information (name, year released, etc)
+     * @param id the id of the set
+     * @param type the type of item to get
+     */
+    const getBricklinkData = async (id: string, type: Type): Promise<Item> => {
+        // append a '-1' onto the end of the id, since that's how BrickLink stores their data
+        if (type === Type.SET && !id.match(".*-\\d+")) {
+            id += "-1";
+        }
+
+        try {
+            const bricklinkData: BricklinkItemResponse =
+              await get<BricklinkItemResponse>(`${baseUrl}/items/${type}/${id}`);
+            const item = bricklinkData.data;
+            return {
+              setId: item.no,
+              name: item.name,
+              type: item.type,
+              imageUrl: item.image_url,
+              thumbnailUrl: item.thumbnail_url,
+              yearReleased: item.year_released
+            } as Item;
+        } catch (error) {
+            throw error;
+        }
+
+        // return (
+        //   await get<BricklinkItemResponse>(
+        //     `${baseUrl}/items/${type}/${id}`
+        //   )).data;
     };
 
     const getAllSalesHistory = async (item: Item): Promise<AllSalesHistory> => {
         let allSalesHistory: AllSalesHistory = {};
-        if (item.no) {
+        if (item.setId) {
             await Promise.all([
-                getSalesHistory(item.no, item.type, "sold", "U"),
-                getSalesHistory(item.no, item.type, "stock", "U"),
-                getSalesHistory(item.no, item.type, "sold", "N"),
-                getSalesHistory(item.no, item.type, "stock", "N")
+                getSalesHistory(item.setId, item.type, "sold", "U"),
+                getSalesHistory(item.setId, item.type, "stock", "U"),
+                getSalesHistory(item.setId, item.type, "sold", "N"),
+                getSalesHistory(item.setId, item.type, "stock", "N")
             ]).then(responses => {
                 responses.map((response) => {
                     return filterOutOldDates(response);
@@ -83,39 +103,11 @@ export const useBrickLinkService = (): BrickLinkHooks => {
      * @returns a SalesHistory object
      */
     const getSalesHistory = async (id: string, itemType: Type, type: 'sold' | 'stock', state: 'U' | 'N'): Promise<SalesHistory> => {
-        // build the request and authorization header
-        const request = {
-            url: `${baseUrl}/items/${itemType}/${id}/price?guide_type=${type}&new_or_used=${state}`,
-            method: 'GET'
-        };
-        const authHeader = getAuthHeader(request);
-
-        // make the request
-        return (await brickLinkAxiosInstance.get<SalesHistoryResponse>(
-            `${corsProxyUrl}${baseUrl}/items/${itemType}/${id}/price?guide_type=${type}&new_or_used=${state}`,
-            {headers: authHeader}
-        )).data.data;
+        return (
+          await get<SalesHistoryResponse>(
+            `${baseUrl}/items/${itemType}/${id}/price?guide_type=${type}&new_or_used=${state}`
+          )).data;
     };
-
-    /**
-     * Request function that gets the Category information from BrickLink
-     * @param id the ID of the category to get
-     * @returns a Category object
-     */
-    const getCategory = async (id: number): Promise<Category> => {
-        // build the request and authorization header
-        const request = {
-            url: `${baseUrl}/categories/${id}`,
-            method: 'GET'
-        };
-        const authHeader = getAuthHeader(request);
-
-        // make the request
-        return (await brickLinkAxiosInstance.get<CategoryResponse>(
-            `${corsProxyUrl}${baseUrl}/categories/${id}`,
-            {headers: authHeader}
-        )).data.data;
-    }
 
     /**
      * Helper function that looks at all data on the SalesHistory object and checks if we can just set it to undefined
@@ -135,6 +127,6 @@ export const useBrickLinkService = (): BrickLinkHooks => {
         return salesHistory;
     };
 
-    return { getItem, getCategory, getAllSalesHistory };
+    return { getBricklinkData, getAllSalesHistory };
 };
 

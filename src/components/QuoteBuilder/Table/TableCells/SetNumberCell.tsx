@@ -13,8 +13,8 @@ const SetNumberCell: FunctionComponent<SetNumberParams> = ({item}) => {
             <a
                 href={`https://www.bricklink.com/v2/catalog/catalogitem.page?${
                     item.type === Type.SET ? 'S' : 'M'
-                }=${item.no}#T=P`}
-                target="_blank" rel="noreferrer">{item.no}
+                }=${item.setId}#T=P`}
+                target="_blank" rel="noreferrer">{item.setId}
             </a>
         </StyledTableCell>
     );

@@ -166,7 +166,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, ro
                                 item={item}
                                 onDelete={(id: number) => {
                                     dispatch(updateItemsInStore([...items].filter(item => item.id !== id)));
-                                    setSnackbarState({open: true, message: `Item ${item.no ? item.no : ''} successfully deleted!`, severity: 'success'})
+                                    setSnackbarState({open: true, message: `Item ${item.setId ? item.setId : ''} successfully deleted!`, severity: 'success'})
                                 }}
                                 onShowMoreInfo={() => {
                                     setFocusedItem(item);
@@ -186,7 +186,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, ro
                 setShowImageDialog(false);
             }}
             title={focusedItem?.name ?? ''}
-            content={<img src={focusedItem?.image_url} alt="bricklink-img" />} />
+            content={<img src={focusedItem?.imageUrl} alt="bricklink-img" />} />
           <MoreInformationDialog
             open={showMoreInformationDialog && focusedItem !== undefined}
             onClose={() => {

@@ -9,14 +9,17 @@ interface LabelContentParams {
 
 const LabelContent = forwardRef(({labelData}: LabelContentParams, ref) => {
 
-  const [barCodeLabel, setBarCodeLabel] = useState<string>('/assets/images/upc-codes/UPC_VAR.png');
+  const [barCodeLabel, setBarCodeLabel] = useState<string>('assets/images/upc-codes/UPC_VAR.png');
 
   useEffect(() => {
-    console.log(labelData?.value);
-    if (labelData && labelData.value && labelData.value % 5 === 0 && labelData.value <= 100) {
-      setBarCodeLabel(`/assets/images/upc-codes/UPC_${labelData.value.toString().replace('.00', '').padStart(3, '0')}.png`);
+    if (labelData && labelData.value?.toString() === "0.00") {
+      setBarCodeLabel('assets/images/upc-codes/UPC_VAR.png');
     } else {
-      setBarCodeLabel('/assets/images/upc-codes/UPC_VAR.png');
+      if (labelData && labelData.value && labelData.value % 5 === 0 && labelData.value <= 100) {
+        setBarCodeLabel(`assets/images/upc-codes/UPC_${labelData.value.toString().replace('.00', '').padStart(3, '0')}.png`);
+      } else {
+        setBarCodeLabel('assets/images/upc-codes/UPC_VAR.png');
+      }
     }
     // eslint-disable-next-line
   }, [labelData?.value]);
@@ -44,7 +47,8 @@ const LabelContent = forwardRef(({labelData}: LabelContentParams, ref) => {
                   {`${labelData.status} - 100% Complete`}
                 </Typography>
                 <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 18, textAlign: 'right' }}>
-                  1,234 Pcs, 2 Minifigs
+                  {/*{`${labelData.pieces?.toLocaleString()} Pieces, ${labelData.minifigs ? labelData.minifigs?.toLocaleString() : '0'} Minifigs`}*/}
+                  {`${labelData.pieces?.toLocaleString()} Pieces${labelData.minifigs ? `, ${labelData.minifigs} Minifigs`: ''}`}
                 </Typography>
                 <Box
                   component="img"
@@ -66,10 +70,12 @@ const LabelContent = forwardRef(({labelData}: LabelContentParams, ref) => {
                 <FormControlLabel checked={labelData.partsIndicator} control={<Checkbox />} label={
                   <Typography sx={{ fontFamily: "Didact Gothic", fontSize: 16 }}>Parts</Typography>} />
               </Box>
-              <Box sx={{m: 1, position: 'relative'}}>
-                <FormControlLabel checked={labelData.minifigsIndicator} control={<Checkbox />} label={
-                  <Typography sx={{ fontFamily: "Didact Gothic", fontSize: 16 }}>Minifigs</Typography>} />
-              </Box>
+              {labelData.minifigs && (
+                <Box sx={{m: 1, position: 'relative'}}>
+                  <FormControlLabel checked={labelData.minifigsIndicator} control={<Checkbox />} label={
+                    <Typography sx={{ fontFamily: "Didact Gothic", fontSize: 16 }}>Minifigs</Typography>} />
+                </Box>
+              )}
               <Box sx={{m: 1, position: 'relative'}}>
                 <FormControlLabel checked={labelData.manualIndicator} control={<Checkbox />} label={
                   <Typography sx={{ fontFamily: "Didact Gothic", fontSize: 16 }}>Manual</Typography>} />

@@ -24,7 +24,7 @@ const IconsCell: FunctionComponent<IconsCellParams> = ({item, onDelete, onShowMo
                       open={confirmDeleteModalOpen}
                       content={
                         <Typography sx={{fontSize: '14px'}}>
-                          {`Are you sure you want to delete ${item.no ? item.no : 'this item'}?`}
+                          {`Are you sure you want to delete ${item.setId ? item.setId : 'this item'}?`}
                         </Typography>}
                       onConfirm={() => onDelete(item.id)}
                       onClose={() => setConfirmDeleteModalOpen(false)}

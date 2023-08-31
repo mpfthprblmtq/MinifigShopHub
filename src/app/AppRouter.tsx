@@ -4,6 +4,7 @@ import {RouterPaths} from "../utils/RouterPaths";
 import QuoteBuilderComponent from "../components/QuoteBuilder/QuoteBuilderComponent";
 import LabelMakerComponent from "../components/LabelMaker/LabelMakerComponent";
 import RolodexComponent from "../components/Rolodex/RolodexComponent";
+import PartCollectorComponent from "../components/PartCollector/PartCollectorComponent";
 
 const AppRouter: FunctionComponent = () => {
     return (
@@ -12,6 +13,7 @@ const AppRouter: FunctionComponent = () => {
           <Route path={RouterPaths.QuoteBuilder} element={<QuoteBuilderComponent />} />
           <Route path={RouterPaths.LabelMaker} element={<LabelMakerComponent />} />
           <Route path={RouterPaths.Rolodex} element={<RolodexComponent />} />
+          <Route path={RouterPaths.PartCollector} element={<PartCollectorComponent />} />
         </Routes>
     );
 }

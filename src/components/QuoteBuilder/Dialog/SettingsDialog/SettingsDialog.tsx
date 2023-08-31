@@ -104,7 +104,9 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose,
                         <ListItem sx={{paddingBottom: 0}}>
                             <Box sx={{ display: 'flex', alignItems: 'center', width: '100%'}}>
                                 <Box sx={{ m: 1, position: 'relative', fontSize: 18}}>
-                                    Auto-Adjustment Percentages:
+                                    <Typography sx={{ fontFamily: 'Didact Gothic' }}>
+                                        Auto-Adjustment Percentages:
+                                    </Typography>
                                 </Box>
                                 <Box sx={{ m: 1, position: 'relative', fontSize: 18}}>
                                     <TextField
@@ -127,11 +129,13 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose,
                             </Box>
                         </ListItem>
                         <ListItem sx={{paddingTop: 0, paddingBottom: 0}}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%'}}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between'}}>
                                 <Box sx={{ m: 1, position: 'relative', fontSize: 18}}>
-                                    Store Credit Adjustment Percentage:
+                                    <Typography sx={{ fontFamily: 'Didact Gothic' }}>
+                                        Store Credit Adjustment<br />Percentage:
+                                    </Typography>
                                 </Box>
-                                <Box sx={{ m: 1, position: 'relative', fontSize: 18}}>
+                                <Box sx={{ m: 1, position: 'relative', fontSize: 18, float: 'right' }}>
                                     <TextField
                                         label='Store Credit'
                                         value={storeCreditAdjustmentPercentage}
@@ -173,7 +177,9 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose,
                         <ListItem>
                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
                                 <Box sx={{ m: 1, position: 'relative', fontSize: 18}}>
-                                    Reset Calculations
+                                    <Typography sx={{ fontFamily: 'Didact Gothic' }}>
+                                        Reset Calculations
+                                    </Typography>
                                 </Box>
                                 <Box sx={{ m: 1, position: 'relative', float: 'right'}}>
                                     <TooltipConfirmationModal
@@ -207,7 +213,9 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose,
                         <ListItem alignItems={'center'}>
                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
                                 <Box sx={{ m: 1, position: 'relative', fontSize: 18 }}>
-                                    Bulk Set Condition
+                                    <Typography sx={{ fontFamily: 'Didact Gothic' }}>
+                                        Bulk Set Condition
+                                    </Typography>
                                 </Box>
                                 <Box sx={{ m: 1, position: 'relative', float: 'right' }}>
                                     <ToggleButtonGroup
