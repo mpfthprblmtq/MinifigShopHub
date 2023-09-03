@@ -137,6 +137,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
             dispatch(updateItemsInStore([]));
             dispatch(updateTotalInStore({value: 0, baseValue: 0, storeCreditValue: 0, valueAdjustment: configuration.autoAdjustmentPercentageUsed} as Total));
             setSnackbarState({open: true, severity: 'success', message: 'All items cleared!'});
+            setStoreMode(true);
           } : undefined}
           print={items.length > 0 ? () => {
             if (items && items.length > 0) {
