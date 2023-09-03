@@ -19,7 +19,12 @@ const IconsCell: FunctionComponent<IconsCellParams> = ({item, onDelete, onShowMo
     return (
         <StyledTableCell>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Box sx={{ m: 1, position: 'relative', padding: 0, margin: 0}} className={"clickable"} onClick={() => setConfirmDeleteModalOpen(true)}>
+                <Box sx={{
+                    m: 1,
+                    position: 'relative',
+                    padding: '10px',
+                    margin: 0
+                }} className={"clickable"} onClick={() => setConfirmDeleteModalOpen(true)}>
                     <TooltipConfirmationModal
                       open={confirmDeleteModalOpen}
                       content={
@@ -36,7 +41,7 @@ const IconsCell: FunctionComponent<IconsCellParams> = ({item, onDelete, onShowMo
                     </TooltipConfirmationModal>
                 </Box>
                 {item.source === Source.BRICKLINK && (
-                    <Box sx={{ m: 1, position: 'relative', padding: 0, margin: 0 }} className={"clickable"}>
+                    <Box sx={{ m: 1, position: 'relative', padding: '10px', margin: 0 }} className={"clickable"}>
                         <Tooltip title={"More Details"}>
                             <InfoOutlined fontSize={"large"} color={"primary"} onClick={onShowMoreInfo}/>
                         </Tooltip>
