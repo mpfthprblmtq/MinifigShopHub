@@ -1,10 +1,10 @@
 import { forwardRef, useEffect, useState } from "react";
 import { Box, Checkbox, FormControlLabel, Typography } from "@mui/material";
-import { LabelData } from "../../../model/labelMaker/LabelData";
+import { Label } from "../../../model/labelMaker/Label";
 import { formatCurrency } from "../../../utils/CurrencyUtils";
 
 interface LabelContentParams {
-  labelData?: LabelData;
+  labelData?: Label;
 }
 
 const LabelContent = forwardRef(({labelData}: LabelContentParams, ref) => {
@@ -47,7 +47,6 @@ const LabelContent = forwardRef(({labelData}: LabelContentParams, ref) => {
                   {`${labelData.status} - 100% Complete`}
                 </Typography>
                 <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 18, textAlign: 'right' }}>
-                  {/*{`${labelData.pieces?.toLocaleString()} Pieces, ${labelData.minifigs ? labelData.minifigs?.toLocaleString() : '0'} Minifigs`}*/}
                   {`${labelData.pieces?.toLocaleString()} Pieces${labelData.minifigs ? `, ${labelData.minifigs} Minifigs`: ''}`}
                 </Typography>
                 <Box

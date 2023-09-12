@@ -6,30 +6,24 @@ import { Tabs } from "../_shared/NavBar/Tabs";
 import LabelContent from "./LabelContent/LabelContent";
 import { useReactToPrint } from "react-to-print";
 import { Item } from "../../model/item/Item";
-import { LabelData } from "../../model/labelMaker/LabelData";
+import { Label } from "../../model/labelMaker/Label";
 import { formatCurrency, roundToNearestFive } from "../../utils/CurrencyUtils";
 import { Status } from "../../model/labelMaker/Status";
 import ItemSearchBar from "../_shared/ItemSearchBar/ItemSearchBar";
 import SettingsDialog from "./Dialog/SettingsDialog/SettingsDialog";
 import { Configuration } from "../../model/dynamo/Configuration";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import LabelForm from "./LabelForm/LabelForm";
 import { Availability } from "../../model/retailStatus/Availability";
+import { LabelState, updateItemInStore, updateLabelInStore } from "../../redux/slices/labelSlice";
 
 const LabelMakerComponent: FunctionComponent = () => {
 
-  const [item, setItem] = useState<Item>();
-  const [labelData, setLabelData] = useState<LabelData>({
-    partsIndicator: true,
-    manualIndicator: true,
-    minifigsIndicator: true,
-    status: Status.PRE_OWNED,
-    validatedBy: ''
-  });
-
   const [settingsDialogOpen, setSettingsDialogOpen] = useState<boolean>(false);
 
+  const dispatch = useDispatch();
   const configuration: Configuration = useSelector((state: any) => state.configurationStore.configuration);
+  const labelData: LabelState = useSelector((state: any) => state.labelStore);
 
   const componentRef = useRef(null);
   const reactToPrintContent = React.useCallback(() => {
@@ -51,11 +45,11 @@ const LabelMakerComponent: FunctionComponent = () => {
       item.value = 0.00;
     }
     item.valueDisplay = formatCurrency(item.value);
-    setItem(item);
+    dispatch(updateItemInStore(item));
   };
 
   const canPrint = (): boolean => {
-    return !!item && !!labelData.validatedBy && !!labelData.title && item.valueDisplay !== '$0.00';
+    return !!labelData.item && !!labelData.label.validatedBy && !!labelData.label.title && labelData.item.valueDisplay !== '$0.00';
   }
 
   return (
@@ -64,26 +58,26 @@ const LabelMakerComponent: FunctionComponent = () => {
         activeTab={Tabs.LABEL_MAKER}
         print={canPrint() ? handlePrint : undefined}
         openSettings={() => setSettingsDialogOpen(true)}
-        clearAll={!item ? undefined : () => {
-          setItem(undefined);
-          setLabelData({
+        clearAll={!labelData.item ? undefined : () => {
+          dispatch(updateItemInStore(undefined));
+          dispatch(updateLabelInStore({
             partsIndicator: true,
             manualIndicator: true,
             minifigsIndicator: true,
             status: Status.PRE_OWNED
-          } as LabelData);
+          } as Label));
         }}
       />
       <Version />
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Box sx={{ m: 1, position: 'relative', width: '360px' }}>
           <ItemSearchBar processItem={processItem} />
-          {item && (
-            <LabelForm item={item} setItem={setItem} labelData={labelData} setLabelData={setLabelData} />
+          {labelData.item && (
+            <LabelForm item={labelData.item} setItem={(item: Item) => dispatch(updateItemInStore(item))} labelData={labelData.label} setLabelData={(label: Label) => dispatch(updateLabelInStore(label))} />
           )}
         </Box>
         <Box sx={{ m: 1, position: 'relative' }}>
-          <LabelContent ref={componentRef} labelData={labelData}/>
+          <LabelContent ref={componentRef} labelData={labelData.label}/>
         </Box>
       </Box>
       <SettingsDialog open={settingsDialogOpen} onClose={() => setSettingsDialogOpen(false)} />

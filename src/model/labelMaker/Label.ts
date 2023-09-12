@@ -1,6 +1,6 @@
 import { Status } from "./Status";
 
-export interface LabelData {
+export interface Label {
   title?: string;
   value?: number;
   image_url?: string;

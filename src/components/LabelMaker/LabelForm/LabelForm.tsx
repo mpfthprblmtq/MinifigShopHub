@@ -10,7 +10,7 @@ import {
   Typography
 } from "@mui/material";
 import { InfoOutlined } from "@mui/icons-material";
-import { LabelData } from "../../../model/labelMaker/LabelData";
+import { Label } from "../../../model/labelMaker/Label";
 import { formatCurrency, launderMoney } from "../../../utils/CurrencyUtils";
 import ValueAdjustmentSlider from "../../_shared/ValueAdjustmentSlider/ValueAdjustmentSlider";
 import CurrencyTextInput from "../../_shared/CurrencyTextInput/CurrencyTextInput";
@@ -21,8 +21,8 @@ import { Item } from "../../../model/item/Item";
 interface LabelFormParams {
   item: Item;
   setItem: (item: Item) => void;
-  labelData: LabelData;
-  setLabelData: (labelData: LabelData) => void;
+  labelData: Label;
+  setLabelData: (labelData: Label) => void;
 }
 
 const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData, setLabelData}) => {
@@ -31,16 +31,17 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData
 
   useEffect(() => {
     if (item) {
-      item.valueDisplay = formatCurrency(item.value);
+      const itemCopy: Item = {...item};
+      itemCopy.valueDisplay = formatCurrency(itemCopy.value);
       setLabelData({
         ...labelData,
-        title: item.setId && labelData.title?.startsWith(item.setId) ? labelData.title : `${item.setId} - ${item.name}`,
-        image_url: item.imageUrl,
-        value: item.value,
-        pieces: item.pieceCount,
-        minifigs: item.minifigCount,
-        minifigsIndicator: item.minifigCount !== undefined
-      } as LabelData);
+        title: itemCopy.setId && labelData.title?.startsWith(itemCopy.setId) ? labelData.title : `${itemCopy.setId} - ${itemCopy.name}`,
+        image_url: itemCopy.imageUrl,
+        value: itemCopy.value,
+        pieces: itemCopy.pieceCount,
+        minifigs: itemCopy.minifigCount,
+        minifigsIndicator: itemCopy.minifigCount !== undefined
+      } as Label);
     }
     // eslint-disable-next-line
   }, [item]);
@@ -55,7 +56,8 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData
   const handleValueBlur = (event: any) => {
     if (item) {
       const calculatedValueAdjustment = Math.round((launderMoney(event.target.value) / item.baseValue) * 100);
-      setItem({...item, valueAdjustment: calculatedValueAdjustment} as Item);
+      const launderedValue = launderMoney(event.target.value);
+      setItem({...item, valueAdjustment: calculatedValueAdjustment, value: launderedValue, valueDisplay: formatCurrency(launderedValue)} as Item);
     }
   };
 
@@ -78,7 +80,7 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData
         label={!labelData.title ? 'Required *' : ''}
         disabled={!item}
         fullWidth
-        onChange={(event) => setLabelData({...labelData, title: event.target.value} as LabelData)} />
+        onChange={(event) => setLabelData({...labelData, title: event.target.value} as Label)} />
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Box sx={{ m: 1, position: 'relative' }}>
           {item.salesData?.newSold?.price_detail && item.salesData.newSold.price_detail.length > 0 && (
@@ -135,7 +137,7 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData
             checked={labelData.partsIndicator}
             control={<Checkbox />}
             label={<Typography sx={{ fontFamily: "Didact Gothic", fontSize: 16 }}>Parts</Typography>}
-            onChange={(event: any) => setLabelData({ ...labelData, partsIndicator: event.target.checked } as LabelData)}
+            onChange={(event: any) => setLabelData({ ...labelData, partsIndicator: event.target.checked } as Label)}
           />
         </Box>
         <Box sx={{m: 1, position: 'relative'}}>
@@ -146,7 +148,7 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData
                 checked={labelData.minifigsIndicator}
                 control={<Checkbox />}
                 label={<Typography sx={{ fontFamily: "Didact Gothic", fontSize: 16, color: !item.minifigCount ? "grey" : "inherit" }}>Minifigs</Typography>}
-                onChange={(event: any) => setLabelData({ ...labelData, minifigsIndicator: event.target.checked } as LabelData)}
+                onChange={(event: any) => setLabelData({ ...labelData, minifigsIndicator: event.target.checked } as Label)}
               />
             </div>
           </Tooltip>
@@ -156,7 +158,7 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData
             checked={labelData.manualIndicator}
             control={<Checkbox />}
             label={<Typography sx={{ fontFamily: "Didact Gothic", fontSize: 16 }}>Manual</Typography>}
-            onChange={(event: any) => setLabelData({ ...labelData, manualIndicator: event.target.checked } as LabelData)}
+            onChange={(event: any) => setLabelData({ ...labelData, manualIndicator: event.target.checked } as Label)}
           />
         </Box>
       </Box>
@@ -165,11 +167,11 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData
           <TextField
             error={!labelData.validatedBy}
             label={!labelData.validatedBy ? 'Required *' : ''}
-            value={labelData.validatedBy}
+            value={labelData.validatedBy ?? ''}
             placeholder={'Validated By (Initials)'}
             onChange={(event) => {
               if (event.target.value.length < 20) {
-                setLabelData({ ...labelData, validatedBy: event.target.value } as LabelData);
+                setLabelData({ ...labelData, validatedBy: event.target.value } as Label);
               }
             }} />
         </Box>
@@ -180,7 +182,7 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData
               fullWidth
               value={labelData.status}
               label="Status"
-              onChange={(event: any) => setLabelData({ ...labelData, status: event.target.value } as LabelData)}
+              onChange={(event: any) => setLabelData({ ...labelData, status: event.target.value } as Label)}
               sx={{backgroundColor: "white", width: '140px'}}>
               <MenuItem value={Status.PRE_OWNED}>Pre-Owned</MenuItem>
               <MenuItem value={Status.SEALED_BAGS}>Sealed Bags</MenuItem>
