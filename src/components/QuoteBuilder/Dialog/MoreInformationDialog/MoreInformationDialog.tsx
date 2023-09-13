@@ -48,6 +48,8 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
                             <strong>Set ID: </strong>{item?.setId}<br/>
                             <strong>Name: </strong>{item?.name}<br/>
                             <strong>Year: </strong>{item?.yearReleased}<br/>
+                            <strong>Pieces / Minifigs: </strong>
+                                {`${item?.pieceCount?.toLocaleString() ?? 0} / ${item?.minifigCount?.toLocaleString() ?? 0}`}<br/>
                             <strong>Theme: </strong>{item?.theme}<br/>
                             <strong>SubTheme: </strong>{item?.subTheme}<br/>
                         </Typography>
