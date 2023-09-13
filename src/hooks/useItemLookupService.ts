@@ -21,7 +21,7 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
 
     const { getBricklinkData, getAllSalesHistory } = useBrickLinkService();
     const { getBricksetData } = useBricksetService();
-    const { getRetailStatus } = useBrickEconomyService();
+    const { getRetailStatus, getPieceAndMinifigCount } = useBrickEconomyService();
 
     const getItemMatches = async (id: string): Promise<Item[]> => {
         try {
@@ -69,6 +69,15 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
                     if (!item.retailStatus?.retailPrice && !item.retailStatus?.availability) {
                         if (item.setId) {
                             item.retailStatus = await getRetailStatus(item.setId);
+                        }
+                    }
+
+                    // fallback on BrickEconomy if the pieceCount or minifigCount is undefined, since Brickset might not have it
+                    if (!item.pieceCount || !item.minifigCount) {
+                        if (item.setId) {
+                            const pieceAndMinifigCounts: number[] = await getPieceAndMinifigCount(item.setId);
+                            item.pieceCount = pieceAndMinifigCounts[0] === 0 ? undefined : pieceAndMinifigCounts[0];
+                            item.minifigCount = pieceAndMinifigCounts[1] === 0 ? undefined : pieceAndMinifigCounts[1];
                         }
                     }
 

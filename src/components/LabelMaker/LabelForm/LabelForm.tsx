@@ -4,7 +4,9 @@ import {
   Checkbox,
   FormControl,
   FormControlLabel,
-  InputLabel, MenuItem, Select,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
   Tooltip,
   Typography
@@ -21,11 +23,11 @@ import { Item } from "../../../model/item/Item";
 interface LabelFormParams {
   item: Item;
   setItem: (item: Item) => void;
-  labelData: Label;
-  setLabelData: (labelData: Label) => void;
+  label?: Label;
+  setLabel: (label: Label) => void;
 }
 
-const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData, setLabelData}) => {
+const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, label, setLabel}) => {
 
   const [moreInformationDialogOpen, setMoreInformationDialogOpen] = useState<boolean>(false);
 
@@ -33,14 +35,17 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData
     if (item) {
       const itemCopy: Item = {...item};
       itemCopy.valueDisplay = formatCurrency(itemCopy.value);
-      setLabelData({
-        ...labelData,
-        title: itemCopy.setId && labelData.title?.startsWith(itemCopy.setId) ? labelData.title : `${itemCopy.setId} - ${itemCopy.name}`,
+      setLabel({
+        ...label,
+        title: itemCopy.setId && label?.title?.startsWith(itemCopy.setId) ? label.title : `${itemCopy.setId} - ${itemCopy.name}`,
         image_url: itemCopy.imageUrl,
         value: itemCopy.value,
         pieces: itemCopy.pieceCount,
         minifigs: itemCopy.minifigCount,
-        minifigsIndicator: itemCopy.minifigCount !== undefined
+        minifigsIndicator: itemCopy.minifigCount !== undefined,
+        partsIndicator: true,
+        manualIndicator: true,
+        status: Status.PRE_OWNED
       } as Label);
     }
     // eslint-disable-next-line
@@ -74,13 +79,13 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData
         </Box>
       </Box>
       <TextField
-        value={labelData.title ?? ''}
+        value={label?.title ?? ''}
         placeholder={'Set ID / Name'}
-        error={!labelData.title}
-        label={!labelData.title ? 'Required *' : ''}
+        error={!label?.title}
+        label={!label?.title ? 'Required *' : ''}
         disabled={!item}
         fullWidth
-        onChange={(event) => setLabelData({...labelData, title: event.target.value} as Label)} />
+        onChange={(event) => setLabel({...label, title: event.target.value} as Label)} />
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Box sx={{ m: 1, position: 'relative' }}>
           {item.salesData?.newSold?.price_detail && item.salesData.newSold.price_detail.length > 0 && (
@@ -134,10 +139,10 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
         <Box sx={{m: 1, position: 'relative'}}>
           <FormControlLabel
-            checked={labelData.partsIndicator}
+            checked={label?.partsIndicator ?? true}
             control={<Checkbox />}
             label={<Typography sx={{ fontFamily: "Didact Gothic", fontSize: 16 }}>Parts</Typography>}
-            onChange={(event: any) => setLabelData({ ...labelData, partsIndicator: event.target.checked } as Label)}
+            onChange={(event: any) => setLabel({ ...label, partsIndicator: event.target.checked } as Label)}
           />
         </Box>
         <Box sx={{m: 1, position: 'relative'}}>
@@ -145,33 +150,33 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData
             <div>
               <FormControlLabel
                 disabled={!item.minifigCount}
-                checked={labelData.minifigsIndicator}
+                checked={label?.minifigsIndicator ?? true}
                 control={<Checkbox />}
                 label={<Typography sx={{ fontFamily: "Didact Gothic", fontSize: 16, color: !item.minifigCount ? "grey" : "inherit" }}>Minifigs</Typography>}
-                onChange={(event: any) => setLabelData({ ...labelData, minifigsIndicator: event.target.checked } as Label)}
+                onChange={(event: any) => setLabel({ ...label, minifigsIndicator: event.target.checked } as Label)}
               />
             </div>
           </Tooltip>
         </Box>
         <Box sx={{m: 1, position: 'relative'}}>
           <FormControlLabel
-            checked={labelData.manualIndicator}
+            checked={label?.manualIndicator ?? true}
             control={<Checkbox />}
             label={<Typography sx={{ fontFamily: "Didact Gothic", fontSize: 16 }}>Manual</Typography>}
-            onChange={(event: any) => setLabelData({ ...labelData, manualIndicator: event.target.checked } as Label)}
+            onChange={(event: any) => setLabel({ ...label, manualIndicator: event.target.checked } as Label)}
           />
         </Box>
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-around' }}>
         <Box sx={{m: 1, position: 'relative'}}>
           <TextField
-            error={!labelData.validatedBy}
-            label={!labelData.validatedBy ? 'Required *' : ''}
-            value={labelData.validatedBy ?? ''}
+            error={!label?.validatedBy}
+            label={!label?.validatedBy ? 'Required *' : ''}
+            value={label?.validatedBy ?? ''}
             placeholder={'Validated By (Initials)'}
             onChange={(event) => {
               if (event.target.value.length < 20) {
-                setLabelData({ ...labelData, validatedBy: event.target.value } as Label);
+                setLabel({ ...label, validatedBy: event.target.value } as Label);
               }
             }} />
         </Box>
@@ -180,9 +185,9 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, labelData
             <InputLabel>Status</InputLabel>
             <Select
               fullWidth
-              value={labelData.status}
+              value={label?.status ?? Status.PRE_OWNED}
               label="Status"
-              onChange={(event: any) => setLabelData({ ...labelData, status: event.target.value } as Label)}
+              onChange={(event: any) => setLabel({ ...label, status: event.target.value } as Label)}
               sx={{backgroundColor: "white", width: '140px'}}>
               <MenuItem value={Status.PRE_OWNED}>Pre-Owned</MenuItem>
               <MenuItem value={Status.SEALED_BAGS}>Sealed Bags</MenuItem>

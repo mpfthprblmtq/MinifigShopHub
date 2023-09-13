@@ -9,6 +9,7 @@ const baseUrl: string = 'https://www.brickeconomy.com/search?query=';
 
 export interface BrickEconomyHooks {
   getRetailStatus: (id: string) => Promise<RetailStatus>;
+  getPieceAndMinifigCount: (id: string) => Promise<number[]>;
 }
 
 export const useBrickEconomyService = (): BrickEconomyHooks => {
@@ -39,8 +40,26 @@ export const useBrickEconomyService = (): BrickEconomyHooks => {
       console.error(error);
     }
     return retailStatus;
-
   };
+
+  const getPieceAndMinifigCount = async (id: string): Promise<number[]> => {
+    const results: number[] = [];
+    try {
+      const { data: pageSource } = await brickEconomyAxiosInstance.get(`${corsProxyUrl}${baseUrl}${id}`);
+      await getPieceAndMinifigString(pageSource)
+        .then((result) => {
+          if (new RegExp('.*\\s/\\s.*').test(result)) {
+            const arr = result.split(' / ');
+            results.push(launderMoney(arr[0]));
+            results.push(launderMoney(arr[1]));
+          }
+        });
+
+    } catch (error) {
+      console.error(error);
+    }
+    return results;
+  }
 
   const getAvailability = async (pageSource: string): Promise<string> => {
     const $ = cheerio.load(pageSource);
@@ -71,5 +90,18 @@ export const useBrickEconomyService = (): BrickEconomyHooks => {
     return '';
   };
 
-  return { getRetailStatus };
+  const getPieceAndMinifigString = async (pageSource: string): Promise<string> => {
+    const $ = cheerio.load(pageSource);
+    const piecesMinifigsElements = $('div.mb-2').filter((_, element) => {
+      return $(element).text().toLowerCase().includes("pieces / minifigs");
+    });
+    console.log(piecesMinifigsElements);
+    if (piecesMinifigsElements.length >= 1) {
+      const value: any = piecesMinifigsElements[0].children[1];
+      return value.data.toString().trim();
+    }
+    return '';
+  }
+
+  return { getRetailStatus, getPieceAndMinifigCount };
 }
