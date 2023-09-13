@@ -41,7 +41,7 @@ const IconsCell: FunctionComponent<IconsCellParams> = ({item, onDelete, onShowMo
                         <Delete sx={{fontSize: '32px'}} color={"error"} />
                     </TooltipConfirmationModal>
                 </Box>
-                {item.source === Source.BRICKLINK && (
+                {item.sources?.includes(Source.BRICKLINK) && (
                   <>
                       <Box sx={{ m: 1, position: 'relative', padding: '5px', margin: 0 }} className={"clickable"}>
                           <Tooltip title={"Add To Label"}>

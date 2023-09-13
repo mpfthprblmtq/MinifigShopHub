@@ -1,12 +1,12 @@
-import {Type} from "../model/_shared/Type";
-import {Item} from "../model/item/Item";
-import {AllSalesHistory} from "../model/salesHistory/AllSalesHistory";
-import {htmlDecode} from "../utils/StringUtils";
-import {useBrickLinkService} from "./useBrickLinkService";
-import {Condition} from "../model/_shared/Condition";
-import {formatCurrency} from "../utils/CurrencyUtils";
-import {Source} from "../model/_shared/Source";
-import {useSelector} from "react-redux";
+import { Type } from "../model/_shared/Type";
+import { Item } from "../model/item/Item";
+import { AllSalesHistory } from "../model/salesHistory/AllSalesHistory";
+import { htmlDecode } from "../utils/StringUtils";
+import { useBrickLinkService } from "./useBrickLinkService";
+import { Condition } from "../model/_shared/Condition";
+import { formatCurrency } from "../utils/CurrencyUtils";
+import { Source } from "../model/_shared/Source";
+import { useSelector } from "react-redux";
 import { useBricksetService } from "./useBricksetService";
 import { useBrickEconomyService } from "./useBrickEconomyService";
 
@@ -63,12 +63,18 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
                         getAllSalesHistory(item)
                     ]
                 ).then(async itemHydrationData => {
-                    item = { ...item, ...itemHydrationData[0] as Item, salesData: itemHydrationData[1] as AllSalesHistory};
+                    item = {
+                        ...item,
+                        ...itemHydrationData[0] as Item,
+                        salesData: itemHydrationData[1] as AllSalesHistory,
+                        sources: []
+                    };
 
                     // fallback on BrickEconomy if the RetailStatus is blank, since Brickset might not have it
                     if (!item.retailStatus?.retailPrice && !item.retailStatus?.availability) {
                         if (item.setId) {
                             item.retailStatus = await getRetailStatus(item.setId);
+                            item.sources.push(Source.BRICKECONOMY);
                         }
                     }
 
@@ -78,6 +84,7 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
                             const pieceAndMinifigCounts: number[] = await getPieceAndMinifigCount(item.setId);
                             item.pieceCount = pieceAndMinifigCounts[0] === 0 ? undefined : pieceAndMinifigCounts[0];
                             item.minifigCount = pieceAndMinifigCounts[1] === 0 ? undefined : pieceAndMinifigCounts[1];
+                            item.sources.push(Source.BRICKECONOMY);
                         }
                     }
 
@@ -89,7 +96,7 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
                     item.value = +item.value.toFixed(2);
                     item.valueDisplay = formatCurrency(item.value)!.toString().substring(1);
                     item.valueAdjustment = configuration.autoAdjustmentPercentageUsed;
-                    item.source = Source.BRICKLINK;
+                    item.sources.push(...[Source.BRICKLINK, Source.BRICKSET]);
                     item.type = determineType(item.setId ?? '');
 
                     // remove the "-1" for display purposes

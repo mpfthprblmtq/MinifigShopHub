@@ -24,7 +24,7 @@ export const usePriceCalculationEngine = (): PriceCalculationHooks => {
 
         if (changeType === ChangeType.CONDITION) {
 
-            if (item.source === Source.BRICKLINK) {
+            if (item.sources.includes(Source.BRICKLINK)) {
 
                 // if we're changing from used to new, and the existing valueAdjustment is the valueAdjustment for used,
                 // then change the valueAdjustment to the valueAdjustment for new
@@ -71,7 +71,7 @@ export const usePriceCalculationEngine = (): PriceCalculationHooks => {
      * @param item the item to check
      */
     const setBaseValue = (item: Item) => {
-        if (item.source === Source.BRICKLINK) {
+        if (item.sources.includes(Source.BRICKLINK)) {
             if (item.retailStatus?.availability === Availability.RETAIL
                 && item.retailStatus.retailPrice
                 && item.condition === Condition.NEW) {
