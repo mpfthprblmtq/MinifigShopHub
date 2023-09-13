@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useState } from "react";
 import { Alert, Portal, Snackbar, Table, TableBody, TableContainer, TableHead, TableRow } from "@mui/material";
 import NewUsedToggleButtonCell from "../TableCells/NewUsedToggleButtonCell";
-import { formatCurrency, launderMoney } from "../../../../utils/CurrencyUtils";
+import { formatCurrency, launderMoney, roundToNearestFive } from "../../../../utils/CurrencyUtils";
 import { FixedWidthColumnHeading, StyledTableCell } from "./TableComponent.styles";
 import { Item } from "../../../../model/item/Item";
 import { Condition } from "../../../../model/_shared/Condition";
@@ -21,6 +21,11 @@ import { updateItem, updateItemsInStore } from "../../../../redux/slices/quoteSl
 import { useDispatch, useSelector } from "react-redux";
 import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
 import ValueAdjustmentSlider from "../../../_shared/ValueAdjustmentSlider/ValueAdjustmentSlider";
+import { updateItemInStore } from "../../../../redux/slices/labelSlice";
+import { useNavigate } from "react-router-dom";
+import { RouterPaths } from "../../../../utils/RouterPaths";
+import { Availability } from "../../../../model/retailStatus/Availability";
+import { Configuration } from "../../../../model/dynamo/Configuration";
 
 interface TableComponentParams {
     storeMode: boolean;
@@ -36,7 +41,10 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, ro
 
     const { calculatePrice } = usePriceCalculationEngine();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+
     const { quote } = useSelector((state: any) => state.quoteStore);
+    const configuration: Configuration = useSelector((state: any) => state.configurationStore.configuration);
     const items = quote.items as Item[];
 
     /**
@@ -107,6 +115,23 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, ro
         dispatch(updateItem(itemCopy));
     }
 
+    const addToLabel = (item: Item) => {
+        // retail sets are set at 80% of the MSRP, rounded to the nearest 5
+        // retired sets won't have a value, since they will most often be overridden
+        const itemCopy = {...item};
+        if (itemCopy.retailStatus?.retailPrice && itemCopy.retailStatus?.availability === Availability.RETAIL) {
+            itemCopy.baseValue = itemCopy.retailStatus.retailPrice;
+            itemCopy.valueAdjustment = configuration.autoAdjustmentPercentageCertifiedPreOwned;
+            itemCopy.value = roundToNearestFive(itemCopy.retailStatus.retailPrice * (itemCopy.valueAdjustment / 100));
+        } else {
+            itemCopy.valueAdjustment = 0;
+            itemCopy.value = 0.00;
+        }
+        itemCopy.valueDisplay = formatCurrency(itemCopy.value);
+        dispatch(updateItemInStore(itemCopy));
+        navigate(RouterPaths.LabelMaker);
+    }
+
     return (
       <>
           <TableContainer style={{width: "100%"}}>
@@ -172,6 +197,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, ro
                                     setFocusedItem(item);
                                     setShowMoreInformationDialog(true);
                                 }}
+                                onAddToLabel={() => addToLabel(item)}
                               />
                             )}
                         </TableRow>
