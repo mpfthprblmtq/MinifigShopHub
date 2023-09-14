@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useState } from "react";
+import React, { FunctionComponent, useEffect, useRef, useState } from "react";
 import { Item } from "../../model/item/Item";
 import {
   Alert,
@@ -26,6 +26,7 @@ import _ from "lodash";
 import { Configuration } from "../../model/dynamo/Configuration";
 import { Quote } from "../../model/quote/Quote";
 import { SnackbarState } from "../_shared/Snackbar/SnackbarState";
+import { useReactToPrint } from "react-to-print";
 
 const QuoteBuilderComponent: FunctionComponent = () => {
 
@@ -43,6 +44,14 @@ const QuoteBuilderComponent: FunctionComponent = () => {
 
   const { calculatePrice } = usePriceCalculationEngine();
   const { initConfig } = useConfigurationService();
+
+  const componentRef = useRef(null);
+  const reactToPrintContent = React.useCallback(() => {
+    return componentRef.current;
+  }, []);
+  const handlePrint = useReactToPrint({
+    content: reactToPrintContent,
+  });
 
   const resetCalculations = () => {
     const clonedItems: Item[] = _.cloneDeep(items);
@@ -141,7 +150,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
           } : undefined}
           print={items.length > 0 ? () => {
             if (items && items.length > 0) {
-              window.print();
+              handlePrint();
             }
           } : undefined}
           // TODO Save Quote & Load Quote
@@ -164,20 +173,22 @@ const QuoteBuilderComponent: FunctionComponent = () => {
           </>
         )}
       </Box>
-      <Box style={{ marginTop: 20 }}>
-        <TableComponent
-          storeMode={storeMode}
-          rowAdjustmentsDisabled={rowAdjustmentsDisabled}
-        />
-      </Box>
-      {items.length > 0 && (
-        <Totals
-          items={items}
-          storeMode={storeMode}
-          totalAdjustmentDisabled={totalAdjustmentDisabled}
-          setRowAdjustmentsDisabled={setRowAdjustmentsDisabled}
-        />
-      )}
+      <div ref={componentRef}>
+        <Box style={{ marginTop: 20 }}>
+          <TableComponent
+            storeMode={storeMode}
+            rowAdjustmentsDisabled={rowAdjustmentsDisabled}
+          />
+        </Box>
+        {items.length > 0 && (
+          <Totals
+            items={items}
+            storeMode={storeMode}
+            totalAdjustmentDisabled={totalAdjustmentDisabled}
+            setRowAdjustmentsDisabled={setRowAdjustmentsDisabled}
+          />
+        )}
+      </div>
       <SettingsDialog
         open={settingsDialogOpen}
         onClose={() => setSettingsDialogOpen(false)}
