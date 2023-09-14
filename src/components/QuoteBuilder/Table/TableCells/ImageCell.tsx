@@ -17,7 +17,7 @@ const ImageCell: FunctionComponent<ImageCellParams> = ({item, onClick}) => {
                 {item.thumbnailUrl && item.imageUrl && (
                     <img alt="bricklink-set-img" src={item.thumbnailUrl} onClick={() => onClick(item)} />
                 )}
-                {item.source === Source.CUSTOM && item.type !== Type.OTHER && (
+                {item.sources?.includes(Source.CUSTOM) && item.type !== Type.OTHER && (
                     <img src={`assets/images/${item.type}.svg`} alt={item.type} width={55}/>
                 )}
             </Box>

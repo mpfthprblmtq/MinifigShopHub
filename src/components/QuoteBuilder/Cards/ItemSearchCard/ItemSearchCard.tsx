@@ -1,8 +1,8 @@
-import React, {FunctionComponent} from "react";
-import {SetNameStyledTypography} from "../../QuoteBuilderComponent.styles";
-import {Item} from "../../../../model/item/Item";
-import {generateId} from "../../../../utils/ArrayUtils";
-import {StyledCard} from "../Cards.styles";
+import React, { FunctionComponent } from "react";
+import { SetNameStyledTypography } from "../../QuoteBuilderComponent.styles";
+import { Item } from "../../../../model/item/Item";
+import { generateId } from "../../../../utils/ArrayUtils";
+import { StyledCard } from "../Cards.styles";
 import ItemSearchBar from "../../../_shared/ItemSearchBar/ItemSearchBar";
 
 interface SetSearchCardParams {

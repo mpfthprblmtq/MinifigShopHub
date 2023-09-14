@@ -4,6 +4,7 @@ import { BricksetItemResponse } from "../model/item/BricksetItemResponse";
 import { RetailStatus } from "../model/retailStatus/RetailStatus";
 import { Availability } from "../model/retailStatus/Availability";
 import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
 
 const baseUrl: string = 'https://corsproxy.io/?https://brickset.com/api/v3.asmx';
 
@@ -57,7 +58,11 @@ export const useBricksetService = (): BricksetServiceHooks => {
 
   const determineAvailability = (dateFirstAvailable: string, dateLastAvailable: string): Availability | undefined => {
     // if we have a dateFirstAvailable and not a dateLastAvailable, then the set is at Retail
-    if (dateFirstAvailable && !dateLastAvailable) {
+    // or if we have both dates, and the dateLastAvailable is today, then set is also at Retail
+    dayjs.extend(utc);
+    const dateToday =
+      dayjs(dayjs().toISOString()).utcOffset(dayjs().toISOString().slice(-6)).format('YYYY-MM-DD') + 'T00:00:00Z';
+    if ((dateFirstAvailable && !dateLastAvailable) || (dateFirstAvailable && dateLastAvailable === dateToday)) {
       return Availability.RETAIL;
     } else if (!dateFirstAvailable && !dateLastAvailable) {
       // if we have neither, then brickset doesn't have the data

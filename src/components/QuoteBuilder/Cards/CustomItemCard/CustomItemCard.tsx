@@ -30,7 +30,7 @@ const CustomItemCard: FunctionComponent<CustomItemCardParams> = ({items, setItem
             baseValue: launderMoney(value),
             valueDisplay: formatCurrency(value)!.toString().substring(1),
             valueAdjustment: 0,
-            source: Source.CUSTOM,
+            sources: [Source.CUSTOM],
             condition: Condition.USED,
             type: type
         }]);

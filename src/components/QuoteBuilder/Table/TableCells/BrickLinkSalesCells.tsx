@@ -13,7 +13,7 @@ const BrickLinkSalesCells: FunctionComponent<BrickLinkSalesCellsParams> = ({item
     return (
         <>
             <StyledTableCell>
-                {item.source === Source.BRICKLINK
+                {item.sources?.includes(Source.BRICKLINK)
                     && item.salesData?.newSold?.price_detail && item.salesData.newSold.price_detail.length > 0 && (
                     <Tooltip title={`Based on ${item.salesData?.newSold?.unit_quantity} ${+item.salesData?.newSold?.unit_quantity === 1 ? 'sale' : 'sales'}`}>
                         <Box style={{color: item.salesData?.newSold?.unit_quantity && item.salesData?.newSold?.unit_quantity >= 5 ? '#008000' : '#BD0000'}}>
@@ -25,7 +25,7 @@ const BrickLinkSalesCells: FunctionComponent<BrickLinkSalesCellsParams> = ({item
                 )}
             </StyledTableCell>
             <StyledTableCell>
-                {item.source === Source.BRICKLINK
+                {item.sources?.includes(Source.BRICKLINK)
                     && item.salesData?.usedSold?.price_detail && item.salesData?.usedSold.price_detail.length > 0 && (
                     <Tooltip title={`Based on ${item.salesData?.usedSold?.unit_quantity} ${+item.salesData?.usedSold?.unit_quantity === 1 ? 'sale' : 'sales'}`}>
                         <Box style={{color: item.salesData?.usedSold?.unit_quantity && item.salesData?.usedSold?.unit_quantity >= 5 ? '#008000' : '#BD0000'}}>

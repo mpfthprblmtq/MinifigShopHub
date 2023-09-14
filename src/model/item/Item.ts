@@ -21,7 +21,7 @@ export interface Item {
     value: number;
     valueDisplay?: string;
     comment?: string;
-    source: Source;
+    sources: Source[];
     type: Type;
     retailStatus?: RetailStatus;
     salesData?: AllSalesHistory;

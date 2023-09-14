@@ -75,7 +75,7 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
     };
 
     return (
-      <TableContainer style={{width: "100%", paddingTop: "40px"}}>
+      <TableContainer style={{width: "100%", paddingTop: "40px", marginLeft: '-10px'}}>
           <Table size="small"
                  sx={{
                      [`& .${tableCellClasses.root}`]: {
