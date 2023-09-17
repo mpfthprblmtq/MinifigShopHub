@@ -41,14 +41,14 @@ export const usePriceCalculationEngine = (): PriceCalculationHooks => {
                 }
 
                 // then set the value based on the determined valueAdjustment
-                item.value = +((item.valueAdjustment / 100) * item.baseValue).toFixed(2);
+                item.value = Math.round(+((item.valueAdjustment / 100) * item.baseValue).toFixed(2));
                 item.valueDisplay = formatCurrency(item.value);
             }
 
         } else if (changeType === ChangeType.ADJUSTMENT) {
 
             // nothing fancy here, just need to set the value to the new adjustment * baseValue
-            item.value = +((item.valueAdjustment / 100) * item.baseValue).toFixed(2);
+            item.value = Math.round(+((item.valueAdjustment / 100) * item.baseValue).toFixed(2));
             item.valueDisplay = formatCurrency(item.value);
 
         } else if (changeType === ChangeType.VALUE) {

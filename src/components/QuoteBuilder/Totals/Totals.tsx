@@ -30,7 +30,7 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
     useEffect(() => {
         const calculatedValue: number = items.reduce((sum, item) => sum + item.value, 0);
         const calculatedBaseValue: number = items.reduce((sum, item) => sum + item.baseValue, 0);
-        const calculatedStoreCreditValue = (configuration.storeCreditValueAdjustment / 100) * quote.total.value;
+        const calculatedStoreCreditValue = Math.round((configuration.storeCreditValueAdjustment / 100) * quote.total.value);
         setStoreCreditValueDisplay(formatCurrency(calculatedStoreCreditValue).toString().substring(1));
         setValueDisplay(formatCurrency(calculatedValue).toString().substring(1));
 
@@ -44,7 +44,7 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
      */
     const handleValueChange = (event: any) => {
         setValueDisplay(event.target.value);
-        setStoreCreditValueDisplay(formatCurrency(event.target.value * (configuration.storeCreditValueAdjustment / 100)));
+        setStoreCreditValueDisplay(formatCurrency(Math.round(event.target.value * (configuration.storeCreditValueAdjustment / 100))));
     };
 
     /**
@@ -54,7 +54,7 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
     const handleValueBlur = (event: any) => {
         const launderedValue: number = launderMoney(event.target.value);
         const calculatedAdjustment: number = Math.round((launderedValue / quote.total.baseValue) * 100);
-        const calculatedStoreCreditValue: number = launderMoney(event.target.value) * (configuration.storeCreditValueAdjustment / 100);
+        const calculatedStoreCreditValue: number = Math.round(launderMoney(event.target.value) * (configuration.storeCreditValueAdjustment / 100));
         setValueDisplay(formatCurrency(launderedValue));
         setStoreCreditValueDisplay(formatCurrency(calculatedStoreCreditValue));
 
@@ -64,7 +64,7 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
     };
 
     const handleSliderChange = (event: any) => {
-        const calculatedValue = quote.total.baseValue * (event.target.value / 100);
+        const calculatedValue = Math.round(quote.total.baseValue * (event.target.value / 100));
         const calculatedStoreCreditValue = calculatedValue * (configuration.storeCreditValueAdjustment / 100);
         setValueDisplay(formatCurrency(calculatedValue));
         setStoreCreditValueDisplay(formatCurrency(calculatedStoreCreditValue));

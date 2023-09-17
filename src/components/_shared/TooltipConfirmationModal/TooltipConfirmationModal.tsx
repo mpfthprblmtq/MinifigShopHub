@@ -65,12 +65,12 @@ const TooltipConfirmationModal: FunctionComponent<TooltipConfirmationModalParams
           {content}
           <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-around' }}>
             <Box sx={{ m: 1, position: 'relative' }} >
-              <Button variant='contained' color='primary' onClick={onCancel ?? onClose}>
+              <Button variant='contained' color='primary' onClick={onCancel ?? onClose} onPointerEnter={onCancel ?? onClose}>
                 {cancelButtonText ? cancelButtonText : 'Cancel'}
               </Button>
             </Box>
             <Box sx={{ m: 1, position: 'relative' }} >
-              <Button variant='contained' color={confirmButtonColor ?? 'error'} onClick={onConfirm}>
+              <Button variant='contained' color={confirmButtonColor ?? 'error'} onClick={onConfirm} onPointerEnter={onConfirm}>
                 {confirmButtonText ? confirmButtonText : 'Confirm'}
               </Button>
             </Box>

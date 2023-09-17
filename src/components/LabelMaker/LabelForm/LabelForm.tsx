@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { InfoOutlined } from "@mui/icons-material";
 import { Label } from "../../../model/labelMaker/Label";
-import { formatCurrency, launderMoney } from "../../../utils/CurrencyUtils";
+import { formatCurrency, launderMoney, roundToNearestFive } from "../../../utils/CurrencyUtils";
 import ValueAdjustmentSlider from "../../_shared/ValueAdjustmentSlider/ValueAdjustmentSlider";
 import CurrencyTextInput from "../../_shared/CurrencyTextInput/CurrencyTextInput";
 import { Status } from "../../../model/labelMaker/Status";
@@ -53,8 +53,8 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, label, se
 
   const handleSliderChange = (event: any) => {
     if (item) {
-      const calculatedValue = item.baseValue * (event.target.value / 100);
-      setItem({...item, value: calculatedValue, valueAdjustment: event.target.value} as Item);
+      const calculatedValue = roundToNearestFive(item.baseValue * (event.target.value / 100));
+      setItem({...item, value: calculatedValue, valueAdjustment: event.target.value, valueDisplay: formatCurrency(calculatedValue)} as Item);
     }
   };
 

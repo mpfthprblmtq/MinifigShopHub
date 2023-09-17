@@ -92,7 +92,7 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
                     item.condition = Condition.USED;
                     item.baseValue = item.salesData?.usedSold?.avg_price ? +item.salesData.usedSold.avg_price : 0;
                     item.value = item.salesData?.usedSold?.avg_price ?
-                        +item.salesData.usedSold.avg_price * (configuration.autoAdjustmentPercentageUsed / 100) : 0;
+                        Math.round(+item.salesData.usedSold.avg_price * (configuration.autoAdjustmentPercentageUsed / 100)) : 0;
                     item.value = +item.value.toFixed(2);
                     item.valueDisplay = formatCurrency(item.value)!.toString().substring(1);
                     item.valueAdjustment = configuration.autoAdjustmentPercentageUsed;
