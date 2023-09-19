@@ -30,7 +30,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
     }
 
     return (
-        <StyledCard variant="outlined" sx={{width: 420}}>
+        <StyledCard variant="outlined" sx={{width: 350}}>
             <SetNameStyledTypography>Add Set</SetNameStyledTypography>
             <ItemSearchBar processItem={processItem} processItems={processItems} enableBulkSearch />
         </StyledCard>

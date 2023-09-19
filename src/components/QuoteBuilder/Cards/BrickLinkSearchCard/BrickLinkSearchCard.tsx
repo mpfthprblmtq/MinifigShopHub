@@ -24,11 +24,11 @@ const BrickLinkSearchCard:FunctionComponent = () => {
                     <TextField
                         label="Search Query"
                         variant="outlined"
-                        sx={{backgroundColor: "white", minWidth: 300}}
+                        sx={{backgroundColor: "white", minWidth: 200}}
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                             setQuery(event.target.value);
                         }}
-                        onKeyPress={(event) => {
+                        onKeyDown={(event) => {
                             if (event.key === 'Enter') {
                                 search();
                             }
