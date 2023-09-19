@@ -59,18 +59,19 @@ const TooltipConfirmationModal: FunctionComponent<TooltipConfirmationModalParams
         onClose={onClose}
         disableHoverListener
         disableFocusListener
+        disableTouchListener
         placement={placement}
         arrow={!!arrow}
         title={<>
           {content}
           <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-around' }}>
-            <Box sx={{ m: 1, position: 'relative' }} >
-              <Button variant='contained' color='primary' onClick={onCancel ?? onClose} onPointerEnter={onCancel ?? onClose}>
+            <Box sx={{ m: 1, position: 'relative' }}>
+              <Button variant='contained' color='primary' onClick={onCancel ?? onClose} onPointerDown={onCancel ?? onClose}>
                 {cancelButtonText ? cancelButtonText : 'Cancel'}
               </Button>
             </Box>
-            <Box sx={{ m: 1, position: 'relative' }} >
-              <Button variant='contained' color={confirmButtonColor ?? 'error'} onClick={onConfirm} onPointerEnter={onConfirm}>
+            <Box sx={{ m: 1, position: 'relative' }}>
+              <Button variant='contained' color={confirmButtonColor ?? 'error'} onClick={onConfirm} onPointerDown={onConfirm}>
                 {confirmButtonText ? confirmButtonText : 'Confirm'}
               </Button>
             </Box>
