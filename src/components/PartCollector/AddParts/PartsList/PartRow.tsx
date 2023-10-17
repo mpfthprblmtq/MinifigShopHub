@@ -1,9 +1,9 @@
 import React, { FunctionComponent, useState } from "react";
-import { Part } from "../../../model/partCollector/Part";
-import { StyledTableCell } from "../../QuoteBuilder/Table/TableComponent/TableComponent.styles";
+import { Part } from "../../../../model/partCollector/Part";
+import { StyledTableCell } from "../../../QuoteBuilder/Table/TableComponent/TableComponent.styles";
 import { Box, TableRow, TextField, Typography } from "@mui/material";
 import { Add, SquareRounded } from "@mui/icons-material";
-import InformationDialog from "../../_shared/InformationDialog/InformationDialog";
+import InformationDialog from "../../../_shared/InformationDialog/InformationDialog";
 import { LoadingButton } from "@mui/lab";
 
 interface PartRowParams {
@@ -18,9 +18,9 @@ const PartRow: FunctionComponent<PartRowParams> = ({part, addPart}) => {
   const [comment, setComment] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleAdd = async () => {
+  const handleAdd = () => {
     setLoading(true);
-    await addPart(part, quantityToAdd, comment).then(() => setLoading(false));
+    addPart(part, quantityToAdd, comment).then(() => setLoading(false));
   }
 
   return (

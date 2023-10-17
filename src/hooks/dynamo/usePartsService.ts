@@ -50,14 +50,13 @@ export const usePartsService = (): PartsServiceHooks => {
       },
       TableName: PartsTable
     };
-    db.put(params, (error, data) => {
-      if (error) {
-        console.error(error);
-        throw error;
-      } else {
-        console.log(data);
-      }
-    })
+    try {
+      await db.put(params).promise();
+    } catch (error: any) {
+      console.error(error);
+      throw error;
+    }
+
   };
 
   return { getAllParts, addPartToDatabase };

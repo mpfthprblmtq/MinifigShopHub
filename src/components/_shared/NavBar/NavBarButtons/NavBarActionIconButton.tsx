@@ -6,9 +6,10 @@ interface MenuItemIconButtonParams {
   action: (() => void) | undefined;
   icon: ReactNode;
   text: string;
+  active?: boolean;
 }
 
-const NavBarActionIconButton = forwardRef(({navBarOpen, action, icon, text}: MenuItemIconButtonParams, ref) => {
+const NavBarActionIconButton = forwardRef(({navBarOpen, action, icon, text, active}: MenuItemIconButtonParams, ref) => {
   return (
     <ListItem
       onClick={action}
@@ -28,10 +29,12 @@ const NavBarActionIconButton = forwardRef(({navBarOpen, action, icon, text}: Men
           disableTouchRipple={!action}
         >
           <ListItemIcon
+            color={ active ? 'primary' : 'inherit' }
             sx={{
               minWidth: 0,
               mr: navBarOpen ? 3 : 'auto',
               justifyContent: 'center',
+              color: active ? '#1976d2' : 'rgba(0, 0, 0, 0.54)'
             }}>
             {icon}
           </ListItemIcon>

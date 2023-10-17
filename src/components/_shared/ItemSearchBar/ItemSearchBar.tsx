@@ -94,7 +94,8 @@ const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, pro
               loadingPosition="start"
               startIcon={<Search />}
               variant="contained"
-              disabled={!setNumber}>
+              disabled={!setNumber}
+              type={'submit'}>
               Search
             </LoadingButton>
           </Box>

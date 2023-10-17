@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useState } from "react";
-import { Part } from "../../../model/partCollector/Part";
+import { Part } from "../../../../model/partCollector/Part";
 import {
   Alert, Portal,
   Snackbar,
@@ -10,11 +10,11 @@ import {
   TableRow,
   Typography
 } from "@mui/material";
-import { StyledTableCell } from "../../QuoteBuilder/Table/TableComponent/TableComponent.styles";
-import { Item } from "../../../model/item/Item";
+import { StyledTableCell } from "../../../QuoteBuilder/Table/TableComponent/TableComponent.styles";
+import { Item } from "../../../../model/item/Item";
 import PartRow from "./PartRow";
-import { usePartsService } from "../../../hooks/dynamo/usePartsService";
-import { SnackbarState } from "../../_shared/Snackbar/SnackbarState";
+import { usePartsService } from "../../../../hooks/dynamo/usePartsService";
+import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
 
 interface PartsListParams {
   item?: Item;
@@ -29,7 +29,7 @@ const PartsList: FunctionComponent<PartsListParams> = ({item, parts, set, setPar
   const { addPartToDatabase } = usePartsService();
 
   const addPart = async (part: Part, quantityToAdd: number, comment: string) => {
-    addPartToDatabase(part, quantityToAdd, comment, set ?? '')
+    await addPartToDatabase(part, quantityToAdd, comment, set ?? '')
       .then(() => {
         setSnackbarState({open: true, severity: 'success', message: `${part.name} added successfully!`});
         setParts([...parts!].map(toUpdate => toUpdate.id === part.id ? { ...part} : toUpdate));
