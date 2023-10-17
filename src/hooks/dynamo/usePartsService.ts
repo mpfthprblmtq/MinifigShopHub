@@ -6,7 +6,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 export interface PartsServiceHooks {
   getAllParts: () => Promise<PartDisplay[]>;
-  addPartToDatabase: (part: Part, quantity: number, comment: string, set: string) => Promise<void>;
+  addPartToDatabase: (part: Part, quantity: number, comment: string, set: string) => Promise<string>;
+  deletePartFromDatabase: (key: string) => Promise<void>;
 }
 
 export const usePartsService = (): PartsServiceHooks => {
@@ -39,10 +40,11 @@ export const usePartsService = (): PartsServiceHooks => {
     }
   };
 
-  const addPartToDatabase = async (part: Part, quantity: number, comment: string, set: string): Promise<void> => {
+  const addPartToDatabase = async (part: Part, quantity: number, comment: string, set: string): Promise<string> => {
+    const key: string = uuidv4();
     const params = {
       Item: {
-        'key': uuidv4() ,
+        'key': key,
         'part': JSON.stringify(part),
         'quantity': quantity,
         'comment': comment,
@@ -52,12 +54,27 @@ export const usePartsService = (): PartsServiceHooks => {
     };
     try {
       await db.put(params).promise();
+      return key;
     } catch (error: any) {
       console.error(error);
       throw error;
     }
-
   };
 
-  return { getAllParts, addPartToDatabase };
+  const deletePartFromDatabase = async (key: string) => {
+    const params = {
+      Key: {
+        'key': key
+      },
+      TableName: PartsTable
+    };
+    try {
+      await db.delete(params).promise();
+    } catch (error: any) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  return { getAllParts, addPartToDatabase, deletePartFromDatabase };
 }

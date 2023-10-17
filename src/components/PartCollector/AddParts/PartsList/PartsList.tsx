@@ -1,7 +1,7 @@
-import React, { FunctionComponent, useState } from "react";
+import React, { Fragment, FunctionComponent, useState } from "react";
 import { Part } from "../../../../model/partCollector/Part";
 import {
-  Alert, Portal,
+  Alert, Button, Portal,
   Snackbar,
   Table,
   TableBody,
@@ -26,11 +26,13 @@ interface PartsListParams {
 const PartsList: FunctionComponent<PartsListParams> = ({item, parts, set, setParts}) => {
 
   const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
-  const { addPartToDatabase } = usePartsService();
+  const [lastAddedPartKey, setLastAddedPartKey] = useState<string>('');
+  const { addPartToDatabase, deletePartFromDatabase } = usePartsService();
 
   const addPart = async (part: Part, quantityToAdd: number, comment: string) => {
     await addPartToDatabase(part, quantityToAdd, comment, set ?? '')
-      .then(() => {
+      .then((key) => {
+        setLastAddedPartKey(key);
         setSnackbarState({open: true, severity: 'success', message: `${part.name} added successfully!`});
         setParts([...parts!].map(toUpdate => toUpdate.id === part.id ? { ...part} : toUpdate));
       }).catch((error) => {
@@ -38,15 +40,15 @@ const PartsList: FunctionComponent<PartsListParams> = ({item, parts, set, setPar
       });
   };
 
-  // const addPartNew = async (part: Part, quantityToAdd: number, comment: string) => {
-  //   try {
-  //     await addPartToDatabase(part, quantityToAdd, comment, set ?? '');
-  //     setSnackbarState({open: true, severity: 'success', message: `${part.name} added successfully!`});
-  //     setParts([...parts!].map(toUpdate => toUpdate.id === part.id ? { ...part} : toUpdate));
-  //   } catch (error: any) {
-  //     setSnackbarState({open: true, severity: 'error', message: `Couldn't add part!\n${error.statusCode} - ${error.message}`});
-  //   }
-  // };
+  const undoAdd = async () => {
+    await deletePartFromDatabase(lastAddedPartKey)
+      .then(() => {
+        setSnackbarState({open: true, severity: 'success', message: 'Part removed successfully!'});
+        setLastAddedPartKey('');
+      }).catch(error => {
+        setSnackbarState({open: true, severity: 'error', message: `Couldn't delete part!\n${error.statusCode} - ${error.message}`});
+      });
+  }
 
   return (
     <TableContainer sx={{ maxHeight: '80vh' }}>
@@ -101,9 +103,22 @@ const PartsList: FunctionComponent<PartsListParams> = ({item, parts, set, setPar
           anchorOrigin={{ horizontal: "right", vertical: "top" }}
           autoHideDuration={5000}
           onClose={() => setSnackbarState({open: false})}
-          open={snackbarState.open}>
+          open={snackbarState.open}
+          action={
+            <Fragment>
+              <Button color="secondary" size="small" onClick={undoAdd}>
+                UNDO
+              </Button>
+            </Fragment>
+          }
+        >
           <Alert severity={snackbarState.severity} onClose={() => setSnackbarState({open: false})}>
             {snackbarState.message}
+            {lastAddedPartKey && (
+              <Button color="primary" onClick={undoAdd} sx={{height: '20px'}}>
+                <strong>UNDO</strong>
+              </Button>
+            )}
           </Alert>
         </Snackbar>
       </Portal>
