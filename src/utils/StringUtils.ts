@@ -18,3 +18,11 @@ export const getNumberFromResponseUrl = (url: string): string => {
     const arr: string[] = url.split("/");
     return arr.at(arr.length - 1) ?? '';
 }
+
+export const truncateString = (s: string, truncateAfter: number): string => {
+    if (s.length <= truncateAfter) {
+        return s;
+    } else {
+        return s.substring(0, truncateAfter - 3).concat('...');
+    }
+}

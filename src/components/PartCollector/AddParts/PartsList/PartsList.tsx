@@ -1,4 +1,4 @@
-import React, { Fragment, FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useState } from "react";
 import { Part } from "../../../../model/partCollector/Part";
 import {
   Alert, Button, Portal,
@@ -57,7 +57,7 @@ const PartsList: FunctionComponent<PartsListParams> = ({item, parts, set, setPar
           {item && (
             <TableRow>
               <StyledTableCell width={75}>
-                <img src={item.imageUrl} width={75} alt={'item-img'} />
+                <img src={item.imageUrl} style={{ maxHeight: '100px', maxWidth: '200px', height: 'auto', width: 'auto' }} alt={'item-img'} />
               </StyledTableCell>
               <StyledTableCell colSpan={3}>
                 <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 20 }}>
@@ -103,15 +103,7 @@ const PartsList: FunctionComponent<PartsListParams> = ({item, parts, set, setPar
           anchorOrigin={{ horizontal: "right", vertical: "top" }}
           autoHideDuration={5000}
           onClose={() => setSnackbarState({open: false})}
-          open={snackbarState.open}
-          action={
-            <Fragment>
-              <Button color="secondary" size="small" onClick={undoAdd}>
-                UNDO
-              </Button>
-            </Fragment>
-          }
-        >
+          open={snackbarState.open}>
           <Alert severity={snackbarState.severity} onClose={() => setSnackbarState({open: false})}>
             {snackbarState.message}
             {lastAddedPartKey && (
