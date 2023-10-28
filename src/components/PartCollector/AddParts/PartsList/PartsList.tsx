@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useState } from "react";
 import { Part } from "../../../../model/partCollector/Part";
 import {
-  Alert, Button, Portal,
+  Alert, Box, Button, Portal,
   Snackbar,
   Table,
   TableBody,
@@ -51,52 +51,53 @@ const PartsList: FunctionComponent<PartsListParams> = ({item, parts, set, setPar
   }
 
   return (
-    <TableContainer sx={{ maxHeight: '80vh' }}>
-      <Table stickyHeader aria-label="sticky table">
-        <TableHead>
-          {item && (
-            <TableRow>
-              <StyledTableCell width={75}>
-                <img src={item.imageUrl} style={{ maxHeight: '100px', maxWidth: '200px', height: 'auto', width: 'auto' }} alt={'item-img'} />
-              </StyledTableCell>
-              <StyledTableCell colSpan={3}>
-                <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 20 }}>
-                  {item.setId} - {item.name}
-                </Typography>
-                <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 16 }}>
-                  {item.yearReleased} ({item.retailStatus?.availability})
-                </Typography>
-                <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 16 }}>
-                  {`${item.pieceCount?.toLocaleString()} Pieces${item.minifigCount ? `, ${item.minifigCount} Minifigs`: ''}`}
-                </Typography>
-              </StyledTableCell>
-              <StyledTableCell colSpan={2} />
-            </TableRow>
-          )}
+    <>
+      {item && (
+        <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 0 }}>
+          <Box sx={{ m: 1, position: 'relative', margin: 0 }}>
+            <img src={item.imageUrl} style={{ maxHeight: '100px', maxWidth: '200px', height: 'auto', width: 'auto' }} alt={'item-img'} />
+          </Box>
+          <Box sx={{ m: 1, position: 'relative' }}>
+            <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 20 }}>
+              {item.setId} - {item.name}
+            </Typography>
+            <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 16 }}>
+              {item.yearReleased} ({item.retailStatus?.availability})
+            </Typography>
+            <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 16 }}>
+              {`${item.pieceCount?.toLocaleString()} Pieces${item.minifigCount ? `, ${item.minifigCount} Minifigs`: ''}`}
+            </Typography>
+          </Box>
+        </Box>
+      )}
+      <TableContainer sx={{ maxHeight: '80vh' }}>
+        <Table stickyHeader aria-label="sticky table">
+          <TableHead>
+            {parts && parts.length > 0 && (
+              <TableRow>
+                <StyledTableCell width={75} />
+                <StyledTableCell width={120}>
+                  Part ID
+                </StyledTableCell>
+                <StyledTableCell width={300}>
+                  Description
+                </StyledTableCell>
+                <StyledTableCell width={50}>
+                  Quantity
+                </StyledTableCell>
+                <StyledTableCell/>
+              </TableRow>
+            )}
+          </TableHead>
           {parts && parts.length > 0 && (
-            <TableRow>
-              <StyledTableCell width={75} sx={{ top: '89px' }} />
-              <StyledTableCell width={120} sx={{ top: '89px', textAlign: 'center' }} >
-                Part ID
-              </StyledTableCell>
-              <StyledTableCell width={300} sx={{ top: '89px' }} >
-                Description
-              </StyledTableCell>
-              <StyledTableCell width={50} sx={{ top: '89px' }}>
-                Quantity
-              </StyledTableCell>
-              <StyledTableCell sx={{ top: '89px' }} />
-            </TableRow>
+            <TableBody>
+              {parts.map((part, index) => (
+                <PartRow key={index} part={part} addPart={addPart} />
+              ))}
+            </TableBody>
           )}
-        </TableHead>
-        {parts && parts.length > 0 && (
-          <TableBody>
-            {parts.map((part, index) => (
-              <PartRow key={index} part={part} addPart={addPart} />
-            ))}
-          </TableBody>
-        )}
-      </Table>
+        </Table>
+      </TableContainer>
       <Portal>
         <Snackbar
           sx={{marginTop: '50px'}}
@@ -114,7 +115,8 @@ const PartsList: FunctionComponent<PartsListParams> = ({item, parts, set, setPar
           </Alert>
         </Snackbar>
       </Portal>
-    </TableContainer>
+    </>
+
   )
 };
 

@@ -2,64 +2,36 @@ import React, { FunctionComponent, useState } from "react";
 import { Box, Card, Stack, Tooltip, Typography } from "@mui/material";
 import { PartDisplay } from "../../../model/partCollector/PartDisplay";
 import InformationDialog from "../../_shared/InformationDialog/InformationDialog";
-import { Delete, InfoOutlined, SquareRounded } from "@mui/icons-material";
+import { Delete, InfoOutlined } from "@mui/icons-material";
 import TooltipConfirmationModal from "../../_shared/TooltipConfirmationModal/TooltipConfirmationModal";
-import { truncateString } from "../../../utils/StringUtils";
+import MoreInformationDialog from "../Dialog/MoreInformationDialog";
 
 interface PartTileParams {
   partDisplay: PartDisplay;
+  deletePart: (part: PartDisplay) => void;
 }
 
-const PartTile: FunctionComponent<PartTileParams> = ({partDisplay}) => {
+const PartTile: FunctionComponent<PartTileParams> = ({partDisplay, deletePart}) => {
 
   const [focusedImage, setFocusedImage] = useState<string | undefined>();
   const [confirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState<boolean>(false);
-
-  console.log(partDisplay)
-
-  const onShowMoreInfo = () => {
-    alert('More Info on part:\n' + partDisplay.part.name)
-  }
-
-  const onDelete = () => {
-    alert('Deleting part:\n' + partDisplay.part.name)
-  }
+  const [moreInformationDialogOpen, setMoreInformationDialogOpen] = useState<boolean>(false);
 
   return (
-    <Card sx={{ width: '350px', padding: '5px', margin: '5px' }}>
+    <Card sx={{ width: '200px', padding: '5px', margin: '5px' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <img src={partDisplay.part.imageUrl} width={75} alt={'part-img'} onClick={() => setFocusedImage(partDisplay.part.imageUrl)}/>
+        <Tooltip title={partDisplay.part.color.description}>
+          <img src={partDisplay.part.imageUrl} width={75} alt={'part-img'} onClick={() => setFocusedImage(partDisplay.part.imageUrl)}/>
+        </Tooltip>
         <Box sx={{ m: 1, position: 'relative' }}>
           <Stack direction={'column'} sx={{textAlign: 'center'}}>
             <Typography sx={{ fontSize: 30 }}>{partDisplay.quantity}</Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Box sx={{ m: 1, position: 'relative', marginTop: 0, marginBottom: 0 }}>
-                <Tooltip title={partDisplay.part.color.description}>
-                  <SquareRounded sx={{ color: `#${partDisplay.part.color.rgb}`, padding: 0, margin: 0 }} />
-                </Tooltip>
-              </Box>
-            </Box>
-          </Stack>
-        </Box>
-        <Box sx={{ m: 1, position: 'relative', marginTop: 0, marginBottom: 0 }}>
-          <Stack direction={'column'} sx={{textAlign: 'center'}}>
-            <Typography sx={{ fontSize: 15, textAlign: 'left' }}>{truncateString(partDisplay.part.name, 35)}</Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Box sx={{ m: 1, position: 'relative', margin: 0 }}>
-                <a target={'_blank'} rel={'noreferrer'}
-                   href={`https://www.bricklink.com/v2/catalog/catalogitem.page?P=${partDisplay.part.bricklinkId}&C=${partDisplay.part.color.id}`}>
-                  {partDisplay.part.bricklinkId}
-                </a>
-              </Box>
-              <Box sx={{ m: 1, position: 'relative', margin: 0 }}>
-                {partDisplay.set}
-              </Box>
-            </Box>
+            <Typography sx={{ fontsize: 20 }}>{partDisplay.set}</Typography>
           </Stack>
         </Box>
         <Box sx={{ m: 1, position: 'relative' }}>
           <Stack direction={'column'} sx={{textAlign: 'center'}}>
-            <Box onClick={onShowMoreInfo} className={'clickable'}>
+            <Box onClick={() => setMoreInformationDialogOpen(true)} className={'clickable'}>
               <Tooltip title={"More Details"}>
                 <InfoOutlined sx={{fontSize: '28px'}} color={"primary"} />
               </Tooltip>
@@ -71,7 +43,7 @@ const PartTile: FunctionComponent<PartTileParams> = ({partDisplay}) => {
                   <Typography sx={{fontSize: '14px'}}>
                     {`Are you sure you want to delete ${partDisplay.part.name}?`}
                   </Typography>}
-                onConfirm={onDelete}
+                onConfirm={() => deletePart(partDisplay)}
                 onClose={() => setConfirmDeleteModalOpen(false)}
                 placement={'top'}
                 confirmButtonText={'Delete'}
@@ -82,26 +54,18 @@ const PartTile: FunctionComponent<PartTileParams> = ({partDisplay}) => {
             </Box>
           </Stack>
         </Box>
-        {/*<Box sx={{ m: 1, position: 'relative' }}>*/}
-        {/*  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>*/}
-        {/*    {partDisplay.part.name}*/}
-        {/*    <Box sx={{ m: 1, position: 'relative' }}>*/}
-        {/*      <a target={'_blank'} rel={'noreferrer'}*/}
-        {/*         href={`https://www.bricklink.com/v2/catalog/catalogitem.page?P=${partDisplay.part.id}&C=${partDisplay.part.color.id}`}>*/}
-        {/*        {partDisplay.part.bricklinkId}*/}
-        {/*      </a>*/}
-        {/*    </Box>*/}
-        {/*    <Box sx={{ m: 1, position: 'relative' }}>*/}
-        {/*      {partDisplay.set}*/}
-        {/*    </Box>*/}
-        {/*  </Box>*/}
-        {/*</Box>*/}
       </Box>
       <InformationDialog
         open={!!focusedImage}
         onClose={() => setFocusedImage(undefined)}
         title={''}
         content={<img src={focusedImage} alt="part-img" />}
+      />
+      <MoreInformationDialog
+        open={moreInformationDialogOpen}
+        onClose={() => setMoreInformationDialogOpen(false)}
+        part={partDisplay}
+        onDelete={() => deletePart(partDisplay)}
       />
     </Card>
   );

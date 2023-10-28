@@ -28,8 +28,6 @@ export const usePartsService = (): PartsServiceHooks => {
             part: JSON.parse(item.part)
           } as PartDisplay)
         });
-        console.log(parts)
-
         return parts;
       } else {
         return [];
