@@ -152,7 +152,7 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, label, se
                 disabled={!item.minifigCount}
                 checked={label?.minifigsIndicator ?? true}
                 control={<Checkbox />}
-                label={<Typography sx={{ fontFamily: "Didact Gothic", fontSize: 16, color: !item.minifigCount ? "grey" : "inherit" }}>Minifigs</Typography>}
+                label={<Typography sx={{ fontFamily: "Didact Gothic", fontSize: 16, color: !item.minifigCount ? "gray" : "inherit" }}>Minifigs</Typography>}
                 onChange={(event: any) => setLabel({ ...label, minifigsIndicator: event.target.checked } as Label)}
               />
             </div>

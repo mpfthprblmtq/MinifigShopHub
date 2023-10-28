@@ -46,7 +46,7 @@ const ViewPartsComponent: FunctionComponent = () => {
   }, [searchDescription, setNumber]);
 
   const buildStatisticString = (filteredParts: PartDisplay[]) => {
-    if (filteredParts) {
+    if (filteredParts.length > 0) {
       const entries: number = filteredParts.length;
       const totalPieces: number = filteredParts.reduce((sum, part) => sum + part.quantity, 0);
       const differentSets: number = new Set(filteredParts.map(part => part.set)).size;
