@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export interface PartsServiceHooks {
   getAllParts: () => Promise<PartDisplay[]>;
-  addPartToDatabase: (part: Part, quantity: number, comment: string, set: string) => Promise<string>;
+  addPartToDatabase: (part: Part, quantity: number, comment: string, set: string, key?: string) => Promise<string>;
   deletePartFromDatabase: (key: string) => Promise<void>;
 }
 
@@ -38,8 +38,8 @@ export const usePartsService = (): PartsServiceHooks => {
     }
   };
 
-  const addPartToDatabase = async (part: Part, quantity: number, comment: string, set: string): Promise<string> => {
-    const key: string = uuidv4();
+  const addPartToDatabase = async (part: Part, quantity: number, comment: string, set: string, key?: string): Promise<string> => {
+    key = key ? key : uuidv4();
     const params = {
       Item: {
         'key': key,

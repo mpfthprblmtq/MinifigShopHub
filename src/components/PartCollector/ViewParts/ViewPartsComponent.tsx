@@ -15,7 +15,6 @@ const ViewPartsComponent: FunctionComponent = () => {
   const [statisticString, setStatisticString] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
-  const [deleteSuccess, setDeleteSuccess] = useState<boolean>(false);
   const [lastDeletedPart, setLastDeletedPart] = useState<PartDisplay>();
 
   const { getAllParts, addPartToDatabase, deletePartFromDatabase } = usePartsService();
@@ -60,20 +59,19 @@ const ViewPartsComponent: FunctionComponent = () => {
     await deletePartFromDatabase(part.key)
       .then(() => {
         setSnackbarState({open: true, severity: 'success', message: 'Part removed successfully!'});
-        setDeleteSuccess(true);
         setLastDeletedPart(part);
         const updatedParts: PartDisplay[] = [...parts].filter(removedPart => removedPart.key !== part.key);
         setParts(updatedParts);
         buildStatisticString(updatedParts);
       }).catch(error => {
         setSnackbarState({open: true, severity: 'error', message: `Couldn't delete part!\n${error.statusCode} - ${error.message}`});
-        setDeleteSuccess(false);
+        setLastDeletedPart(undefined);
       });
   }
 
   const undoDelete = async () => {
     if (lastDeletedPart) {
-      await addPartToDatabase(lastDeletedPart.part, lastDeletedPart.quantity, lastDeletedPart.comment, lastDeletedPart.set ?? '')
+      await addPartToDatabase(lastDeletedPart.part, lastDeletedPart.quantity, lastDeletedPart.comment, lastDeletedPart.set ?? '', lastDeletedPart.key)
         .then(() => {
           setLastDeletedPart(undefined);
           setSnackbarState({open: true, severity: 'success', message: `${lastDeletedPart.part.name} added successfully!`});
@@ -132,7 +130,7 @@ const ViewPartsComponent: FunctionComponent = () => {
           open={snackbarState.open}>
           <Alert severity={snackbarState.severity} onClose={() => setSnackbarState({open: false})}>
             {snackbarState.message}
-            {deleteSuccess && (
+            {lastDeletedPart && (
               <Button color="primary" onClick={undoDelete} sx={{height: '20px'}}>
                 <strong>UNDO</strong>
               </Button>
