@@ -55,3 +55,24 @@
 ### v1.2.1
 
 - Set the text color on the BrickLink sales cells to red if there are less than 5 sales, green if there are 5 or more sales, threshold was originally 10
+
+### v2.0.0
+
+- Added Label Maker
+
+### v2.1.0
+
+- Added button to Quote Builder table rows where you can take the set immediately to a label
+- Added redux to Label Maker, so refreshing page doesn't wipe you out
+
+### v2.1.1
+
+- Fixed bug where Tooltip Confirmation Modal wasn't allowing you to click on the button, preventing users from deleting things that interact with state/redux
+
+### v2.1.2
+
+- Fixed bug with Tooltip Confirmation Modal where you could just mouse enter into the button and it would delete on desktop.  Now you have to click on it
+
+### v3.0.0
+
+- Added Part Collector
