@@ -82,8 +82,12 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
                     if (!item.pieceCount || !item.minifigCount) {
                         if (item.setId) {
                             const pieceAndMinifigCounts: number[] = await getPieceAndMinifigCount(item.setId);
-                            item.pieceCount = pieceAndMinifigCounts[0] === 0 ? undefined : pieceAndMinifigCounts[0];
-                            item.minifigCount = pieceAndMinifigCounts[1] === 0 ? undefined : pieceAndMinifigCounts[1];
+                            if (pieceAndMinifigCounts.length === 1) {
+                                item.pieceCount = pieceAndMinifigCounts[0] === 0 ? undefined : pieceAndMinifigCounts[0];
+                            } else if (pieceAndMinifigCounts.length === 2) {
+                                item.pieceCount = pieceAndMinifigCounts[0] === 0 ? undefined : pieceAndMinifigCounts[0];
+                                item.minifigCount = pieceAndMinifigCounts[1] === 0 ? undefined : pieceAndMinifigCounts[1];
+                            }
                             item.sources.push(Source.BRICKECONOMY);
                         }
                     }

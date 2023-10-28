@@ -3,11 +3,11 @@ import { Item } from "../../../model/item/Item";
 import { useItemLookupService } from "../../../hooks/useItemLookupService";
 import { AxiosError } from "axios";
 import MultipleItemsFoundDialog from "../../QuoteBuilder/Dialog/MultipleItemsFoundDialog/MultipleItemsFoundDialog";
-import { Box, Button, CircularProgress, TextField, Tooltip } from "@mui/material";
-import { green } from "@mui/material/colors";
+import { Box, Button, TextField, Tooltip } from "@mui/material";
 import { SetNameStyledTypography } from "../../QuoteBuilder/QuoteBuilderComponent.styles";
-import { PlaylistAdd } from "@mui/icons-material";
+import { PlaylistAdd, Search } from "@mui/icons-material";
 import BulkLoadDialog from "../../QuoteBuilder/Dialog/BulkLoadDialog/BulkLoadDialog";
+import { LoadingButton } from "@mui/lab";
 
 interface ItemSearchBarParams {
   processItem: (item: Item) => void;
@@ -86,27 +86,18 @@ const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, pro
             />
           </Box>
           <Box sx={{ m: 1, position: 'relative' }}>
-            <Button
-              variant="contained"
-              disabled={loading || !setNumber}
+            <LoadingButton
+              sx={{ height: '48px' }}
+              color="primary"
               onClick={searchForSet}
-              sx={{minWidth: "100px", height: "50px"}}
-              type='submit'>
+              loading={loading}
+              loadingPosition="start"
+              startIcon={<Search />}
+              variant="contained"
+              disabled={!setNumber}
+              type={'submit'}>
               Search
-            </Button>
-            {loading && (
-              <CircularProgress
-                size={24}
-                sx={{
-                  color: green[500],
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  marginTop: '-12px',
-                  marginLeft: '-12px',
-                }}
-              />
-            )}
+            </LoadingButton>
           </Box>
           {enableBulkSearch && (
             <Box sx={{ m: 1, position: 'relative' }}>

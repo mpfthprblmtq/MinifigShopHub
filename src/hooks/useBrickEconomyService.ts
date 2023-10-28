@@ -52,6 +52,8 @@ export const useBrickEconomyService = (): BrickEconomyHooks => {
             const arr = result.split(' / ');
             results.push(launderMoney(arr[0]));
             results.push(launderMoney(arr[1]));
+          } else if (new RegExp('\\d+').test(result)) {
+            results.push(launderMoney(result));
           }
         });
 
@@ -92,10 +94,17 @@ export const useBrickEconomyService = (): BrickEconomyHooks => {
 
   const getPieceAndMinifigString = async (pageSource: string): Promise<string> => {
     const $ = cheerio.load(pageSource);
-    const piecesMinifigsElements = $('div.mb-2').filter((_, element) => {
+    const $mb2Div = $('div.mb-2');
+    let piecesMinifigsElements = $mb2Div.filter((_, element) => {
       return $(element).text().toLowerCase().includes("pieces / minifigs");
     });
-    console.log(piecesMinifigsElements);
+    if (piecesMinifigsElements.length === 0) {
+      // if there's no piecesMinifigElements, then that means that the set might not have minifigs
+      // so, we need to search for just "pieces"
+      piecesMinifigsElements = $mb2Div.filter((_, element) => {
+        return $(element).text().toLowerCase().includes("pieces");
+      });
+    }
     if (piecesMinifigsElements.length >= 1) {
       const value: any = piecesMinifigsElements[0].children[1];
       return value.data.toString().trim();

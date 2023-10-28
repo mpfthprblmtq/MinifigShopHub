@@ -1,5 +1,5 @@
 import {Configuration} from "../../model/dynamo/Configuration";
-import {db, Table} from "../../db.config";
+import {db, ConfigurationTable} from "../../db.config";
 import {DocumentClient} from "aws-sdk/clients/dynamodb";
 
 export interface ConfigurationServiceHooks {
@@ -15,7 +15,7 @@ export const AUTO_ADJUSTMENT_PERCENTAGE_CERTIFIED_PREOWNED: string = 'AUTO_ADJUS
 export const useConfigurationService = (): ConfigurationServiceHooks => {
 
     const initConfig = async (): Promise<Configuration> => {
-        const params = { TableName: Table };
+        const params = { TableName: ConfigurationTable };
         try {
             const data: DocumentClient.ScanOutput = await db.scan(params).promise();
             const items = data.Items;
@@ -51,7 +51,7 @@ export const useConfigurationService = (): ConfigurationServiceHooks => {
 
         if (config.storeCreditValueAdjustment !== updatedConfig.storeCreditValueAdjustment) {
             paramsList.push({
-                TableName: Table,
+                TableName: ConfigurationTable,
                 Item: {
                     key: STORE_CREDIT_VALUE_ADJUSTMENT,
                     value: updatedConfig.storeCreditValueAdjustment
@@ -60,7 +60,7 @@ export const useConfigurationService = (): ConfigurationServiceHooks => {
         }
         if (config.autoAdjustmentPercentageNew !== updatedConfig.autoAdjustmentPercentageNew) {
             paramsList.push({
-                TableName: Table,
+                TableName: ConfigurationTable,
                 Item: {
                     key: AUTO_ADJUSTMENT_PERCENTAGE_NEW,
                     value: updatedConfig.autoAdjustmentPercentageNew
@@ -69,7 +69,7 @@ export const useConfigurationService = (): ConfigurationServiceHooks => {
         }
         if (config.autoAdjustmentPercentageUsed !== updatedConfig.autoAdjustmentPercentageUsed) {
             paramsList.push({
-                TableName: Table,
+                TableName: ConfigurationTable,
                 Item: {
                     key: AUTO_ADJUSTMENT_PERCENTAGE_USED,
                     value: updatedConfig.autoAdjustmentPercentageUsed
@@ -79,7 +79,7 @@ export const useConfigurationService = (): ConfigurationServiceHooks => {
         if (config.autoAdjustmentPercentageCertifiedPreOwned !==
           updatedConfig.autoAdjustmentPercentageCertifiedPreOwned) {
             paramsList.push({
-                TableName: Table,
+                TableName: ConfigurationTable,
                 Item: {
                     key: AUTO_ADJUSTMENT_PERCENTAGE_CERTIFIED_PREOWNED,
                     value: updatedConfig.autoAdjustmentPercentageCertifiedPreOwned

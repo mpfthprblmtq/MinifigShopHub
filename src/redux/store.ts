@@ -2,6 +2,7 @@ import {configureStore} from "@reduxjs/toolkit";
 import configurationReducer from './slices/configurationSlice';
 import quoteReducer from './slices/quoteSlice';
 import labelReducer from './slices/labelSlice';
+import partReducer from './slices/partSlice';
 import { persistReducer } from 'redux-persist';
 import {combineReducers} from "@reduxjs/toolkit";
 import storage from 'redux-persist/lib/storage';
@@ -15,7 +16,8 @@ const persistConfig = {
 const reducer = combineReducers({
     configurationStore: configurationReducer,
     quoteStore: quoteReducer,
-    labelStore: labelReducer
+    labelStore: labelReducer,
+    partStore: partReducer
 });
 const persistedReducer = persistReducer(persistConfig, reducer);
 

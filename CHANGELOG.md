@@ -55,3 +55,29 @@
 ### v1.2.1
 
 - Set the text color on the BrickLink sales cells to red if there are less than 5 sales, green if there are 5 or more sales, threshold was originally 10
+
+### v2.0.0
+
+- Added Label Maker, a tool where you can search for a set and pull up data to build and print a label on half sheet Avery labels
+
+### v2.1.0
+
+- Added button to Quote Builder table rows where you can take the set immediately to a label in Label Maker
+- Added redux to Label Maker, so refreshing page doesn't wipe you out
+
+### v2.1.1
+
+- Fixed bug where Tooltip Confirmation Modal wasn't allowing you to click on the button, preventing users from deleting things that interact with state/redux
+
+### v2.1.2
+
+- Fixed bug with Tooltip Confirmation Modal where you could just mouse enter into the button, and it would delete on desktop.  Now you have to click on it
+
+### v3.0.0
+
+- Added Part Collector, a tool where you can search for a set and pull up all pieces for it, then add certain pieces to the database
+  - This allows for you to see a table/grid view of multiple pieces that you need for different projects
+  - Consists of two screens, the Add Parts screen and the View Parts screen
+- Fixed the BrickEconomy fallback service for when piece/minifig counts don't exist on Brickset
+  - When you had a set without minifigs, and there's no piece data on Brickset, BrickEconomy couldn't find the piece count, since it was looking for "Pieces / Minifigs", when we really should have been looking for "Pieces"
+

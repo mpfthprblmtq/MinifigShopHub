@@ -7,6 +7,7 @@ AWS.config.update({
 });
 
 const db = new AWS.DynamoDB.DocumentClient();
-const Table = 'configuration';
+const ConfigurationTable = 'configuration';
+const PartsTable = 'parts';
 
-export {db, Table};
+export {db, ConfigurationTable, PartsTable};

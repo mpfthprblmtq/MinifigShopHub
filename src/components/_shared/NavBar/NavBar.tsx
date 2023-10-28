@@ -12,6 +12,8 @@ import { AppBar, DrawerHeader, Drawer } from "./NavBarUtils";
 import QuoteBuilderActions from "./NavBarSections/QuoteBuilderActions";
 import LabelMakerActions from "./NavBarSections/LabelMakerActions";
 import AppNavigationActions from "./NavBarSections/AppNavigationActions";
+import PartCollectorActions from "./NavBarSections/PartCollectorActions";
+import { CurrentView } from "../../PartCollector/CurrentView";
 
 interface NavBarParams {
   activeTab: string;
@@ -22,9 +24,24 @@ interface NavBarParams {
   loadQuote?: () => void;
   storeMode?: boolean;
   setStoreMode?: () => void;
+  currentView?: CurrentView;
+  showAddParts?: () => void;
+  showViewParts?: () => void;
 }
 
-const NavBar: FunctionComponent<NavBarParams> = ({ activeTab, openSettings, clearAll, print, saveQuote, loadQuote, storeMode, setStoreMode}) => {
+const NavBar: FunctionComponent<NavBarParams> =
+  ({
+     activeTab,
+     openSettings,
+     clearAll,
+     print,
+     saveQuote,
+     loadQuote,
+     storeMode,
+     setStoreMode,
+     currentView,
+     showAddParts,
+     showViewParts}) => {
 
   const [open, setOpen] = useState<boolean>(false);
 
@@ -77,6 +94,13 @@ const NavBar: FunctionComponent<NavBarParams> = ({ activeTab, openSettings, clea
         )}
         {activeTab === Tabs.ROLODEX && (
           <></>
+        )}
+        {activeTab === Tabs.PART_COLLECTOR && (
+          <PartCollectorActions
+            navBarOpen={open}
+            currentView={currentView}
+            showAddParts={showAddParts}
+            showViewParts={showViewParts} />
         )}
       </Drawer>
     </>
