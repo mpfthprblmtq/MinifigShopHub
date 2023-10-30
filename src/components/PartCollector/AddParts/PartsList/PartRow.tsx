@@ -31,7 +31,7 @@ const PartRow: FunctionComponent<PartRowParams> = ({part, addPart}) => {
         </StyledTableCell>
         <StyledTableCell width={120} sx={{textAlign: 'center'}}>
           <a target={'_blank'} rel={'noreferrer'}
-             href={`https://www.bricklink.com/v2/catalog/catalogitem.page?P=${part.id}&C=${part.color.id}`}>
+             href={`https://www.bricklink.com/v2/catalog/catalogitem.page?P=${part.bricklinkId}&C=${part.color.id}`}>
             {part.bricklinkId}
           </a>
         </StyledTableCell>
