@@ -63,6 +63,15 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
         setRowAdjustmentsDisabled(adjustmentSet.size === 1 && adjustmentSet.values().next().value !== event.target.value);
     };
 
+    const handleStoreCreditValueChange = (event: any) => {
+        setStoreCreditValueDisplay(formatCurrency(event.target.value));
+    }
+
+    const handleStoreCreditValueBlur = (event: any) => {
+        const launderedValue: number = launderMoney(event.target.value);
+        setStoreCreditValueDisplay(formatCurrency(launderedValue));
+    }
+
     const handleSliderChange = (event: any) => {
         const calculatedValue = Math.round(quote.total.baseValue * (event.target.value / 100));
         const calculatedStoreCreditValue = calculatedValue * (configuration.storeCreditValueAdjustment / 100);
@@ -139,7 +148,10 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
                         </FixedWidthColumnHeading>}
                       <FixedWidthColumnHeading width={200}>
                           <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
-                              <CurrencyTextInput value={storeCreditValueDisplay} onChange={() => {}} readonly/>
+                              <CurrencyTextInput
+                                value={storeCreditValueDisplay}
+                                onChange={handleStoreCreditValueChange}
+                                onBlur={handleStoreCreditValueBlur} />
                           </div>
                       </FixedWidthColumnHeading>
                       <FixedWidthColumnHeading width={100} />
