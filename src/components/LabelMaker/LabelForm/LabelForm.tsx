@@ -130,7 +130,7 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, label, se
           <CurrencyTextInput
             onChange={(event: any) => setItem({...item, value: event.target.value})}
             onBlur={handleValueBlur}
-            value={item.valueDisplay}
+            value={item.valueDisplay === '$0.00' ? '' : item.valueDisplay}
             error={item.valueDisplay?.toString() === '$0.00'}
             label={item.valueDisplay?.toString() === '$0.00' ? 'Value cannot be $0' : ''}
           />
