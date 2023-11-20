@@ -8,7 +8,7 @@ import {AllSalesHistory} from "../model/salesHistory/AllSalesHistory";
 import {Type} from "../model/_shared/Type";
 import {filterOutOldDates} from "../utils/DateUtils";
 
-const corsProxyUrl: string = 'https://corsproxy.io/?';
+const corsProxyUrl: string = 'https://proxy.cors.sh/';
 const baseUrl: string = "https://api.bricklink.com/api/store/v1";
 
 export interface BrickLinkHooks {
@@ -22,7 +22,9 @@ export const useBrickLinkService = (): BrickLinkHooks => {
     const brickLinkAxiosInstance = axios.create({
         baseURL: baseUrl,
         timeout: 5000,
-        headers: {}
+        headers: {
+            'x-cors-api-key': 'live_6aba39ccdee8ed8b73605d0e20a44856036a469b78fd9fdbb2a0399951e920a1',
+        }
     });
 
     const get = async <T,>(url: string): Promise<T> => {
@@ -66,11 +68,6 @@ export const useBrickLinkService = (): BrickLinkHooks => {
         } catch (error) {
             throw error;
         }
-
-        // return (
-        //   await get<BricklinkItemResponse>(
-        //     `${baseUrl}/items/${type}/${id}`
-        //   )).data;
     };
 
     const getAllSalesHistory = async (item: Item): Promise<AllSalesHistory> => {

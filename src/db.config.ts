@@ -7,7 +7,8 @@ AWS.config.update({
 });
 
 const db = new AWS.DynamoDB.DocumentClient();
-const ConfigurationTable = 'configuration';
-const PartsTable = 'parts';
+const env: string = process.env.REACT_APP_ENVIRONMENT === 'dev' ? '-dev' : '';
+const ConfigurationTable = 'configuration' + env;
+const PartsTable = 'parts' + env;
 
 export {db, ConfigurationTable, PartsTable};
