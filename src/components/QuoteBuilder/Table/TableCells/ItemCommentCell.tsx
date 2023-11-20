@@ -38,6 +38,7 @@ const ItemCommentCell: FunctionComponent<ItemCommentParams> = ({item, storeMode,
                                         submitCommentChanges();
                                     }
                                 }}
+                                onBlur={submitCommentChanges}
                                 onChange={(event: any) => {
                                     setComment(event.target.value);
                                 }}
