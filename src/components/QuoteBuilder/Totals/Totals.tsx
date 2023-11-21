@@ -24,15 +24,17 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
     const quote: Quote = useSelector((state: any) => state.quoteStore.quote);
     const dispatch = useDispatch();
 
+    const [baseValueDisplay, setBaseValueDisplay] = useState<string>(formatCurrency(quote.total.baseValue) ?? '');
     const [valueDisplay, setValueDisplay] = useState<string>(formatCurrency(quote.total.value) ?? '');
     const [storeCreditValueDisplay, setStoreCreditValueDisplay] = useState<string>(formatCurrency(quote.total.storeCreditValue) ?? '');
 
     useEffect(() => {
         const calculatedValue: number = items.reduce((sum, item) => sum + item.value, 0);
-        const calculatedBaseValue: number = items.reduce((sum, item) => sum + item.baseValue, 0);
+        const calculatedBaseValue: number = Math.round(items.reduce((sum, item) => sum + item.baseValue, 0));
         const calculatedStoreCreditValue = Math.round((configuration.storeCreditValueAdjustment / 100) * quote.total.value);
-        setStoreCreditValueDisplay(formatCurrency(calculatedStoreCreditValue).toString().substring(1));
         setValueDisplay(formatCurrency(calculatedValue).toString().substring(1));
+        setBaseValueDisplay(formatCurrency(calculatedBaseValue).toString().substring(1));
+        setStoreCreditValueDisplay(formatCurrency(calculatedStoreCreditValue).toString().substring(1));
 
         dispatch(updateTotalInStore({...quote.total, value: calculatedValue, baseValue: calculatedBaseValue, storeCreditValue: calculatedStoreCreditValue} as Total));
         // eslint-disable-next-line
@@ -84,7 +86,7 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
     };
 
     return (
-      <TableContainer style={{width: "100%", paddingTop: "40px", marginLeft: '-10px'}}>
+      <TableContainer style={{width: "100%", paddingTop: "20px", marginLeft: '-10px'}}>
           <Table size="small"
                  sx={{
                      [`& .${tableCellClasses.root}`]: {
@@ -101,10 +103,12 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
                       {storeMode && (
                         <>
                             <FixedWidthColumnHeading width={100} />
-                            <FixedWidthColumnHeading width={100} />
+                            <FixedWidthColumnHeading width={100}>
+                                Total Value
+                            </FixedWidthColumnHeading>
                         </>
                       )}
-                      <FixedWidthColumnHeading width={120}>
+                      <FixedWidthColumnHeading width={120} sx={{marginLeft: '5px'}}>
                           Total (Cash)
                       </FixedWidthColumnHeading>
                       {storeMode &&
@@ -126,7 +130,14 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
                       {storeMode && (
                         <>
                             <FixedWidthColumnHeading width={100} />
-                            <FixedWidthColumnHeading width={100} />
+                            <FixedWidthColumnHeading width={100}>
+                                <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
+                                    <CurrencyTextInput
+                                      value={baseValueDisplay}
+                                      onChange={() => {}}
+                                      readonly />
+                                </div>
+                            </FixedWidthColumnHeading>
                         </>
                       )}
                       <FixedWidthColumnHeading width={120}>
