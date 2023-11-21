@@ -14,6 +14,7 @@ import LabelMakerActions from "./NavBarSections/LabelMakerActions";
 import AppNavigationActions from "./NavBarSections/AppNavigationActions";
 import PartCollectorActions from "./NavBarSections/PartCollectorActions";
 import { CurrentView } from "../../PartCollector/CurrentView";
+import { determineEnvironment } from "../../../utils/UrlUtils";
 
 interface NavBarParams {
   activeTab: string;
@@ -66,6 +67,9 @@ const NavBar: FunctionComponent<NavBarParams> =
           </IconButton>
           <Typography variant="h4" noWrap component="div" sx={{fontFamily: 'Didact Gothic'}}>
             Minifig Shop Hub - {activeTab}
+          </Typography>
+          <Typography noWrap component="div" sx={{ fontFamily: 'Didact Gothic', right: 10, position: 'absolute' }}>
+            {determineEnvironment()}
           </Typography>
         </Toolbar>
       </AppBar>
