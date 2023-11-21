@@ -47,7 +47,9 @@ const PartRow: FunctionComponent<PartRowParams> = ({part, addPart}) => {
           </Box>
         </StyledTableCell>
         <StyledTableCell>
-          <Typography sx={{ textAlign: 'center', fontSize: 20 }}>{part.quantity}</Typography>
+          <Typography sx={{ textAlign: 'center', fontSize: 20, color: part.isSpare ? 'red' : 'inherit' }}>
+            {part.quantity}
+          </Typography>
         </StyledTableCell>
         <StyledTableCell>
           <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: '40px' }}>

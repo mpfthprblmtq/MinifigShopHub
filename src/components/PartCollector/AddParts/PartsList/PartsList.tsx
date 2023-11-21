@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import { Part } from "../../../../model/partCollector/Part";
 import {
   Alert, Box, Button, Portal,
@@ -19,18 +19,22 @@ import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
 interface PartsListParams {
   item?: Item;
   parts: Part[];
-  set?: string;
   setParts: (parts: Part[]) => void;
 }
 
-const PartsList: FunctionComponent<PartsListParams> = ({item, parts, set, setParts}) => {
+const PartsList: FunctionComponent<PartsListParams> = ({item, parts, setParts}) => {
 
   const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
   const [lastAddedPartKey, setLastAddedPartKey] = useState<string>('');
+  const [spareParts, setSpareParts] = useState<Part[]>([]);
   const { addPartToDatabase, deletePartFromDatabase } = usePartsService();
 
+  useEffect(() => {
+    setSpareParts(parts.filter(part => part.isSpare));
+  }, [parts]);
+
   const addPart = async (part: Part, quantityToAdd: number, comment: string) => {
-    await addPartToDatabase(part, quantityToAdd, comment, set ?? '')
+    await addPartToDatabase(part, quantityToAdd, comment, item?.setId ?? '')
       .then((key) => {
         setLastAddedPartKey(key);
         setSnackbarState({open: true, severity: 'success', message: `${part.name} added successfully!`});
@@ -91,12 +95,39 @@ const PartsList: FunctionComponent<PartsListParams> = ({item, parts, set, setPar
           </TableHead>
           {parts && parts.length > 0 && (
             <TableBody>
-              {parts.map((part, index) => (
+              {parts.filter(part => !part.isSpare).map((part, index) => (
                 <PartRow key={index} part={part} addPart={addPart} />
               ))}
             </TableBody>
           )}
         </Table>
+        {spareParts && spareParts.length > 0 && (
+          <>
+            <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 30, margin: '30px' }}>Spare Parts</Typography>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <StyledTableCell width={75} />
+                  <StyledTableCell width={120} sx={{ textAlign: 'center' }}>
+                    Part ID
+                  </StyledTableCell>
+                  <StyledTableCell width={300}>
+                    Description
+                  </StyledTableCell>
+                  <StyledTableCell width={50}>
+                    Quantity
+                  </StyledTableCell>
+                  <StyledTableCell/>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {spareParts.map((part, index) => (
+                  <PartRow key={index} part={part} addPart={addPart} />
+                ))}
+              </TableBody>
+            </Table>
+          </>
+        )}
       </TableContainer>
       <Portal>
         <Snackbar

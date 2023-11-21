@@ -144,7 +144,7 @@ const AddPartsComponent: FunctionComponent = () => {
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
         <Box sx={{ m: 1, position: 'relative', width: '70%' }}>
-          <PartsList item={item} parts={parts} setParts={setParts} set={item?.setId} />
+          <PartsList item={item} parts={parts} setParts={setParts} />
         </Box>
         <Box sx={{ m: 1, position: 'relative', flexGrow: 2 }}>
           {parts && parts.length > 0 && (
