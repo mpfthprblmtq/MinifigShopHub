@@ -36,6 +36,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
   const dispatch = useDispatch();
 
   const [storeMode, setStoreMode] = useState<boolean>(true);
+  const [compressedView, setCompressedView] = useState<boolean>(false);
   const [rowAdjustmentsDisabled, setRowAdjustmentsDisabled] = useState<boolean>(false);
   const [totalAdjustmentDisabled, setTotalAdjustmentDisabled] = useState<boolean>(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState<boolean>(false);
@@ -155,7 +156,12 @@ const QuoteBuilderComponent: FunctionComponent = () => {
           } : undefined}
           // TODO Save Quote & Load Quote
           storeMode={storeMode}
-          setStoreMode={items.length > 0 ? () => setStoreMode(!storeMode) : undefined}
+          setStoreMode={items.length > 0 ? () => {
+            setStoreMode(!storeMode);
+            setCompressedView(false);
+          } : undefined}
+          compressedView={compressedView}
+          setCompressedView={items.length > 0 ? () => setCompressedView(!compressedView) : undefined}
         />
       </div>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -177,6 +183,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
         <Box style={{ marginTop: 20 }}>
           <TableComponent
             storeMode={storeMode}
+            compressedView={compressedView}
             rowAdjustmentsDisabled={rowAdjustmentsDisabled}
           />
         </Box>

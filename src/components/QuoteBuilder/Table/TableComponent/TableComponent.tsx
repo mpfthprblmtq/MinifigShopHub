@@ -29,10 +29,11 @@ import { Configuration } from "../../../../model/dynamo/Configuration";
 
 interface TableComponentParams {
     storeMode: boolean;
+    compressedView: boolean;
     rowAdjustmentsDisabled: boolean;
 }
 
-const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, rowAdjustmentsDisabled }) => {
+const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, compressedView, rowAdjustmentsDisabled }) => {
 
     const [focusedItem, setFocusedItem] = useState<Item>();
     const [showImageDialog, setShowImageDialog] = useState<boolean>(false);
@@ -158,7 +159,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, ro
                   <TableBody>
                       {items.map(item => (
                         <TableRow key={item.id}>
-                            <ImageCell item={item} onClick={() => {
+                            <ImageCell item={item} compressedView={compressedView} onClick={() => {
                                 setFocusedItem(item);
                                 setShowImageDialog(true);
                             }}/>
@@ -169,13 +170,19 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, ro
                             {storeMode && (
                               <BrickLinkSalesCells item={item} />
                             )}
-                            <ValueCell
-                              item={item}
-                              handleValueBlur={handleValueBlur}
-                              handleValueChange={handleValueChange}
-                              storeMode={storeMode}
-                              editable={rowAdjustmentsDisabled}
-                            />
+                            {compressedView ? (
+                              <StyledTableCell>
+                                  {formatCurrency(item.value)}
+                              </StyledTableCell>
+                              ) : (
+                              <ValueCell
+                                item={item}
+                                handleValueBlur={handleValueBlur}
+                                handleValueChange={handleValueChange}
+                                storeMode={storeMode}
+                                editable={rowAdjustmentsDisabled}
+                              />
+                            )}
                             {storeMode && (
                               <StyledTableCell>
                                   <ValueAdjustmentSlider

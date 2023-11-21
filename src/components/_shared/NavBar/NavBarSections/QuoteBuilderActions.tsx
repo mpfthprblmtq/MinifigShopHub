@@ -9,6 +9,8 @@ import PrintIcon from "@mui/icons-material/Print";
 import SaveIcon from "@mui/icons-material/Save";
 import DriveFileMoveIcon from "@mui/icons-material/DriveFileMove";
 import SettingsIcon from "@mui/icons-material/Settings";
+import ExpandIcon from "@mui/icons-material/Expand";
+import CompressIcon from "@mui/icons-material/Compress";
 
 interface QuoteBuilderActionsParams {
   navBarOpen: boolean;
@@ -19,6 +21,8 @@ interface QuoteBuilderActionsParams {
   loadQuote?: () => void;
   storeMode?: boolean;
   setStoreMode?: () => void;
+  compressedView?: boolean;
+  setCompressedView?: () => void;
 }
 
 const QuoteBuilderActions: FunctionComponent<QuoteBuilderActionsParams> =
@@ -30,7 +34,9 @@ const QuoteBuilderActions: FunctionComponent<QuoteBuilderActionsParams> =
      saveQuote,
      loadQuote,
      storeMode,
-     setStoreMode
+     setStoreMode,
+     compressedView,
+     setCompressedView
   }) => {
 
   const [clearConfirmationTooltipOpen, setClearConfirmationTooltipOpen] = useState<boolean>(false);
@@ -43,6 +49,11 @@ const QuoteBuilderActions: FunctionComponent<QuoteBuilderActionsParams> =
         action={setStoreMode}
         icon={storeMode ? <VisibilityIcon sx={{color: '#1976d2'}} /> : <VisibilityOffIcon sx={{color: '#1976d2'}} />}
         text={'Store Mode'} />
+      <NavBarActionIconButton
+        navBarOpen={navBarOpen}
+        action={storeMode ? undefined : setCompressedView} // only want to be able to compress on customer view
+        icon={compressedView ? <ExpandIcon sx={{color: '#1976d2'}} /> : <CompressIcon />}
+        text={compressedView ? 'Expand View' : 'Compress View'} />
       <TooltipConfirmationModal
         content={
           <Typography sx={{fontSize: '14px'}}>

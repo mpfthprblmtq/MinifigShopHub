@@ -24,6 +24,8 @@ interface NavBarParams {
   loadQuote?: () => void;
   storeMode?: boolean;
   setStoreMode?: () => void;
+  compressedView?: boolean;
+  setCompressedView?: () => void;
   currentView?: CurrentView;
   showAddParts?: () => void;
   showViewParts?: () => void;
@@ -39,6 +41,8 @@ const NavBar: FunctionComponent<NavBarParams> =
      loadQuote,
      storeMode,
      setStoreMode,
+     compressedView,
+     setCompressedView,
      currentView,
      showAddParts,
      showViewParts}) => {
@@ -83,6 +87,8 @@ const NavBar: FunctionComponent<NavBarParams> =
             print={print}
             storeMode={storeMode}
             setStoreMode={setStoreMode}
+            compressedView={compressedView}
+            setCompressedView={setCompressedView}
             clearAll={clearAll} />
         )}
         {activeTab === Tabs.LABEL_MAKER && (
