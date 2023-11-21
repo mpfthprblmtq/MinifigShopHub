@@ -195,6 +195,19 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, label, se
           </FormControl>
         </Box>
       </Box>
+      <Box sx={{m: 1, position: 'relative' }}>
+        <TextField
+          fullWidth
+          label={'Comment'}
+          value={label?.comment ?? ''}
+          placeholder={'Comment'}
+          onChange={(event: any) => {
+            if (event.target.value.length < 150) {
+              setLabel({ ...label, comment: event.target.value } as Label);
+            }
+          }}
+        />
+      </Box>
       <MoreInformationDialog
         open={moreInformationDialogOpen}
         onClose={() => setMoreInformationDialogOpen(false)}

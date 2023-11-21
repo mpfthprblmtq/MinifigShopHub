@@ -49,6 +49,9 @@ const LabelContent = forwardRef(({labelData}: LabelContentParams, ref) => {
                 <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 18, textAlign: 'right' }}>
                   {`${labelData.pieces?.toLocaleString()} Pieces${labelData.minifigs ? `, ${labelData.minifigs} Minifigs`: ''}`}
                 </Typography>
+                <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 16, textAlign: 'right', marginTop: '20px' }}>
+                  {labelData.comment}
+                </Typography>
                 <Box
                   component="img"
                   sx={{

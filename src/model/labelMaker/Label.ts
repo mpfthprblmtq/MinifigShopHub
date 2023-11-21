@@ -11,4 +11,5 @@ export interface Label {
   minifigsIndicator: boolean;
   manualIndicator: boolean;
   validatedBy: string;
+  comment?: string;
 }
