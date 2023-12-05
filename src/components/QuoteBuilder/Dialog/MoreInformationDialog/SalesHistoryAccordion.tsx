@@ -29,7 +29,7 @@ const SalesHistoryAccordion: FunctionComponent<SalesHistoryAccordionParams> = ({
 
         // check to see if we're dealing with sales data
         // also have to have a check to see if the data is set to 0 because the chart data was getting populated twice
-        if (salesHistory?.price_detail && salesHistory.price_detail[0].date_ordered && series[0].data.length === 0) {
+        if (salesHistory?.price_detail && salesHistory.price_detail.length > 0 && salesHistory.price_detail[0].date_ordered && series[0].data.length === 0) {
 
             // since we're dealing with sales data, set the state value for use later in the component
             setIsSalesData(true);
