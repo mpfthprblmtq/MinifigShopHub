@@ -2,7 +2,7 @@ import React, { FunctionComponent, useEffect, useRef, useState } from "react";
 import { Item } from "../../model/item/Item";
 import {
   Alert,
-  Box, Portal, Snackbar,
+  Box, Portal, Snackbar
 } from "@mui/material";
 import TableComponent from "./Table/TableComponent/TableComponent";
 import ItemSearchCard from "./Cards/ItemSearchCard/ItemSearchCard";
@@ -27,6 +27,7 @@ import { Configuration } from "../../model/dynamo/Configuration";
 import { Quote } from "../../model/quote/Quote";
 import { SnackbarState } from "../_shared/Snackbar/SnackbarState";
 import { useReactToPrint } from "react-to-print";
+import ItemStatisticsCard from "./Cards/ItemStatisticsCard/ItemStatisticsCard";
 
 const QuoteBuilderComponent: FunctionComponent = () => {
 
@@ -188,12 +189,17 @@ const QuoteBuilderComponent: FunctionComponent = () => {
           />
         </Box>
         {items.length > 0 && (
-          <Totals
-            items={items}
-            storeMode={storeMode}
-            totalAdjustmentDisabled={totalAdjustmentDisabled}
-            setRowAdjustmentsDisabled={setRowAdjustmentsDisabled}
-          />
+          <>
+            {storeMode && (
+              <ItemStatisticsCard items={items} />
+            )}
+            <Totals
+              items={items}
+              storeMode={storeMode}
+              totalAdjustmentDisabled={totalAdjustmentDisabled}
+              setRowAdjustmentsDisabled={setRowAdjustmentsDisabled}
+            />
+          </>
         )}
       </div>
       <SettingsDialog
