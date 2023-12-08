@@ -41,7 +41,6 @@ const QuoteBuilderComponent: FunctionComponent = () => {
   const [rowAdjustmentsDisabled, setRowAdjustmentsDisabled] = useState<boolean>(false);
   const [totalAdjustmentDisabled, setTotalAdjustmentDisabled] = useState<boolean>(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState<boolean>(false);
-  const [mounted, setMounted] = useState<boolean>(false);
   const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
 
   const { calculatePrice } = usePriceCalculationEngine();
@@ -60,14 +59,14 @@ const QuoteBuilderComponent: FunctionComponent = () => {
     clonedItems.forEach(item => {
       item.valueAdjustment = item.condition === Condition.USED ?
         configuration.autoAdjustmentPercentageUsed : configuration.autoAdjustmentPercentageNew;
-      item.value = item.baseValue * (item.valueAdjustment / 100);
+      item.value = Math.round(item.baseValue * (item.valueAdjustment / 100));
       item.valueDisplay = formatCurrency(item.value).toString().substring(1);
     });
 
     const calculatedValue: number = quote.total.baseValue * (configuration.autoAdjustmentPercentageUsed / 100);
     const total: Total = {
       ...quote.total,
-      value: calculatedValue,
+      value: Math.floor(calculatedValue),
       valueAdjustment: configuration.autoAdjustmentPercentageUsed,
       storeCreditValue: (configuration.storeCreditValueAdjustment / 100) * calculatedValue
     };
@@ -88,33 +87,19 @@ const QuoteBuilderComponent: FunctionComponent = () => {
     dispatch((updateItemsInStore([...clonedItems])));
   };
 
-  /**
-   * This useEffect is confusing.  Basically, we want to take into consideration that the total value adjustment might
-   * not match the rows on load.
-   * Before this, when you would refresh the page and have multiple rows with the same value adjustment, but a different
-   * total value adjustment, the total value adjustment would be set to the adjustment that matches the rows.
-   * This was bad, because I want to load the most accurate quote information possible.
-   * This NEARLY works, but there has to be a better way.
-   */
   useEffect(() => {
     const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
-
-    if (adjustmentSet.size === 1) {
-      if (quote.total.valueAdjustment !== adjustmentSet.values().next().value) {
-        if (mounted) {
-          setRowAdjustmentsDisabled(false);
-          setTotalAdjustmentDisabled(false);
-          dispatch(updateTotalInStore({...quote.total, valueAdjustment: adjustmentSet.values().next().value} as Total));
-        } else {
-          setRowAdjustmentsDisabled(true);
-          setTotalAdjustmentDisabled(false);
-          setMounted(true);
-        }
-      } else {
-        setRowAdjustmentsDisabled(false);
-        setTotalAdjustmentDisabled(false);
-      }
-    } else {
+    if (adjustmentSet.size === 1 && quote.total.valueAdjustment !== adjustmentSet.values().next().value) {
+      // row adjustments are all the same, and total adjustment is different, enabling total and disabling rows
+      setRowAdjustmentsDisabled(true);
+      setTotalAdjustmentDisabled(false);
+    } else if (adjustmentSet.size === 1 && quote.total.valueAdjustment === adjustmentSet.values().next().value) {
+      // row adjustments are all the same, and total adjustment matches, enabling both rows and total
+      setRowAdjustmentsDisabled(false);
+      setTotalAdjustmentDisabled(false);
+    } else if (adjustmentSet.size > 1) {
+      // adjustments are different, enabling rows, disabling totals
+      setRowAdjustmentsDisabled(false);
       setTotalAdjustmentDisabled(true);
     }
     // eslint-disable-next-line

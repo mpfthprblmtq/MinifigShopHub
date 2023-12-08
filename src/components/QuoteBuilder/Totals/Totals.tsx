@@ -18,7 +18,7 @@ interface TotalsSectionParams {
     setRowAdjustmentsDisabled: (rowAdjustmentsDisabled: boolean) => void;
 }
 
-const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, totalAdjustmentDisabled, setRowAdjustmentsDisabled}) => {
+const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, totalAdjustmentDisabled, setRowAdjustmentsDisabled }) => {
 
     const configuration: Configuration = useSelector((state: any) => state.configurationStore.configuration);
     const quote: Quote = useSelector((state: any) => state.quoteStore.quote);
@@ -31,12 +31,11 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
     useEffect(() => {
         const calculatedValue: number = items.reduce((sum, item) => sum + item.value, 0);
         const calculatedBaseValue: number = Math.round(items.reduce((sum, item) => sum + item.baseValue, 0));
-        const calculatedStoreCreditValue = Math.round((configuration.storeCreditValueAdjustment / 100) * quote.total.value);
+
         setValueDisplay(formatCurrency(calculatedValue).toString().substring(1));
         setBaseValueDisplay(formatCurrency(calculatedBaseValue).toString().substring(1));
-        setStoreCreditValueDisplay(formatCurrency(calculatedStoreCreditValue).toString().substring(1));
 
-        dispatch(updateTotalInStore({...quote.total, value: calculatedValue, baseValue: calculatedBaseValue, storeCreditValue: calculatedStoreCreditValue} as Total));
+        dispatch(updateTotalInStore({...quote.total, value: calculatedValue, baseValue: calculatedBaseValue} as Total));
         // eslint-disable-next-line
     }, [items]);
 
@@ -54,15 +53,19 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
      * @param event the event to capture
      */
     const handleValueBlur = (event: any) => {
-        const launderedValue: number = launderMoney(event.target.value);
-        const calculatedAdjustment: number = Math.round((launderedValue / quote.total.baseValue) * 100);
-        const calculatedStoreCreditValue: number = Math.round(launderMoney(event.target.value) * (configuration.storeCreditValueAdjustment / 100));
-        setValueDisplay(formatCurrency(launderedValue));
-        setStoreCreditValueDisplay(formatCurrency(calculatedStoreCreditValue));
+        if (!totalAdjustmentDisabled) {
+            const launderedValue: number = launderMoney(event.target.value);
+            const calculatedAdjustment: number = Math.round((launderedValue / quote.total.baseValue) * 100);
+            const calculatedStoreCreditValue: number = Math.round(launderMoney(event.target.value) * (configuration.storeCreditValueAdjustment / 100));
+            setValueDisplay(formatCurrency(launderedValue));
+            setStoreCreditValueDisplay(formatCurrency(calculatedStoreCreditValue));
 
-        dispatch(updateTotalInStore({...quote.total, value: launderedValue, valueAdjustment: calculatedAdjustment, storeCreditValue: calculatedStoreCreditValue} as Total));
-        const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
-        setRowAdjustmentsDisabled(adjustmentSet.size === 1 && adjustmentSet.values().next().value !== event.target.value);
+            if (quote.total.value !== launderedValue) {
+                dispatch(updateTotalInStore({...quote.total, value: launderedValue, valueAdjustment: calculatedAdjustment, storeCreditValue: calculatedStoreCreditValue} as Total));
+                const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
+                setRowAdjustmentsDisabled(adjustmentSet.size === 1 && adjustmentSet.values().next().value !== event.target.value);
+            }
+        }
     };
 
     const handleStoreCreditValueChange = (event: any) => {
@@ -72,6 +75,8 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
     const handleStoreCreditValueBlur = (event: any) => {
         const launderedValue: number = launderMoney(event.target.value);
         setStoreCreditValueDisplay(formatCurrency(launderedValue));
+
+        dispatch(updateTotalInStore({...quote.total, storeCreditValue: launderedValue} as Total));
     }
 
     const handleSliderChange = (event: any) => {
@@ -97,9 +102,9 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
                   <TableRow>
                       <FixedWidthColumnHeading width={80} />
                       <FixedWidthColumnHeading width={80} />
-                      <FixedWidthColumnHeading width={150} />
+                      <FixedWidthColumnHeading width={200} />
                       <FixedWidthColumnHeading width={50} />
-                      <FixedWidthColumnHeading width={110} />
+                      <FixedWidthColumnHeading width={100} />
                       {storeMode && (
                         <>
                             <FixedWidthColumnHeading width={100} />
@@ -119,14 +124,13 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
                       <FixedWidthColumnHeading width={200}>
                           Total (Store Credit)
                       </FixedWidthColumnHeading>
-                      <FixedWidthColumnHeading width={50} />
                   </TableRow>
                   <TableRow>
                       <FixedWidthColumnHeading width={80} />
                       <FixedWidthColumnHeading width={80} />
-                      <FixedWidthColumnHeading width={150} />
+                      <FixedWidthColumnHeading width={200} />
                       <FixedWidthColumnHeading width={50} />
-                      <FixedWidthColumnHeading width={110} />
+                      <FixedWidthColumnHeading width={100} />
                       {storeMode && (
                         <>
                             <FixedWidthColumnHeading width={100} />
@@ -157,7 +161,7 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
                               disabled={totalAdjustmentDisabled}
                               sx={{ marginLeft: '-10px' }} />
                         </FixedWidthColumnHeading>}
-                      <FixedWidthColumnHeading width={200}>
+                      <FixedWidthColumnHeading width={100}>
                           <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
                               <CurrencyTextInput
                                 value={storeCreditValueDisplay}
@@ -165,7 +169,6 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
                                 onBlur={handleStoreCreditValueBlur} />
                           </div>
                       </FixedWidthColumnHeading>
-                      <FixedWidthColumnHeading width={100} />
                   </TableRow>
               </TableBody>
           </Table>

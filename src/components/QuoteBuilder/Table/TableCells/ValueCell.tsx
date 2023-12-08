@@ -3,6 +3,7 @@ import {Item} from "../../../../model/item/Item";
 import CurrencyTextInput from "../../../_shared/CurrencyTextInput/CurrencyTextInput";
 import {StyledTableCell} from "../TableComponent/TableComponent.styles";
 import {formatCurrency} from "../../../../utils/CurrencyUtils";
+import { Typography } from "@mui/material";
 
 interface ValueCellParams {
     item: Item;
@@ -15,7 +16,7 @@ interface ValueCellParams {
 const ValueCell: FunctionComponent<ValueCellParams> = ({item, handleValueBlur, handleValueChange, storeMode, editable}) => {
     return (
       <StyledTableCell>
-          <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
+          <div style={{width: "150px", minWidth: "150px", maxWidth: "150px"}}>
               <CurrencyTextInput
                 label={storeMode && item.retailStatus?.retailPrice ? 'MSRP: ' + formatCurrency(item.retailStatus.retailPrice) : ''}
                 value={item.valueDisplay}
@@ -23,6 +24,15 @@ const ValueCell: FunctionComponent<ValueCellParams> = ({item, handleValueBlur, h
                 onBlur={(event) => handleValueBlur(event, item.id)}
                 color={storeMode && item.value > 100 ? '#BD0000' : 'black'}
                 readonly={editable}
+                endAdornment={
+                  editable ? (
+                    <></>
+                  ) : (
+                    <Typography sx={{fontSize: '14px', color: 'gray'}}>
+                      {`${item.valueAdjustment}%`}
+                    </Typography>
+                  )
+                }
               />
           </div>
       </StyledTableCell>

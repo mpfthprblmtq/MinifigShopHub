@@ -20,7 +20,6 @@ import { ChangeType } from "../../../../model/priceCalculation/ChangeType";
 import { updateItem, updateItemsInStore } from "../../../../redux/slices/quoteSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
-import ValueAdjustmentSlider from "../../../_shared/ValueAdjustmentSlider/ValueAdjustmentSlider";
 import { updateItemInStore } from "../../../../redux/slices/labelSlice";
 import { useNavigate } from "react-router-dom";
 import { RouterPaths } from "../../../../utils/RouterPaths";
@@ -62,20 +61,6 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
             }
             dispatch(updateItem(itemCopy));
         }
-    };
-
-    /**
-     * Event handler for the change event on the value adjustment slider
-     * @param event the event to capture
-     * @param id the id of the item to modify
-     */
-    const handleSliderChange = (event: any, id: number) => {
-        const itemCopy = {...getItemWithId(items, id)} as Item;
-        if (itemCopy) {
-            itemCopy.valueAdjustment = +event.target.value;
-            calculatePrice(itemCopy, ChangeType.ADJUSTMENT);
-        }
-        dispatch(updateItem(itemCopy));
     };
 
     /**
@@ -141,7 +126,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
                       <TableRow>
                           <FixedWidthColumnHeading width={80} />
                           <FixedWidthColumnHeading width={80}>Set No.</FixedWidthColumnHeading>
-                          <FixedWidthColumnHeading width={150}>Name</FixedWidthColumnHeading>
+                          <FixedWidthColumnHeading width={200}>Name</FixedWidthColumnHeading>
                           <FixedWidthColumnHeading width={50}>Year</FixedWidthColumnHeading>
                           <FixedWidthColumnHeading width={100}>Condition</FixedWidthColumnHeading>
                           {storeMode && (
@@ -150,8 +135,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
                                 <FixedWidthColumnHeading width={100}>Used Sales</FixedWidthColumnHeading>
                             </>
                           )}
-                          <FixedWidthColumnHeading width={120}>Trade-In Value</FixedWidthColumnHeading>
-                          {storeMode && <FixedWidthColumnHeading width={200}>Manual Adjustment</FixedWidthColumnHeading>}
+                          <FixedWidthColumnHeading width={150}>Trade-In Value</FixedWidthColumnHeading>
                           <FixedWidthColumnHeading width={200}>Notes/Comments</FixedWidthColumnHeading>
                           <FixedWidthColumnHeading width={100} />
                       </TableRow>
@@ -170,27 +154,18 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
                             {storeMode && (
                               <BrickLinkSalesCells item={item} />
                             )}
-                            {compressedView ? (
-                              <StyledTableCell>
-                                  {formatCurrency(item.value)}
-                              </StyledTableCell>
+                            {storeMode ? (
+                                <ValueCell
+                                  item={item}
+                                  handleValueBlur={handleValueBlur}
+                                  handleValueChange={handleValueChange}
+                                  storeMode={storeMode}
+                                  editable={rowAdjustmentsDisabled}
+                                />
                               ) : (
-                              <ValueCell
-                                item={item}
-                                handleValueBlur={handleValueBlur}
-                                handleValueChange={handleValueChange}
-                                storeMode={storeMode}
-                                editable={rowAdjustmentsDisabled}
-                              />
-                            )}
-                            {storeMode && (
-                              <StyledTableCell>
-                                  <ValueAdjustmentSlider
-                                    value={item.baseValue === 0 ? 0 : item.valueAdjustment}
-                                    handleSliderChange={(event: any) => handleSliderChange(event, item.id)}
-                                    disabled={rowAdjustmentsDisabled}
-                                    sx={{ marginLeft: '-10px' }} />
-                              </StyledTableCell>
+                                  <StyledTableCell>
+                                      {formatCurrency(item.value)}
+                                  </StyledTableCell>
                             )}
                             <ItemCommentCell item={item} storeMode={storeMode} handleCommentChange={handleCommentChange}/>
                             {storeMode && (

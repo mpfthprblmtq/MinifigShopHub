@@ -1,4 +1,4 @@
-import {forwardRef, FunctionComponent} from "react";
+import { forwardRef, FunctionComponent, ReactNode } from "react";
 import {NumericFormat, NumericFormatProps} from "react-number-format";
 import {TextField} from "@mui/material";
 
@@ -38,10 +38,11 @@ interface CurrencyTextInputParams {
     color?: string;
     error?: boolean;
     helperText?: string;
+    endAdornment?: ReactNode;
 }
 
 const CurrencyTextInput: FunctionComponent<CurrencyTextInputParams> =
-    ({value, label, readonly, onChange, onBlur, color, error, helperText}) => {
+    ({value, label, readonly, onChange, onBlur, color, error, helperText, endAdornment}) => {
 
     return (
         <TextField
@@ -53,8 +54,9 @@ const CurrencyTextInput: FunctionComponent<CurrencyTextInputParams> =
             onChange={onChange}
             onBlur={onBlur}
             InputProps={{
-                inputComponent: NumericFormatCustom as any,
-                readOnly: readonly ?? false,
+              inputComponent: NumericFormatCustom as any,
+              readOnly: readonly ?? false,
+              endAdornment: endAdornment
             }}
             variant="outlined"
             error={error}
