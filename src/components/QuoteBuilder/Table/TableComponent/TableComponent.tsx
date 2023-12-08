@@ -17,7 +17,7 @@ import IconsCell from "../TableCells/IconsCell";
 import InformationDialog from "../../../_shared/InformationDialog/InformationDialog";
 import { usePriceCalculationEngine } from "../../../../hooks/priceCalculation/usePriceCalculationEngine";
 import { ChangeType } from "../../../../model/priceCalculation/ChangeType";
-import { updateItem, updateItemsInStore } from "../../../../redux/slices/quoteSlice";
+import { updateItem, updateItemsInStore, updateTotalInStore } from "../../../../redux/slices/quoteSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
 import { updateItemInStore } from "../../../../redux/slices/labelSlice";
@@ -25,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 import { RouterPaths } from "../../../../utils/RouterPaths";
 import { Availability } from "../../../../model/retailStatus/Availability";
 import { Configuration } from "../../../../model/dynamo/Configuration";
+import { Total } from "../../../../model/total/Total";
 
 interface TableComponentParams {
     storeMode: boolean;
@@ -76,6 +77,10 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
             calculatePrice(itemCopy, ChangeType.VALUE);
         }
         dispatch(updateItem(itemCopy));
+
+        if (items.length === 1) {
+            dispatch(updateTotalInStore({...quote.total, valueAdjustment: itemCopy.valueAdjustment} as Total))
+        }
     };
 
     /**
@@ -84,6 +89,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
      * @param id the id of the item to modify
      */
     const handleValueBlur = (event: any, id: number) => {
+        // TODO prevent dispatch if value wasn't changed
         const itemCopy = {...getItemWithId(items, id)} as Item;
         if (itemCopy) {
             itemCopy.valueDisplay = formatCurrency(launderMoney(event.target.value));

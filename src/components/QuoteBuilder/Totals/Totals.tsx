@@ -1,15 +1,16 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
-import {Table, TableBody, tableCellClasses, TableContainer, TableRow} from "@mui/material";
-import {FixedWidthColumnHeading} from "../Table/TableComponent/TableComponent.styles";
-import {Item} from "../../../model/item/Item";
-import {formatCurrency, launderMoney} from "../../../utils/CurrencyUtils";
+import { Table, TableBody, tableCellClasses, TableContainer, TableRow } from "@mui/material";
+import { FixedWidthColumnHeading } from "../Table/TableComponent/TableComponent.styles";
+import { Item } from "../../../model/item/Item";
+import { formatCurrency, launderMoney } from "../../../utils/CurrencyUtils";
 import CurrencyTextInput from "../../_shared/CurrencyTextInput/CurrencyTextInput";
 import { useDispatch, useSelector } from "react-redux";
-import {Configuration} from "../../../model/dynamo/Configuration";
+import { Configuration } from "../../../model/dynamo/Configuration";
 import { Total } from "../../../model/total/Total";
 import { Quote } from "../../../model/quote/Quote";
-import { updateTotalInStore } from "../../../redux/slices/quoteSlice";
+import { updateItem, updateTotalInStore } from "../../../redux/slices/quoteSlice";
 import ValueAdjustmentSlider from "../../_shared/ValueAdjustmentSlider/ValueAdjustmentSlider";
+import { getItemWithId } from "../../../utils/ArrayUtils";
 
 interface TotalsSectionParams {
     items: Item[];
@@ -29,15 +30,21 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
     const [storeCreditValueDisplay, setStoreCreditValueDisplay] = useState<string>(formatCurrency(quote.total.storeCreditValue) ?? '');
 
     useEffect(() => {
-        const calculatedValue: number = items.reduce((sum, item) => sum + item.value, 0);
         const calculatedBaseValue: number = Math.round(items.reduce((sum, item) => sum + item.baseValue, 0));
+        let calculatedValue: number;
+        if (items.length > 1) {
+            calculatedValue = totalAdjustmentDisabled ? items.reduce((sum, item) => sum + item.value, 0) :
+              Math.round(calculatedBaseValue * (quote.total.valueAdjustment / 100));
+        } else {
+            calculatedValue = items.reduce((sum, item) => sum + item.value, 0);
+        }
 
         setValueDisplay(formatCurrency(calculatedValue).toString().substring(1));
         setBaseValueDisplay(formatCurrency(calculatedBaseValue).toString().substring(1));
 
         dispatch(updateTotalInStore({...quote.total, value: calculatedValue, baseValue: calculatedBaseValue} as Total));
         // eslint-disable-next-line
-    }, [items]);
+    }, [items, totalAdjustmentDisabled]);
 
     /**
      * Event handler for the change event on the value text field, just sets the value
@@ -60,10 +67,20 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
             setValueDisplay(formatCurrency(launderedValue));
             setStoreCreditValueDisplay(formatCurrency(calculatedStoreCreditValue));
 
-            if (quote.total.value !== launderedValue) {
+            // if (quote.total.value !== launderedValue) {
                 dispatch(updateTotalInStore({...quote.total, value: launderedValue, valueAdjustment: calculatedAdjustment, storeCreditValue: calculatedStoreCreditValue} as Total));
                 const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
                 setRowAdjustmentsDisabled(adjustmentSet.size === 1 && adjustmentSet.values().next().value !== event.target.value);
+            // }
+
+            if (items.length === 1) {
+                const itemCopy = {...getItemWithId(items, items.at(0)?.id ?? -1)} as Item;
+                if (itemCopy) {
+                    itemCopy.value = launderedValue;
+                    itemCopy.valueDisplay = formatCurrency(itemCopy.value);
+                    itemCopy.valueAdjustment = calculatedAdjustment;
+                }
+                dispatch(updateItem(itemCopy));
             }
         }
     };
@@ -88,6 +105,16 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
         dispatch(updateTotalInStore({...quote.total, value: calculatedValue, valueAdjustment: event.target.value, storeCreditValue: calculatedStoreCreditValue} as Total));
         const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
         setRowAdjustmentsDisabled(adjustmentSet.size === 1 && adjustmentSet.values().next().value !== event.target.value);
+
+        if (items.length === 1) {
+            const itemCopy = {...getItemWithId(items, items.at(0)?.id ?? -1)} as Item;
+            if (itemCopy) {
+                itemCopy.value = calculatedValue;
+                itemCopy.valueDisplay = formatCurrency(itemCopy.value);
+                itemCopy.valueAdjustment = event.target.value;
+            }
+            dispatch(updateItem(itemCopy));
+        }
     };
 
     return (

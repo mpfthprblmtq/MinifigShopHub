@@ -88,19 +88,29 @@ const QuoteBuilderComponent: FunctionComponent = () => {
   };
 
   useEffect(() => {
-    const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
-    if (adjustmentSet.size === 1 && quote.total.valueAdjustment !== adjustmentSet.values().next().value) {
-      // row adjustments are all the same, and total adjustment is different, enabling total and disabling rows
-      setRowAdjustmentsDisabled(true);
-      setTotalAdjustmentDisabled(false);
-    } else if (adjustmentSet.size === 1 && quote.total.valueAdjustment === adjustmentSet.values().next().value) {
-      // row adjustments are all the same, and total adjustment matches, enabling both rows and total
+    if (items.length > 1) {
+      const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
+      if (adjustmentSet.size === 1 && quote.total.valueAdjustment !== adjustmentSet.values().next().value) {
+        // row adjustments are all the same, and total adjustment is different, enabling total and disabling rows
+        console.log('row adjustments are all the same, and total adjustment is different, enabling total and disabling rows')
+        setRowAdjustmentsDisabled(true);
+        setTotalAdjustmentDisabled(false);
+        console.log('total value adjustment: ' + quote.total.valueAdjustment)
+        console.log('row adjustment: ' + adjustmentSet.values().next().value)
+      } else if (adjustmentSet.size === 1 && quote.total.valueAdjustment === adjustmentSet.values().next().value) {
+        // row adjustments are all the same, and total adjustment matches, enabling both rows and total
+        console.log('row adjustments are all the same, and total adjustment matches, enabling both rows and total')
+        setRowAdjustmentsDisabled(false);
+        setTotalAdjustmentDisabled(false);
+      } else if (adjustmentSet.size > 1) {
+        // adjustments are different, enabling rows, disabling totals
+        console.log('adjustments are different, enabling rows, disabling totals')
+        setRowAdjustmentsDisabled(false);
+        setTotalAdjustmentDisabled(true);
+      }
+    } else {
       setRowAdjustmentsDisabled(false);
       setTotalAdjustmentDisabled(false);
-    } else if (adjustmentSet.size > 1) {
-      // adjustments are different, enabling rows, disabling totals
-      setRowAdjustmentsDisabled(false);
-      setTotalAdjustmentDisabled(true);
     }
     // eslint-disable-next-line
   }, [items]);
