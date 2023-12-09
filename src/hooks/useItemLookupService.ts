@@ -64,8 +64,11 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
 
     const getHydratedItem = async (item: Item): Promise<Item> => {
         // try to get the cached data if it exists
-        const cacheItem = getCacheItem(`getHydratedItem-${item.setId}`);
+        const cacheItem: Item = getCacheItem(`getHydratedItem-${item.setId}`);
         if (cacheItem) {
+            if (new RegExp(".+-\\d").test(cacheItem.setId ?? '')) {
+                cacheItem.setId = cacheItem.setId?.substring(0, cacheItem.setId?.length - 2);
+            }
             return new Promise<Item>(resolve => resolve(cacheItem));
         } else {
             try {
