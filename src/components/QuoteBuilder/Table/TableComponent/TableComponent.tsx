@@ -141,7 +141,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
                                 <FixedWidthColumnHeading width={100}>Used Sales</FixedWidthColumnHeading>
                             </>
                           )}
-                          <FixedWidthColumnHeading width={150}>Trade-In Value</FixedWidthColumnHeading>
+                          <FixedWidthColumnHeading width={150}>Cash Value</FixedWidthColumnHeading>
                           <FixedWidthColumnHeading width={200}>Notes/Comments</FixedWidthColumnHeading>
                           <FixedWidthColumnHeading width={100} />
                       </TableRow>
