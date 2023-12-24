@@ -17,7 +17,7 @@ export const useBricksetService = (): BricksetServiceHooks => {
   // create our Brickset Axios instance
   const bricksetAxiosInstance = axios.create({
     baseURL: baseUrl,
-    timeout: 5000,
+    timeout: 10000,
     headers: {}
   });
 

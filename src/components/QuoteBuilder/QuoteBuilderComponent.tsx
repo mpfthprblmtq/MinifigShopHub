@@ -28,6 +28,8 @@ import { Quote } from "../../model/quote/Quote";
 import { SnackbarState } from "../_shared/Snackbar/SnackbarState";
 import { useReactToPrint } from "react-to-print";
 import ItemStatisticsCard from "./Cards/ItemStatisticsCard/ItemStatisticsCard";
+import SaveQuoteDialog from "./Dialog/SaveQuoteDialog/SaveQuoteDialog";
+import LoadQuoteDialog from "./Dialog/LoadQuoteDialog/LoadQuoteDialog";
 
 const QuoteBuilderComponent: FunctionComponent = () => {
 
@@ -41,6 +43,8 @@ const QuoteBuilderComponent: FunctionComponent = () => {
   const [rowAdjustmentsDisabled, setRowAdjustmentsDisabled] = useState<boolean>(false);
   const [totalAdjustmentDisabled, setTotalAdjustmentDisabled] = useState<boolean>(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState<boolean>(false);
+  const [saveQuoteDialogOpen, setSaveQuoteDialogOpen] = useState<boolean>(false);
+  const [loadQuoteDialogOpen, setLoadQuoteDialogOpen] = useState<boolean>(false);
   const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
 
   const { calculatePrice } = usePriceCalculationEngine();
@@ -150,7 +154,8 @@ const QuoteBuilderComponent: FunctionComponent = () => {
               handlePrint();
             }
           } : undefined}
-          // TODO Save Quote & Load Quote
+          saveQuote={items.length > 0 ? () => setSaveQuoteDialogOpen(true) : undefined}
+          loadQuote={() => setLoadQuoteDialogOpen(true)}
           storeMode={storeMode}
           setStoreMode={items.length > 0 ? () => {
             setStoreMode(!storeMode);
@@ -204,6 +209,8 @@ const QuoteBuilderComponent: FunctionComponent = () => {
         setBulkCondition={(condition) => { setBulkCondition(condition) }}
         actionsDisabled={items.length === 0}
       />
+      <SaveQuoteDialog open={saveQuoteDialogOpen} onClose={() => setSaveQuoteDialogOpen(false)} />
+      <LoadQuoteDialog open={loadQuoteDialogOpen} onClose={() => setLoadQuoteDialogOpen(false)} />
       <Version />
       <Portal>
         <Snackbar

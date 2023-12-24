@@ -21,7 +21,7 @@ export const useBrickLinkService = (): BrickLinkHooks => {
     // create our BrickLink Axios instance
     const brickLinkAxiosInstance = axios.create({
         baseURL: baseUrl,
-        timeout: 5000,
+        timeout: 10000,
         headers: {
             'x-cors-api-key': 'live_6aba39ccdee8ed8b73605d0e20a44856036a469b78fd9fdbb2a0399951e920a1',
         }

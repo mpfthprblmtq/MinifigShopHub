@@ -38,11 +38,12 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
         } else {
             calculatedValue = items.reduce((sum, item) => sum + item.value, 0);
         }
+        const calculatedStoreCreditValue: number = calculatedValue * (configuration.storeCreditValueAdjustment / 100);
 
         setValueDisplay(formatCurrency(calculatedValue).toString().substring(1));
         setBaseValueDisplay(formatCurrency(calculatedBaseValue).toString().substring(1));
 
-        dispatch(updateTotalInStore({...quote.total, value: calculatedValue, baseValue: calculatedBaseValue} as Total));
+        dispatch(updateTotalInStore({...quote.total, value: calculatedValue, baseValue: calculatedBaseValue, storeCreditValue: calculatedStoreCreditValue} as Total));
         // eslint-disable-next-line
     }, [items, totalAdjustmentDisabled]);
 

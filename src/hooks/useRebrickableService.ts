@@ -15,7 +15,7 @@ export const useRebrickableService = (): RebrickableServiceHooks => {
   // create our Rebrickable Axios instance
   const rebrickableAxiosInstance = axios.create({
     baseURL: `${baseUrl}`,
-    timeout: 5000,
+    timeout: 10000,
     headers: {}
   });
 

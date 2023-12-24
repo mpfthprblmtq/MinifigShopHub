@@ -10,5 +10,6 @@ const db = new AWS.DynamoDB.DocumentClient();
 const env: string = process.env.REACT_APP_ENVIRONMENT === 'dev' ? '-dev' : '';
 const ConfigurationTable = 'configuration' + env;
 const PartsTable = 'parts' + env;
+const QuotesTable = 'quotes' + env;
 
-export {db, ConfigurationTable, PartsTable};
+export {db, ConfigurationTable, PartsTable, QuotesTable};

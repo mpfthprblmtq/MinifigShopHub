@@ -17,7 +17,7 @@ export const useBrickEconomyService = (): BrickEconomyHooks => {
   // create our BrickEconomy Axios instance
   const brickEconomyAxiosInstance = axios.create({
     baseURL: baseUrl,
-    timeout: 5000,
+    timeout: 10000,
     headers: {}
   });
 
