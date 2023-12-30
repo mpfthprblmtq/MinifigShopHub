@@ -128,41 +128,37 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
                  }}>
               <TableBody>
                   <TableRow>
-                      <FixedWidthColumnHeading width={80} />
-                      <FixedWidthColumnHeading width={80} />
-                      <FixedWidthColumnHeading width={200} />
-                      <FixedWidthColumnHeading width={50} />
                       <FixedWidthColumnHeading width={100} />
+                      <FixedWidthColumnHeading width={110} />
+                      <FixedWidthColumnHeading width={160} />
                       {storeMode && (
                         <>
-                            <FixedWidthColumnHeading width={100} />
-                            <FixedWidthColumnHeading width={100}>
+                            <FixedWidthColumnHeading width={140} />
+                            <FixedWidthColumnHeading width={140}>
                                 Total Value
                             </FixedWidthColumnHeading>
                         </>
                       )}
-                      <FixedWidthColumnHeading width={120} sx={{marginLeft: '5px'}}>
+                      <FixedWidthColumnHeading width={120}>
                           Total (Cash)
                       </FixedWidthColumnHeading>
                       {storeMode &&
-                        <FixedWidthColumnHeading width={200}>
+                        <FixedWidthColumnHeading width={250}>
                             Total Adjustment
                         </FixedWidthColumnHeading>
                       }
-                      <FixedWidthColumnHeading width={200}>
+                      <FixedWidthColumnHeading width={200} sx={{padding: '20px'}}>
                           Total (Store Credit)
                       </FixedWidthColumnHeading>
                   </TableRow>
                   <TableRow>
-                      <FixedWidthColumnHeading width={80} />
-                      <FixedWidthColumnHeading width={80} />
-                      <FixedWidthColumnHeading width={200} />
-                      <FixedWidthColumnHeading width={50} />
-                      <FixedWidthColumnHeading width={100} />
+                      <FixedWidthColumnHeading />
+                      <FixedWidthColumnHeading />
+                      <FixedWidthColumnHeading />
                       {storeMode && (
                         <>
-                            <FixedWidthColumnHeading width={100} />
-                            <FixedWidthColumnHeading width={100}>
+                            <FixedWidthColumnHeading />
+                            <FixedWidthColumnHeading>
                                 <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
                                     <CurrencyTextInput
                                       value={baseValueDisplay}
@@ -172,7 +168,7 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
                             </FixedWidthColumnHeading>
                         </>
                       )}
-                      <FixedWidthColumnHeading width={120}>
+                      <FixedWidthColumnHeading>
                           <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
                               <CurrencyTextInput
                                 value={valueDisplay}
@@ -182,15 +178,16 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
                           </div>
                       </FixedWidthColumnHeading>
                       {storeMode &&
-                        <FixedWidthColumnHeading width={200}>
+                        <FixedWidthColumnHeading>
                             <ValueAdjustmentSlider
                               value={quote.total.valueAdjustment}
                               handleSliderChange={handleSliderChange}
                               disabled={totalAdjustmentDisabled}
-                              sx={{ marginLeft: '-10px' }} />
+                              sx={{marginLeft: '8px', marginRight: '10px'}}
+                            />
                         </FixedWidthColumnHeading>}
-                      <FixedWidthColumnHeading width={100}>
-                          <div style={{width: "120px", minWidth: "120px", maxWidth: "120px"}}>
+                      <FixedWidthColumnHeading>
+                          <div style={{width: "120px", minWidth: "120px", maxWidth: "120px", marginLeft: '20px'}}>
                               <CurrencyTextInput
                                 value={storeCreditValueDisplay}
                                 onChange={handleStoreCreditValueChange}

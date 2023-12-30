@@ -132,17 +132,17 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
                       <TableRow>
                           <FixedWidthColumnHeading width={80} />
                           <FixedWidthColumnHeading width={80}>Set No.</FixedWidthColumnHeading>
-                          <FixedWidthColumnHeading width={200}>Name</FixedWidthColumnHeading>
+                          <FixedWidthColumnHeading width={180}>Name</FixedWidthColumnHeading>
                           <FixedWidthColumnHeading width={50}>Year</FixedWidthColumnHeading>
                           <FixedWidthColumnHeading width={100}>Condition</FixedWidthColumnHeading>
                           {storeMode && (
                             <>
-                                <FixedWidthColumnHeading width={100}>New Sales</FixedWidthColumnHeading>
-                                <FixedWidthColumnHeading width={100}>Used Sales</FixedWidthColumnHeading>
+                                <FixedWidthColumnHeading width={120}>New Sales</FixedWidthColumnHeading>
+                                <FixedWidthColumnHeading width={120}>Used Sales</FixedWidthColumnHeading>
                             </>
                           )}
                           <FixedWidthColumnHeading width={150}>Cash Value</FixedWidthColumnHeading>
-                          <FixedWidthColumnHeading width={200}>Notes/Comments</FixedWidthColumnHeading>
+                          <FixedWidthColumnHeading width={180}>Notes/Comments</FixedWidthColumnHeading>
                           <FixedWidthColumnHeading width={100} />
                       </TableRow>
                   </TableHead>
