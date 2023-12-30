@@ -92,7 +92,7 @@ then
 elif [[ $deployEnvironment == "1" ]]
 then
   if [ -d /Users/mpfthprblmtq/Git/mpfthprblmtq.github.io/projects/minifig-shop-hub ]; then
-    rm /Users/mpfthprblmtq/Git/mpfthprblmtq.github.io/projects/minifig-shop-hub
+    rm -r /Users/mpfthprblmtq/Git/mpfthprblmtq.github.io/projects/minifig-shop-hub
   fi
   mv build /Users/mpfthprblmtq/Git/mpfthprblmtq.github.io/projects/minifig-shop-hub
 fi
