@@ -32,7 +32,7 @@ const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClo
   const [quotes, setQuotes] = useState<SavedQuote[]>([]);
   const [masterQuotes, setMasterQuotes] = useState<SavedQuote[]>([]);
 
-  const [searchBy, setSearchBy] = useState<string>('');
+  const [searchBy, setSearchBy] = useState<string>("");
   const [date, setDate] = useState<Dayjs | null>(null);
   const [snackbarState, setSnackbarState] = useState<SnackbarState>({ open: false });
 
@@ -60,7 +60,7 @@ const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClo
             || quote.quote.items.map(item => item.name).filter(name => name.toLowerCase().includes(query)).length > 0
             || quote.quote.items.map(item => item.setId).filter(setId => setId?.includes(query)).length > 0
             || quote.inputtedBy.toLowerCase().includes(query))
-          && (date ? quote.date === date.format("YYYY-MM-DD") : true)
+          && (date ? quote.date === date.format("YYYY-MM-DD") : true);
       });
       setQuotes(filteredQuotes);
     } else if (date) {
@@ -74,7 +74,7 @@ const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClo
   }, [searchBy, date]);
 
   const resetFilters = () => {
-    setSearchBy('');
+    setSearchBy("");
     setDate(null);
   };
 
@@ -118,7 +118,7 @@ const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClo
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <Box sx={{ position: "relative", m: 1 }}>
               <Typography sx={{ fontFamily: "Didact Gothic", fontSize: "20px" }}>
-                {quotes && quotes.length > 0 ? `${quotes.length} ${quotes.length === 1 ? 'quote' : 'quotes'} found!`
+                {quotes && quotes.length > 0 ? `${quotes.length} ${quotes.length === 1 ? "quote" : "quotes"} found!`
                   : "No quotes found!"}
               </Typography>
             </Box>
@@ -128,15 +128,17 @@ const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClo
             </Box>
           </Box>
           {quotes.length !== 0 && (
-            quotes.map((quote) => (
-              <QuoteCard
-                quote={quote}
-                removeQuoteFromState={(quote: SavedQuote) =>
-                  setQuotes([...quotes.filter(quoteInList => quote.id !== quoteInList.id)])}
-                setSnackbarState={setSnackbarState}
-                onClose={closeAndReset}
-                key={quote.id} />
-            ))
+            quotes
+              .sort((a, b) => b.date.localeCompare(a.date))
+              .map((quote) => (
+                <QuoteCard
+                  quote={quote}
+                  removeQuoteFromState={(quote: SavedQuote) =>
+                    setQuotes([...quotes.filter(quoteInList => quote.id !== quoteInList.id)])}
+                  setSnackbarState={setSnackbarState}
+                  onClose={closeAndReset}
+                  key={quote.id} />
+              ))
           )}
         </DialogContent>
       </Dialog>
