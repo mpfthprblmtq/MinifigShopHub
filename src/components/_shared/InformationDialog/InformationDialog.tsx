@@ -18,7 +18,7 @@ const InformationDialog: FunctionComponent<InformationDialogParams> = ({open, on
                     <Close />
                 </IconButton>
             </Box>
-            <DialogContent>{content}</DialogContent>
+            <DialogContent sx={{padding: '10px'}}>{content}</DialogContent>
             <DialogActions>
                 <Button variant="contained" onClick={onClose}>
                     Close

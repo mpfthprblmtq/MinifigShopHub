@@ -3,6 +3,7 @@ import configurationReducer from './slices/configurationSlice';
 import quoteReducer from './slices/quoteSlice';
 import labelReducer from './slices/labelSlice';
 import partReducer from './slices/partSlice';
+import partFinderReducer from './slices/partFinderSlice';
 import { persistReducer } from 'redux-persist';
 import {combineReducers} from "@reduxjs/toolkit";
 import storage from 'redux-persist/lib/storage';
@@ -17,7 +18,8 @@ const reducer = combineReducers({
     configurationStore: configurationReducer,
     quoteStore: quoteReducer,
     labelStore: labelReducer,
-    partStore: partReducer
+    partStore: partReducer,
+    partFinderStore: partFinderReducer
 });
 const persistedReducer = persistReducer(persistConfig, reducer);
 
