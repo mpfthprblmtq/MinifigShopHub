@@ -36,7 +36,6 @@ const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClo
   const [date, setDate] = useState<Dayjs | null>(null);
   const [snackbarState, setSnackbarState] = useState<SnackbarState>({ open: false });
 
-
   const closeAndReset = () => {
     resetFilters();
     onClose();

@@ -60,6 +60,10 @@ const SaveQuoteDialog: FunctionComponent<SaveQuoteDialogParams> = ({open, onClos
     onClose();
   }
 
+  const validateForm = (): boolean => {
+    return !!customerInfo && !!inputtedBy && !!date?.isValid();
+  }
+
   return (
     <>
       <Dialog open={open} onClose={closeAndReset} PaperProps={{ sx: { width: "50%", maxHeight: '80vh' }}}>
@@ -74,14 +78,16 @@ const SaveQuoteDialog: FunctionComponent<SaveQuoteDialogParams> = ({open, onClos
             <Box sx={{ m: 1, position: 'relative' }}>
               <Typography sx={{fontFamily: 'Didact Gothic', fontSize: '24px', marginBottom: '10px'}}>Customer Details</Typography>
               <TextField
+                error={!customerInfo}
                 sx={{ width: '250px', marginBottom: '20px' }}
-                label={'Customer Info'}
+                label={'Customer Info *'}
                 value={customerInfo}
                 onChange={(event) => setCustomerInfo(event.target.value)}
               /><br />
               <TextField
+                error={!inputtedBy}
                 sx={{ width: '250px', marginBottom: '20px' }}
-                label={'Inputted By'}
+                label={'Inputted By *'}
                 value={inputtedBy}
                 onChange={(event) => setInputtedBy(event.target.value)}
               /><br />
@@ -93,7 +99,18 @@ const SaveQuoteDialog: FunctionComponent<SaveQuoteDialogParams> = ({open, onClos
                 onChange={(event) => setKeyWords(event.target.value)}
               /><br />
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker value={date} onChange={(date) => setDate(date)} sx={{ width: '250px' }}/>
+                <DatePicker
+                  value={date}
+                  onChange={(date) => setDate(date)}
+                  sx={{ width: '250px' }}
+                  slotProps={{
+                    textField: {
+                      variant: 'outlined',
+                      error: !date?.isValid(),
+                      // helperText: error?.message,
+                    },
+                  }}
+                />
               </LocalizationProvider>
             </Box>
             <Box sx={{ m: 1, position: 'relative', marginLeft: '30px' }}>
@@ -113,12 +130,11 @@ const SaveQuoteDialog: FunctionComponent<SaveQuoteDialogParams> = ({open, onClos
               <Typography sx={{fontFamily: 'Didact Gothic', fontSize: '16px'}}>
                 {Array.from(new Set(quote.items.map(item => item.theme))).join(', ')}
               </Typography>
-
             </Box>
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button variant="contained" onClick={save}>Save Quote</Button>
+          <Button disabled={!validateForm()} variant="contained" onClick={save}>Save Quote</Button>
         </DialogActions>
       </Dialog>
       <Portal>
