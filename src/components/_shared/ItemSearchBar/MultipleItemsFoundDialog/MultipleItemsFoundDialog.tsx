@@ -60,7 +60,10 @@ const MultipleItemsFoundDialog: FunctionComponent<MultipleItemsFoundDialogParams
                                         <Typography>{item.name}</Typography>
                                     </Box>
                                     <Box sx={{ m: 1, position: 'relative' }}>
-                                        <Button variant='contained' color='success' onClick={() => addItem(item)}>Add</Button>
+                                        <Button variant='contained' color='success' onClick={() => {
+                                            addItem(item);
+                                            onClose();
+                                        }}>Add</Button>
                                     </Box>
                                 </Box>
                             </ListItem>

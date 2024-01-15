@@ -15,6 +15,9 @@ import AppNavigationActions from "./NavBarSections/AppNavigationActions";
 import PartCollectorActions from "./NavBarSections/PartCollectorActions";
 import { CurrentView } from "../../PartCollector/CurrentView";
 import { determineEnvironment } from "../../../utils/UrlUtils";
+import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
+import NavBarActionIconButton from "./NavBarButtons/NavBarActionIconButton";
+import { useNavigate } from "react-router-dom";
 
 interface NavBarParams {
   activeTab: string;
@@ -49,6 +52,7 @@ const NavBar: FunctionComponent<NavBarParams> =
      showViewParts}) => {
 
   const [open, setOpen] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -111,6 +115,14 @@ const NavBar: FunctionComponent<NavBarParams> =
             currentView={currentView}
             showAddParts={showAddParts}
             showViewParts={showViewParts} />
+        )}
+        {open && (
+          <NavBarActionIconButton
+            navBarOpen={open}
+            action={() => navigate('/support')}
+            icon={<SettingsSuggestIcon />}
+            text={'Support'}
+          />
         )}
       </Drawer>
     </>

@@ -24,7 +24,8 @@ export const useBricksetService = (): BricksetServiceHooks => {
   const getBricksetData = async (item: Item): Promise<Item> => {
     if (item?.setId) {
       try {
-        const bricksetData = await get(item.setId);
+        const id: string = new RegExp(".+-\\d").test(item.setId) ? item.setId : item.setId + '-1';
+        const bricksetData = await get(id);
         const set = bricksetData.sets[0];
         return {
           theme: set.theme,

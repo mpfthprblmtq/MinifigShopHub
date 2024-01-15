@@ -2,7 +2,7 @@ import React, { FunctionComponent, useState } from "react";
 import { Item } from "../../../model/item/Item";
 import { useItemLookupService } from "../../../hooks/useItemLookupService";
 import { AxiosError } from "axios";
-import MultipleItemsFoundDialog from "../../QuoteBuilder/Dialog/MultipleItemsFoundDialog/MultipleItemsFoundDialog";
+import MultipleItemsFoundDialog from "./MultipleItemsFoundDialog/MultipleItemsFoundDialog";
 import { Box, Button, TextField, Tooltip } from "@mui/material";
 import { SetNameStyledTypography } from "../../QuoteBuilder/QuoteBuilderComponent.styles";
 import { PlaylistAdd, Search } from "@mui/icons-material";
@@ -13,9 +13,10 @@ interface ItemSearchBarParams {
   processItem: (item: Item) => void;
   processItems?: (items: Item[]) => void;
   enableBulkSearch?: boolean;
+  onChange?: (event: any) => void;
 }
 
-const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, processItems, enableBulkSearch}) => {
+const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, processItems, enableBulkSearch, onChange}) => {
 
   const [setNumber, setSetNumber] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
@@ -81,6 +82,9 @@ const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, pro
               sx={{backgroundColor: "white", width: '100%'}}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 setSetNumber(event.target.value);
+                if (onChange) {
+                  onChange(event);
+                }
               }}
               value={setNumber}
             />

@@ -1,7 +1,6 @@
 import { Type } from "../model/_shared/Type";
 import { Item } from "../model/item/Item";
 import { AllSalesHistory } from "../model/salesHistory/AllSalesHistory";
-import { htmlDecode } from "../utils/StringUtils";
 import { useBrickLinkService } from "./useBrickLinkService";
 import { Condition } from "../model/_shared/Condition";
 import { formatCurrency } from "../utils/CurrencyUtils";
@@ -14,6 +13,7 @@ import { useCacheService } from "./cache/useCacheService";
 export interface ItemLookupServiceHooks {
     getHydratedItem: (item: Item) => Promise<Item>;
     getItemMatches: (id: string) => Promise<Item[]>;
+    determineType: (id: string) => Type;
 }
 
 export const useItemLookupService = (): ItemLookupServiceHooks => {
@@ -35,6 +35,11 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
                 // get the first item with the id
                 // also acts as an error checker for bad ids given
                 const item: Item = await getBricklinkData(id, determineType(id));
+
+                // if the id passed in matches 1234-1, then just return that one
+                if (new RegExp(".+-\\d").test(id)) {
+                    return [item];
+                }
 
                 // check to see if there are other sets by appending sequential numbers
                 const items: Item[] = [item];
@@ -66,8 +71,11 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
         // try to get the cached data if it exists
         const cacheItem: Item = getCacheItem(`getHydratedItem-${item.setId}`);
         if (cacheItem) {
-            if (new RegExp(".+-\\d").test(cacheItem.setId ?? '')) {
-                cacheItem.setId = cacheItem.setId?.substring(0, cacheItem.setId?.length - 2);
+            // remove the "-1" for display purposes if we should
+            if (new RegExp("\\D+.*-\\d+").test(cacheItem.setId ?? '')) {
+                // don't do anything
+            } else if (new RegExp(".+-\\d+").test(cacheItem.setId ?? '')) {
+                cacheItem.setId = cacheItem.setId?.split("-")[0];
             }
             return new Promise<Item>(resolve => resolve(cacheItem));
         } else {
@@ -123,15 +131,14 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
                         // set the item in cache
                         setCacheItem(`getHydratedItem-${item.setId}`, item);
 
-                        // remove the "-1" for display purposes
-                        if (new RegExp(".+-\\d").test(item.setId ?? '')) {
-                            item.setId = item.setId?.substring(0, item.setId?.length - 2);
+                        // remove the "-1" for display purposes if we should
+                        if (new RegExp("\\D+.*-\\d+").test(item.setId ?? '')) {
+                            // don't do anything
+                        } else if (new RegExp(".+-\\d+").test(item.setId ?? '')) {
+                            item.setId = item.setId?.split("-")[0];
                         }
                     });
                 }
-
-                // html decode the item name since that's html encoded
-                item.name = htmlDecode(item.name);
 
                 // return the hydrated item
                 return item;
@@ -143,11 +150,14 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
     }
 
     const determineType = (id: string): Type => {
+        if (new RegExp("col.+").test(id)) {
+            return Type.SET;
+        }
         if (new RegExp("[a-zA-Z]+\\d+").test(id)) {
             return Type.MINIFIG;
         }
         return Type.SET;
     };
 
-    return { getHydratedItem, getItemMatches };
+    return { getHydratedItem, getItemMatches, determineType };
 };

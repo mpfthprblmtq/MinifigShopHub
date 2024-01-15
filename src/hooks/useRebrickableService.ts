@@ -21,6 +21,7 @@ export const useRebrickableService = (): RebrickableServiceHooks => {
 
   const getPartsList = async (id: string): Promise<Part[]> => {
     let partResults: PartResult[] = [];
+    id = new RegExp(".+-\\d").test(id) ? id : id + '-1';
     try {
       const partsResponse = await get(buildRequestUrl(id));
       partResults = partsResponse.results;

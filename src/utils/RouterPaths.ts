@@ -3,5 +3,6 @@ export enum RouterPaths {
     QuoteBuilder = '/quote-builder',
     LabelMaker = '/label-maker',
     Rolodex = '/rolodex',
-    PartCollector = '/part-collector'
+    PartCollector = '/part-collector',
+    Support = '/support'
 }

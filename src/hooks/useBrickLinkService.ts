@@ -7,6 +7,7 @@ import {SalesHistoryResponse} from "../model/salesHistory/SalesHistoryResponse";
 import {AllSalesHistory} from "../model/salesHistory/AllSalesHistory";
 import {Type} from "../model/_shared/Type";
 import {filterOutOldDates} from "../utils/DateUtils";
+import { htmlDecode } from "../utils/StringUtils";
 
 const corsProxyUrl: string = 'https://proxy.cors.sh/';
 const baseUrl: string = "https://api.bricklink.com/api/store/v1";
@@ -59,7 +60,7 @@ export const useBrickLinkService = (): BrickLinkHooks => {
             const item = bricklinkData.data;
             return {
               setId: item.no,
-              name: item.name,
+              name: htmlDecode(item.name),
               type: item.type,
               imageUrl: item.image_url,
               thumbnailUrl: item.thumbnail_url,
