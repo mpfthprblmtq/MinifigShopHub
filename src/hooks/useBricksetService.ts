@@ -27,16 +27,19 @@ export const useBricksetService = (): BricksetServiceHooks => {
         const id: string = new RegExp(".+-\\d").test(item.setId) ? item.setId : item.setId + '-1';
         const bricksetData = await get(id);
         const set = bricksetData.sets[0];
-        return {
-          theme: set.theme,
-          subTheme: set.subtheme,
-          pieceCount: set.pieces,
-          minifigCount: set.minifigs,
-          retailStatus: {
-            retailPrice: set.LEGOCom.US.retailPrice,
-            availability: determineAvailability(set.LEGOCom.US.dateFirstAvailable, set.LEGOCom.US.dateLastAvailable),
-          } as RetailStatus
-        } as Item;
+        if (set) {
+          return {
+            theme: set.theme,
+            subTheme: set.subtheme,
+            pieceCount: set.pieces,
+            minifigCount: set.minifigs,
+            retailStatus: {
+              retailPrice: set.LEGOCom.US.retailPrice,
+              availability: determineAvailability(set.LEGOCom.US.dateFirstAvailable, set.LEGOCom.US.dateLastAvailable),
+            } as RetailStatus
+          } as Item;
+        }
+        return {} as Item;
       } catch (error) {
         console.error(error);
         return item;

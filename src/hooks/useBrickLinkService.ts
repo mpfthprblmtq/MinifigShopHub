@@ -76,17 +76,17 @@ export const useBrickLinkService = (): BrickLinkHooks => {
         if (item.setId) {
             await Promise.all([
                 getSalesHistory(item.setId, item.type, "sold", "U"),
-                getSalesHistory(item.setId, item.type, "stock", "U"),
+                // getSalesHistory(item.setId, item.type, "stock", "U"),
                 getSalesHistory(item.setId, item.type, "sold", "N"),
-                getSalesHistory(item.setId, item.type, "stock", "N")
+                // getSalesHistory(item.setId, item.type, "stock", "N")
             ]).then(responses => {
                 responses.map((response) => {
                     return filterOutOldDates(response);
                 });
                 allSalesHistory.usedSold = validateSalesData(responses[0]);
-                allSalesHistory.usedStock = validateSalesData(responses[1]);
-                allSalesHistory.newSold = validateSalesData(responses[2]);
-                allSalesHistory.newStock = validateSalesData(responses[3]);
+                // allSalesHistory.usedStock = validateSalesData(responses[1]);
+                allSalesHistory.newSold = validateSalesData(responses[1]);
+                // allSalesHistory.newStock = validateSalesData(responses[3]);
             });
         }
         return allSalesHistory;

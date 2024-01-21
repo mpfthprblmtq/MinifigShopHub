@@ -3,11 +3,12 @@ import { Item } from "../../../model/item/Item";
 import { useItemLookupService } from "../../../hooks/useItemLookupService";
 import { AxiosError } from "axios";
 import MultipleItemsFoundDialog from "./MultipleItemsFoundDialog/MultipleItemsFoundDialog";
-import { Box, Button, TextField, Tooltip } from "@mui/material";
+import { Alert, Box, Button, Portal, Snackbar, TextField, Tooltip } from "@mui/material";
 import { SetNameStyledTypography } from "../../QuoteBuilder/QuoteBuilderComponent.styles";
 import { PlaylistAdd, Search } from "@mui/icons-material";
 import BulkLoadDialog from "../../QuoteBuilder/Dialog/BulkLoadDialog/BulkLoadDialog";
 import { LoadingButton } from "@mui/lab";
+import { SnackbarState } from "../Snackbar/SnackbarState";
 
 interface ItemSearchBarParams {
   processItem: (item: Item) => void;
@@ -24,6 +25,7 @@ const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, pro
   const [multipleItemsDialogOpen, setMultipleItemsDialogOpen] = useState<boolean>(false);
   const [multipleItems, setMultipleItems] = useState<Item[]>([]);
   const [bulkLoadModalOpen, setBulkLoadModalOpen] = useState<boolean>(false);
+  const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
 
   const { getHydratedItem, getItemMatches } = useItemLookupService();
 
@@ -50,9 +52,9 @@ const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, pro
     }).catch((error: AxiosError) => {
       setLoading(false);
       if (error.response?.status === 404) {
-        setError(`Item not found: ${setNumber}`);
+        setSnackbarState({open: true, severity: 'error', message: `Item not found: ${setNumber}`} as SnackbarState);
       } else {
-        setError("Issue with BrickLink service!");
+        setSnackbarState({open: true, severity: 'error', message: error.message} as SnackbarState);
       }
     });
   };
@@ -135,6 +137,18 @@ const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, pro
         processItems={processItems ?? ((_: Item[]) => {})}
         addMultipleMatchItems={addMultipleMatchItems}
       />
+      <Portal>
+        <Snackbar
+          sx={{marginTop: '50px', marginLeft: '75px'}}
+          anchorOrigin={{ horizontal: "left", vertical: "top" }}
+          autoHideDuration={5000}
+          onClose={() => setSnackbarState({open: false})}
+          open={snackbarState.open}>
+          <Alert severity={snackbarState.severity} onClose={() => setSnackbarState({open: false})}>
+            {snackbarState.message}
+          </Alert>
+        </Snackbar>
+      </Portal>
     </>
   );
 };
