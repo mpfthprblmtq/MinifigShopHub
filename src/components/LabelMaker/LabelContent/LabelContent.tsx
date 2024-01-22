@@ -47,7 +47,8 @@ const LabelContent = forwardRef(({labelData}: LabelContentParams, ref) => {
                   {`${labelData.status} - 100% Complete`}
                 </Typography>
                 <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 18, textAlign: 'right' }}>
-                  {`${labelData.pieces?.toLocaleString()} Pieces${labelData.minifigs ? `, ${labelData.minifigs} Minifigs`: ''}`}
+                  {labelData.pieces &&
+                    (`${labelData.pieces?.toLocaleString()} Pieces${labelData.minifigs ? `, ${labelData.minifigs} Minifigs`: ''}`)}
                 </Typography>
                 <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 16, textAlign: 'right', marginTop: '20px' }}>
                   {labelData.comment}
