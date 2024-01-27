@@ -51,11 +51,7 @@ const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, pro
       }
     }).catch((error: AxiosError) => {
       setLoading(false);
-      if (error.response?.status === 404) {
-        setSnackbarState({open: true, severity: 'error', message: `Item not found: ${setNumber}`} as SnackbarState);
-      } else {
-        setSnackbarState({open: true, severity: 'error', message: error.message} as SnackbarState);
-      }
+      setSnackbarState({open: true, severity: 'error', message: error.message} as SnackbarState);
     });
   };
 

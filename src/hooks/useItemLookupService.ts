@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { useBricksetService } from "./useBricksetService";
 import { useBrickEconomyService } from "./useBrickEconomyService";
 import { useCacheService } from "./cache/useCacheService";
+import { AxiosError } from "axios";
 
 export interface ItemLookupServiceHooks {
     getHydratedItem: (item: Item) => Promise<Item>;
@@ -59,10 +60,15 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
                 }
                 setCacheItem(`getItemMatches-${id}`, items);
                 return items;
-            } catch (error) {
-                // error handler for the first search, throws the error for the UI to catch (no items found with that id)
-                console.error(error);
-                throw error;
+            } catch (e: AxiosError | any) {
+                // error handler for the first search
+                if (e.code === AxiosError.ERR_NETWORK) {
+                    throw new Error('No network connection detected!');
+                } else if (e.code === AxiosError.ERR_BAD_REQUEST && e.response?.status === 404) {
+                    throw new Error('Item not found: ' + id);
+                } else {
+                    throw e;
+                }
             }
         }
     };
