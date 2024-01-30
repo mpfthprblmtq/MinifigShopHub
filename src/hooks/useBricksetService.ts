@@ -1,15 +1,16 @@
 import { Item } from "../model/item/Item";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { BricksetItemResponse } from "../model/item/BricksetItemResponse";
 import { RetailStatus } from "../model/retailStatus/RetailStatus";
 import { Availability } from "../model/retailStatus/Availability";
 import dayjs from "dayjs";
-import utc from 'dayjs/plugin/utc';
+import utc from "dayjs/plugin/utc";
+import { Source } from "../model/_shared/Source";
 
 const baseUrl: string = 'https://corsproxy.io/?https://brickset.com/api/v3.asmx';
 
 export interface BricksetServiceHooks {
-  getBricksetData: (item: Item) => Promise<Item>;
+  getBricksetData: (item: Item) => Promise<Item | undefined>;
 }
 
 export const useBricksetService = (): BricksetServiceHooks => {
@@ -21,7 +22,7 @@ export const useBricksetService = (): BricksetServiceHooks => {
     headers: {}
   });
 
-  const getBricksetData = async (item: Item): Promise<Item> => {
+  const getBricksetData = async (item: Item): Promise<Item | undefined> => {
     if (item?.setId) {
       try {
         const id: string = new RegExp(".+-\\d").test(item.setId) ? item.setId : item.setId + '-1';
@@ -36,13 +37,18 @@ export const useBricksetService = (): BricksetServiceHooks => {
             retailStatus: {
               retailPrice: set.LEGOCom.US.retailPrice,
               availability: determineAvailability(set.LEGOCom.US.dateFirstAvailable, set.LEGOCom.US.dateLastAvailable),
-            } as RetailStatus
+            } as RetailStatus,
+            sources: [...item.sources, Source.BRICKSET]
           } as Item;
         }
-        return {} as Item;
-      } catch (error) {
+        return undefined;
+      } catch (error: AxiosError | any) {
         console.error(error);
-        return item;
+        if (error.code === AxiosError.ECONNABORTED && error.message.startsWith('timeout')) {
+          throw new AxiosError('Error with Brickset, request timed out!', AxiosError.ECONNABORTED);
+        } else {
+          throw new AxiosError(`Error with Brickset: ${error.message}`);
+        }
       }
     } else {
       return item;

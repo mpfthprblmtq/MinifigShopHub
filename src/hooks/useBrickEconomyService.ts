@@ -17,7 +17,7 @@ export const useBrickEconomyService = (): BrickEconomyHooks => {
   // create our BrickEconomy Axios instance
   const brickEconomyAxiosInstance = axios.create({
     baseURL: baseUrl,
-    timeout: 10000,
+    timeout: 10,
     headers: {}
   });
 
@@ -37,7 +37,7 @@ export const useBrickEconomyService = (): BrickEconomyHooks => {
         });
 
     } catch (error) {
-      console.error(error);
+      throw error;
     }
     return retailStatus;
   };

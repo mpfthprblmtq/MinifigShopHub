@@ -25,4 +25,5 @@ export interface Item {
     type: Type;
     retailStatus?: RetailStatus;
     salesData?: AllSalesHistory;
+    messages?: string[];
 }

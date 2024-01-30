@@ -1,7 +1,7 @@
 import React, { FC, memo, useState } from "react";
 import NavBar from "../_shared/NavBar/NavBar";
 import { Tabs } from "../_shared/NavBar/Tabs";
-import { Box, Button, LinearProgress } from "@mui/material";
+import { Box, Button, LinearProgress, Typography } from "@mui/material";
 import { useBrickEconomyService } from "../../hooks/useBrickEconomyService";
 import ItemSearchBar from "../_shared/ItemSearchBar/ItemSearchBar";
 import { Item } from "../../model/item/Item";
@@ -12,18 +12,21 @@ import { useBricksetService } from "../../hooks/useBricksetService";
 import { useBrickLinkService } from "../../hooks/useBrickLinkService";
 import { useItemLookupService } from "../../hooks/useItemLookupService";
 import { AllSalesHistory } from "../../model/salesHistory/AllSalesHistory";
+import { useCacheService } from "../../hooks/cache/useCacheService";
 
 const SupportComponent: FC = () => {
-
-  const [set, setSet] = useState<string>('');
-  const [apiResult, setApiResult] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
 
   const { getBricklinkData, getAllSalesHistory } = useBrickLinkService();
   const { getPieceAndMinifigCount, getRetailStatus } = useBrickEconomyService();
   const { getPartsList } = useRebrickableService();
   const { getBricksetData } = useBricksetService();
   const { determineType } = useItemLookupService();
+  const { clearCache, getCacheItemCount } = useCacheService();
+
+  const [set, setSet] = useState<string>('');
+  const [apiResult, setApiResult] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [cacheItems, setCacheItems] = useState<number>(getCacheItemCount());
 
   const testBrickLink = async () => {
     setLoading(true);
@@ -36,7 +39,7 @@ const SupportComponent: FC = () => {
 
   const testBrickSet = async () => {
     setLoading(true);
-    const item: Item = await getBricksetData({setId: set} as Item);
+    const item: Item | undefined = await getBricksetData({setId: set} as Item);
     setLoading(false);
 
     setApiResult(JSON.stringify(item, null, 2));
@@ -70,6 +73,15 @@ const SupportComponent: FC = () => {
   return (
     <div className={"App"}>
       <NavBar activeTab={Tabs.SUPPORT} />
+      <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '50px' }}>
+        <Button variant='contained' color='error' onClick={() => {
+          clearCache();
+          setCacheItems(0);
+        }}>Clear Cache</Button>
+        <Typography sx={{fontSize: '20px', marginLeft: '10px'}}>
+          {`${cacheItems} ${cacheItems === 1 ? 'item' : 'items'} in application cache!`}
+        </Typography>
+      </Box>
       <Box sx={{ width: '550px' }}>
         <ItemSearchBar processItem={processItem} onChange={(event) => setSet(event.target.value)} />
       </Box>

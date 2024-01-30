@@ -4,7 +4,6 @@ import { useItemLookupService } from "../../../hooks/useItemLookupService";
 import { AxiosError } from "axios";
 import MultipleItemsFoundDialog from "./MultipleItemsFoundDialog/MultipleItemsFoundDialog";
 import { Alert, Box, Button, Portal, Snackbar, TextField, Tooltip } from "@mui/material";
-import { SetNameStyledTypography } from "../../QuoteBuilder/QuoteBuilderComponent.styles";
 import { PlaylistAdd, Search } from "@mui/icons-material";
 import BulkLoadDialog from "../../QuoteBuilder/Dialog/BulkLoadDialog/BulkLoadDialog";
 import { LoadingButton } from "@mui/lab";
@@ -21,7 +20,6 @@ const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, pro
 
   const [setNumber, setSetNumber] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
   const [multipleItemsDialogOpen, setMultipleItemsDialogOpen] = useState<boolean>(false);
   const [multipleItems, setMultipleItems] = useState<Item[]>([]);
   const [bulkLoadModalOpen, setBulkLoadModalOpen] = useState<boolean>(false);
@@ -31,7 +29,6 @@ const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, pro
 
   const searchForSet = async () => {
     setLoading(true);
-    setError('');
 
     await getItemMatches(setNumber).then(async (matches) => {
       // if there's only one match, get the hydration data and add it to the table
@@ -43,7 +40,12 @@ const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, pro
             // update graphics
             setLoading(false);
             setSetNumber('');
-          })
+
+            // show any messages
+            if (item.messages && item.messages.length > 0) {
+              setSnackbarState({open: true, severity: "info", message: item.messages.join('\n')} as SnackbarState);
+            }
+          });
       } else {
         setMultipleItems(matches);
         setMultipleItemsDialogOpen(true);
@@ -118,10 +120,6 @@ const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, pro
           )}
         </Box>
       </form>
-      <Box>
-        {error &&
-          <SetNameStyledTypography color={"#800000"}>{error}</SetNameStyledTypography>}
-      </Box>
       <MultipleItemsFoundDialog
         open={multipleItemsDialogOpen}
         onClose={() => setMultipleItemsDialogOpen(false)}
@@ -138,9 +136,10 @@ const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, pro
           sx={{marginTop: '50px', marginLeft: '75px'}}
           anchorOrigin={{ horizontal: "left", vertical: "top" }}
           autoHideDuration={5000}
+          ClickAwayListenerProps={{ onClickAway: () => null }}
           onClose={() => setSnackbarState({open: false})}
           open={snackbarState.open}>
-          <Alert severity={snackbarState.severity} onClose={() => setSnackbarState({open: false})}>
+          <Alert sx={{whiteSpace: 'pre'}} severity={snackbarState.severity} onClose={() => setSnackbarState({open: false})}>
             {snackbarState.message}
           </Alert>
         </Snackbar>
