@@ -58,10 +58,8 @@ const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, pro
   };
 
   const addItem = async (item: Item) => {
-    const itemToAdd = {...item};
-    await getHydratedItem(itemToAdd).then(hydratedItem => {
-      processItem(hydratedItem);
-    });
+    processItem(item);
+    setSetNumber('');
   };
 
   const addMultipleMatchItems = (items: Item[]) => {

@@ -1,17 +1,15 @@
 import React, {FunctionComponent, useEffect, useState} from "react";
 import {Item} from "../../../../model/item/Item";
 import {
-    Box,
     Button,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
-    Divider,
     List,
-    ListItem,
     Typography
 } from "@mui/material";
+import ItemRow from "./ItemRow";
 
 interface MultipleItemsFoundDialogParams {
     open: boolean;
@@ -39,6 +37,13 @@ const MultipleItemsFoundDialog: FunctionComponent<MultipleItemsFoundDialogParams
         }
     }, [items]);
 
+    const shouldCloseOnAdd = (): boolean => {
+        const setNumbers = items.map(item => item.setId?.split('-')[0] ?? '');
+        const uniqueSetNumbers = setNumbers
+          .filter((setNumber, index) => setNumbers.indexOf(setNumber) === index);
+        return uniqueSetNumbers.length === 1;
+    }
+
     return (
         <Dialog open={open} onClose={onClose} fullWidth disableScrollLock={true}>
             <DialogTitle>
@@ -49,26 +54,12 @@ const MultipleItemsFoundDialog: FunctionComponent<MultipleItemsFoundDialogParams
             <DialogContent>
                 <List>
                     {items.map((item, index) => (
-                        <div key={index}>
-                            <ListItem>
-                                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%'}}>
-                                    <Box sx={{ m: 1, position: 'relative' }}>
-                                        <img src={item.imageUrl} width={100} alt={'bricklink-img'} />
-                                    </Box>
-                                    <Box sx={{ m: 1, position: 'relative', flexGrow: 4 }}>
-                                        <Typography>{item.setId}</Typography>
-                                        <Typography>{item.name}</Typography>
-                                    </Box>
-                                    <Box sx={{ m: 1, position: 'relative' }}>
-                                        <Button variant='contained' color='success' onClick={() => {
-                                            addItem(item);
-                                            onClose();
-                                        }}>Add</Button>
-                                    </Box>
-                                </Box>
-                            </ListItem>
-                            <Divider />
-                        </div>
+                        <ItemRow item={item} addItem={(item: Item) => {
+                            addItem(item);
+                            if (shouldCloseOnAdd()) {
+                                onClose();
+                            }
+                        }} key={index} />
                     ))}
                 </List>
             </DialogContent>
@@ -79,4 +70,4 @@ const MultipleItemsFoundDialog: FunctionComponent<MultipleItemsFoundDialogParams
     )
 };
 
-export default MultipleItemsFoundDialog;
+export default React.memo(MultipleItemsFoundDialog);

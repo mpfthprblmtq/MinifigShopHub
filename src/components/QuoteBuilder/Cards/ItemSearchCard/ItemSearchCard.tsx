@@ -17,8 +17,16 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
     const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
 
     const processItem = (item: Item) => {
+        let message: string = '';
+        // show any messages
+        if (item.messages && item.messages.length > 0) {
+            message = message + item.messages.join('\n') + '\n';
+        }
         // set the id
         item.id = generateId(items);
+        if (!!message) {
+            setSnackbarState({open: true, severity: 'info', message: message});
+        }
         // add the item with sales data to existing state
         setItems([...items, item]);
     }
