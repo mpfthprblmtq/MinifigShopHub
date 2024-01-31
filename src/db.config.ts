@@ -11,5 +11,6 @@ const env: string = process.env.REACT_APP_ENVIRONMENT === 'dev' ? '-dev' : '';
 const ConfigurationTable = 'configuration' + env;
 const PartsTable = 'parts' + env;
 const QuotesTable = 'quotes' + env;
+const QuoteKeyTable = 'quote-keys' + env;
 
-export {db, ConfigurationTable, PartsTable, QuotesTable};
+export {db, ConfigurationTable, PartsTable, QuotesTable, QuoteKeyTable};

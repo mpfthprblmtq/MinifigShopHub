@@ -11,7 +11,6 @@ import {
   Typography
 } from "@mui/material";
 import { useQuoteService } from "../../../../hooks/dynamo/useQuoteService";
-import { SavedQuote } from "../../../../model/dynamo/SavedQuote";
 import { Clear, Close } from "@mui/icons-material";
 import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
 import { LocalizationProvider } from "@mui/x-date-pickers";
@@ -19,6 +18,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Dayjs } from "dayjs";
 import QuoteCard from "./QuoteCard";
+import { SavedQuoteKey } from "../../../../model/dynamo/SavedQuoteKey";
 
 interface LoadQuoteDialogParams {
   open: boolean;
@@ -27,10 +27,10 @@ interface LoadQuoteDialogParams {
 
 const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClose }) => {
 
-  const { loadQuotes } = useQuoteService();
+  const { loadQuoteKeys } = useQuoteService();
 
-  const [quotes, setQuotes] = useState<SavedQuote[]>([]);
-  const [masterQuotes, setMasterQuotes] = useState<SavedQuote[]>([]);
+  const [quoteKeys, setQuoteKeys] = useState<SavedQuoteKey[]>([]);
+  const [masterQuoteKeys, setMasterQuoteKeys] = useState<SavedQuoteKey[]>([]);
 
   const [searchBy, setSearchBy] = useState<string>("");
   const [date, setDate] = useState<Dayjs | null>(null);
@@ -42,32 +42,31 @@ const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClo
   };
 
   useEffect(() => {
-    loadQuotes().then(quotes => {
-      setQuotes(quotes);
-      setMasterQuotes(quotes);
+    loadQuoteKeys().then(quoteKeys => {
+      setQuoteKeys(quoteKeys);
+      setMasterQuoteKeys(quoteKeys);
     });
     // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
-    let filteredQuotes: SavedQuote[] = masterQuotes;
+    let filteredQuoteKeys: SavedQuoteKey[] = masterQuoteKeys;
     if (searchBy) {
       const query: string = searchBy.toLowerCase();
-      filteredQuotes = masterQuotes.filter(quote => {
-        return (quote.customerInfo.toLowerCase().includes(query)
-            || quote.keyWords.filter(keyWord => keyWord.toLowerCase().includes(query)).length > 0
-            || quote.quote.items.map(item => item.name).filter(name => name.toLowerCase().includes(query)).length > 0
-            || quote.quote.items.map(item => item.setId).filter(setId => setId?.includes(query)).length > 0
-            || quote.inputtedBy.toLowerCase().includes(query))
-          && (date ? quote.date === date.format("YYYY-MM-DD") : true);
+      filteredQuoteKeys = masterQuoteKeys.filter(quoteKey => {
+        return (quoteKey.customerInfo.toLowerCase().includes(query)
+            || quoteKey.keyWords.filter(keyWord => keyWord.toLowerCase().includes(query)).length > 0
+            || quoteKey.sets.filter(set => set.toLowerCase().includes(query)).length > 0
+            || quoteKey.inputtedBy.toLowerCase().includes(query))
+          && (date ? quoteKey.date === date.format("YYYY-MM-DD") : true);
       });
-      setQuotes(filteredQuotes);
+      setQuoteKeys(filteredQuoteKeys);
     } else if (date) {
-      filteredQuotes = date.isValid() ?
-        masterQuotes.filter(quote => quote.date === date.format("YYYY-MM-DD")) : [];
-      setQuotes(filteredQuotes);
+      filteredQuoteKeys = date.isValid() ?
+        masterQuoteKeys.filter(quote => quote.date === date.format("YYYY-MM-DD")) : [];
+      setQuoteKeys(filteredQuoteKeys);
     } else {
-      setQuotes(masterQuotes);
+      setQuoteKeys(masterQuoteKeys);
     }
     // eslint-disable-next-line
   }, [searchBy, date]);
@@ -102,7 +101,7 @@ const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClo
                 label={"Search Query"}
                 value={searchBy}
                 onChange={(event) => setSearchBy(event.target.value)}
-                disabled={masterQuotes.length === 0} /><br />
+                disabled={masterQuoteKeys.length === 0} /><br />
             </Box>
             <Box sx={{ m: 1, position: "relative" }}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -110,30 +109,30 @@ const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClo
                   value={date}
                   onChange={(date: any) => setDate(date)}
                   sx={{ width: "250px", marginBottom: "20px" }}
-                  disabled={masterQuotes.length === 0} />
+                  disabled={masterQuoteKeys.length === 0} />
               </LocalizationProvider><br />
             </Box>
           </Box>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <Box sx={{ position: "relative", m: 1 }}>
               <Typography sx={{ fontFamily: "Didact Gothic", fontSize: "20px" }}>
-                {quotes && quotes.length > 0 ? `${quotes.length} ${quotes.length === 1 ? "quote" : "quotes"} found!`
+                {quoteKeys && quoteKeys.length > 0 ? `${quoteKeys.length} ${quoteKeys.length === 1 ? "quote" : "quotes"} found!`
                   : "No quotes found!"}
               </Typography>
             </Box>
             <Box sx={{ position: "relative", m: 1 }}>
               <Button onClick={resetFilters} variant={"contained"} color={"error"} startIcon={<Clear />}
-                      sx={{ margin: "5px" }} disabled={masterQuotes.length === 0}>Reset Filters</Button>
+                      sx={{ margin: "5px" }} disabled={masterQuoteKeys.length === 0}>Reset Filters</Button>
             </Box>
           </Box>
-          {quotes.length !== 0 && (
-            quotes
+          {quoteKeys.length !== 0 && (
+            quoteKeys
               .sort((a, b) => b.date.localeCompare(a.date))
               .map((quote) => (
                 <QuoteCard
-                  quote={quote}
-                  removeQuoteFromState={(quote: SavedQuote) =>
-                    setQuotes([...quotes.filter(quoteInList => quote.id !== quoteInList.id)])}
+                  quoteKey={quote}
+                  removeQuoteFromState={(quoteKey: SavedQuoteKey) =>
+                    setQuoteKeys([...quoteKeys.filter(quoteKeyInList => quoteKey.id !== quoteKeyInList.id)])}
                   setSnackbarState={setSnackbarState}
                   onClose={closeAndReset}
                   key={quote.id} />
