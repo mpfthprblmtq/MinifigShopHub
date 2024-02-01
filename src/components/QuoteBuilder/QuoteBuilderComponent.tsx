@@ -30,6 +30,7 @@ import { useReactToPrint } from "react-to-print";
 import ItemStatisticsCard from "./Cards/ItemStatisticsCard/ItemStatisticsCard";
 import SaveQuoteDialog from "./Dialog/SaveQuoteDialog/SaveQuoteDialog";
 import LoadQuoteDialog from "./Dialog/LoadQuoteDialog/LoadQuoteDialog";
+import { SavedQuote } from "../../model/dynamo/SavedQuote";
 
 const QuoteBuilderComponent: FunctionComponent = () => {
 
@@ -46,6 +47,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
   const [saveQuoteDialogOpen, setSaveQuoteDialogOpen] = useState<boolean>(false);
   const [loadQuoteDialogOpen, setLoadQuoteDialogOpen] = useState<boolean>(false);
   const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
+  const [savedQuote, setSavedQuote] = useState<SavedQuote>();
 
   const { calculatePrice } = usePriceCalculationEngine();
   const { initConfig } = useConfigurationService();
@@ -90,6 +92,10 @@ const QuoteBuilderComponent: FunctionComponent = () => {
     });
     dispatch((updateItemsInStore([...clonedItems])));
   };
+
+  const addQuote = (savedQuote: SavedQuote) => {
+    setSavedQuote(savedQuote);
+  }
 
   useEffect(() => {
     if (items.length > 1) {
@@ -209,8 +215,8 @@ const QuoteBuilderComponent: FunctionComponent = () => {
         setBulkCondition={(condition) => { setBulkCondition(condition) }}
         actionsDisabled={items.length === 0}
       />
-      <SaveQuoteDialog open={saveQuoteDialogOpen} onClose={() => setSaveQuoteDialogOpen(false)} />
-      <LoadQuoteDialog open={loadQuoteDialogOpen} onClose={() => setLoadQuoteDialogOpen(false)} />
+      <SaveQuoteDialog open={saveQuoteDialogOpen} onClose={() => setSaveQuoteDialogOpen(false)} addQuote={addQuote} />
+      <LoadQuoteDialog open={loadQuoteDialogOpen} onClose={() => setLoadQuoteDialogOpen(false)} quote={savedQuote}/>
       <Version />
       <Portal>
         <Snackbar

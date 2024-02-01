@@ -18,14 +18,16 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Dayjs } from "dayjs";
 import QuoteCard from "./QuoteCard";
+import { SavedQuote } from "../../../../model/dynamo/SavedQuote";
 import { SavedQuoteKey } from "../../../../model/dynamo/SavedQuoteKey";
 
 interface LoadQuoteDialogParams {
   open: boolean;
   onClose: () => void;
+  quote?: SavedQuote;
 }
 
-const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClose }) => {
+const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClose, quote }) => {
 
   const { loadQuoteKeys } = useQuoteService();
 
@@ -42,12 +44,13 @@ const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClo
   };
 
   useEffect(() => {
+    console.log('loading quotes')
     loadQuoteKeys().then(quoteKeys => {
       setQuoteKeys(quoteKeys);
       setMasterQuoteKeys(quoteKeys);
     });
     // eslint-disable-next-line
-  }, []);
+  }, [quote]);
 
   useEffect(() => {
     let filteredQuoteKeys: SavedQuoteKey[] = masterQuoteKeys;

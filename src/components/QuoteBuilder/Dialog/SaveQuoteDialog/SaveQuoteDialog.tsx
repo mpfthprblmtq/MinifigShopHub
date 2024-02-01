@@ -25,9 +25,10 @@ import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
 interface SaveQuoteDialogParams {
   open: boolean;
   onClose: () => void;
+  addQuote: (quote: SavedQuote) => void;
 }
 
-const SaveQuoteDialog: FunctionComponent<SaveQuoteDialogParams> = ({open, onClose}) => {
+const SaveQuoteDialog: FunctionComponent<SaveQuoteDialogParams> = ({open, onClose, addQuote}) => {
 
   const [customerInfo, setCustomerInfo] = useState<string>('');
   const [keyWords, setKeyWords] = useState<string>('');
@@ -39,13 +40,15 @@ const SaveQuoteDialog: FunctionComponent<SaveQuoteDialogParams> = ({open, onClos
   const { saveQuote } = useQuoteService();
 
   const save = async () => {
-    await saveQuote({
+    const savedQuote = {
       quote: quote,
       customerInfo: customerInfo,
       inputtedBy: inputtedBy,
       keyWords: keyWords?.toLowerCase().replace(', ', ',').split(','),
       date: date?.format('YYYY-MM-DD'),
-    } as SavedQuote).then(() => {
+    } as SavedQuote;
+    await saveQuote(savedQuote).then(() => {
+      addQuote(savedQuote);
       setSnackbarState({open: true, severity: 'success', message: 'Quote saved successfully!'} as SnackbarState);
       closeAndReset();
     }).catch(() => {
@@ -55,6 +58,7 @@ const SaveQuoteDialog: FunctionComponent<SaveQuoteDialogParams> = ({open, onClos
 
   const closeAndReset = () => {
     setCustomerInfo('');
+    // setInputtedBy('');
     setKeyWords('');
     setDate(dayjs());
     onClose();
