@@ -48,10 +48,18 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
                             <strong>Set ID: </strong>{item?.setId}<br/>
                             <strong>Name: </strong>{item?.name}<br/>
                             <strong>Year: </strong>{item?.yearReleased}<br/>
-                            <strong>Pieces / Minifigs: </strong>
-                                {`${item?.pieceCount?.toLocaleString() ?? 0} / ${item?.minifigCount?.toLocaleString() ?? 0}`}<br/>
-                            <strong>Theme: </strong>{item?.theme}<br/>
-                            <strong>SubTheme: </strong>{item?.subTheme}<br/>
+                            {item?.pieceCount && item.minifigCount && (
+                              <>
+                                  <strong>Pieces / Minifigs: </strong>
+                                    {`${item?.pieceCount?.toLocaleString() ?? 0} / ${item?.minifigCount?.toLocaleString() ?? 0}`}<br/>
+                              </>
+                            )}
+                            {item?.theme && item.subTheme && (
+                              <>
+                                  <strong>Theme: </strong>{item?.theme}<br/>
+                                  <strong>SubTheme: </strong>{item?.subTheme}<br/>
+                              </>
+                            )}
                         </Typography>
                         {item?.retailStatus?.availability && item.retailStatus.retailPrice && (
                             <Typography style={{marginTop: 10}}>

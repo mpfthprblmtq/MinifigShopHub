@@ -21,10 +21,14 @@ export const useRebrickableService = (): RebrickableServiceHooks => {
 
   const getPartsList = async (id: string): Promise<Part[]> => {
     let partResults: PartResult[] = [];
-    id = new RegExp(".+-\\d").test(id) ? id : id + '-1';
+    id = new RegExp(".+-\\d+").test(id) ? id : id + '-1';
     try {
       const partsResponse = await get(buildRequestUrl(id));
       partResults = partsResponse.results;
+
+      if (partResults && partResults.length === 0) {
+        return [];
+      }
 
       // check to see if there are more calls to make
       if (partsResponse.next) {

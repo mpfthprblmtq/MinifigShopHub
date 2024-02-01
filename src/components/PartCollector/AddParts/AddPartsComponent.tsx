@@ -1,13 +1,14 @@
 import React, { FunctionComponent, useState } from "react";
 import {
+  Alert,
   Box,
   Button,
   Card,
   CircularProgress,
   FormControl,
   InputLabel,
-  MenuItem,
-  Select,
+  MenuItem, Portal,
+  Select, Snackbar,
   Typography
 } from "@mui/material";
 import ItemSearchBar from "../../_shared/ItemSearchBar/ItemSearchBar";
@@ -18,6 +19,7 @@ import { FilterAlt, SquareRounded } from "@mui/icons-material";
 import { Part } from "../../../model/partCollector/Part";
 import { Color } from "../../../model/partCollector/Color";
 import { useRebrickableService } from "../../../hooks/useRebrickableService";
+import { SnackbarState } from "../../_shared/Snackbar/SnackbarState";
 
 enum SortByFields {
   All = 'All',
@@ -40,18 +42,24 @@ const AddPartsComponent: FunctionComponent = () => {
   const [order, setOrder] = useState<string>(SortByFields.Ascending);
   const [filterByColors, setFilterByColors] = useState<Color[]>([]);
   const [filterByColor, setFilterByColor] = useState<string>(SortByFields.All);
+  const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
 
   const { getPartsList } = useRebrickableService();
 
   const getParts = () => {
     setLoading(true);
     if (item?.setId) {
-      getPartsList(item.setId + '-1').then(parts => {
+      getPartsList(item.setId).then(parts => {
         setLoading(false);
-        setMasterParts(parts);
-        setParts(parts);
-        buildColorFilterList(parts);
-        buildResultString(parts);
+
+        if (parts && parts.length === 0) {
+          setSnackbarState({open: true, severity: 'error', message: 'Item not found in Rebrickable!'});
+        } else {
+          setMasterParts(parts);
+          setParts(parts);
+          buildColorFilterList(parts);
+          buildResultString(parts);
+        }
       })
     }
   }
@@ -205,6 +213,19 @@ const AddPartsComponent: FunctionComponent = () => {
           )}
         </Box>
       </Box>
+      <Portal>
+        <Snackbar
+          sx={{marginTop: '50px', marginLeft: '75px'}}
+          anchorOrigin={{ horizontal: "left", vertical: "top" }}
+          autoHideDuration={10000}
+          ClickAwayListenerProps={{ onClickAway: () => null }}
+          onClose={() => setSnackbarState({open: false})}
+          open={snackbarState.open}>
+          <Alert sx={{whiteSpace: 'pre'}} severity={snackbarState.severity} onClose={() => setSnackbarState({open: false})}>
+            {snackbarState.message}
+          </Alert>
+        </Snackbar>
+      </Portal>
     </>
   );
 }

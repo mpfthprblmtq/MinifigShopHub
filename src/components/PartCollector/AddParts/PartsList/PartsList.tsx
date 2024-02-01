@@ -65,12 +65,16 @@ const PartsList: FunctionComponent<PartsListParams> = ({item, parts, setParts}) 
             <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 20 }}>
               {item.setId} - {item.name}
             </Typography>
-            <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 16 }}>
-              {item.yearReleased} ({item.retailStatus?.availability})
-            </Typography>
-            <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 16 }}>
-              {`${item.pieceCount?.toLocaleString()} Pieces${item.minifigCount ? `, ${item.minifigCount} Minifigs`: ''}`}
-            </Typography>
+            {item.retailStatus?.availability && (
+              <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 16 }}>
+                {item.yearReleased} ({item.retailStatus?.availability})
+              </Typography>
+            )}
+            {item.pieceCount && (
+              <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 16 }}>
+                {`${item.pieceCount?.toLocaleString()} Pieces${item.minifigCount ? `, ${item.minifigCount} Minifigs`: ''}`}
+              </Typography>
+            )}
           </Box>
         </Box>
       )}
