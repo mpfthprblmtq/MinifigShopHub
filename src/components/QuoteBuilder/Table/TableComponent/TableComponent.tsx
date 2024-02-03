@@ -17,7 +17,7 @@ import IconsCell from "../TableCells/IconsCell";
 import InformationDialog from "../../../_shared/InformationDialog/InformationDialog";
 import { usePriceCalculationEngine } from "../../../../hooks/priceCalculation/usePriceCalculationEngine";
 import { ChangeType } from "../../../../model/priceCalculation/ChangeType";
-import { updateItem, updateItemsInStore, updateTotalInStore } from "../../../../redux/slices/quoteSlice";
+import { updateItem, updateItemsInStore } from "../../../../redux/slices/quoteSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
 import { updateItemInStore } from "../../../../redux/slices/labelSlice";
@@ -25,7 +25,6 @@ import { useNavigate } from "react-router-dom";
 import { RouterPaths } from "../../../../utils/RouterPaths";
 import { Availability } from "../../../../model/retailStatus/Availability";
 import { Configuration } from "../../../../model/dynamo/Configuration";
-import { Total } from "../../../../model/total/Total";
 
 interface TableComponentParams {
     storeMode: boolean;
@@ -69,19 +68,20 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
      * @param event the event to capture
      * @param id the id of the item to modify
      */
-    const handleValueChange = (event: any, id: number) => {
-        const itemCopy = {...getItemWithId(items, id)} as Item;
-        if (itemCopy) {
-            itemCopy.value = launderMoney(event.target.value);
-            itemCopy.valueDisplay = event.target.value;
-            calculatePrice(itemCopy, ChangeType.VALUE);
-        }
-        dispatch(updateItem(itemCopy));
-
-        if (items.length === 1) {
-            dispatch(updateTotalInStore({...quote.total, valueAdjustment: itemCopy.valueAdjustment} as Total))
-        }
-    };
+    // const handleValueChange = (event: any, id: number) => {
+    //     console.log('value changed')
+    //     const itemCopy = {...getItemWithId(items, id)} as Item;
+    //     if (itemCopy) {
+    //         itemCopy.value = launderMoney(event.target.value);
+    //         itemCopy.valueDisplay = event.target.value;
+    //         calculatePrice(itemCopy, ChangeType.VALUE);
+    //     }
+    //     dispatch(updateItem(itemCopy));
+    //
+    //     if (items.length === 1) {
+    //         dispatch(updateTotalInStore({...quote.total, valueAdjustment: itemCopy.valueAdjustment} as Total))
+    //     }
+    // };
 
     /**
      * Event handler for the blur event on the value text field, just cleans up the value display mostly
@@ -92,6 +92,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
         // TODO prevent dispatch if value wasn't changed
         const itemCopy = {...getItemWithId(items, id)} as Item;
         if (itemCopy) {
+            itemCopy.value = launderMoney(event.target.value);
             itemCopy.valueDisplay = formatCurrency(launderMoney(event.target.value));
         }
         if (!rowAdjustmentsDisabled) {
@@ -164,7 +165,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
                                 <ValueCell
                                   item={item}
                                   handleValueBlur={handleValueBlur}
-                                  handleValueChange={handleValueChange}
+                                  // handleValueChange={handleValueChange}
                                   storeMode={storeMode}
                                   editable={rowAdjustmentsDisabled}
                                 />
