@@ -89,23 +89,25 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
      * @param id the id of the item to modify
      */
     const handleValueBlur = (event: any, id: number) => {
-        // TODO prevent dispatch if value wasn't changed
         const itemCopy = {...getItemWithId(items, id)} as Item;
-        if (itemCopy) {
-            itemCopy.value = launderMoney(event.target.value);
-            itemCopy.valueDisplay = formatCurrency(launderMoney(event.target.value));
-        }
-        if (!rowAdjustmentsDisabled) {
+        if (itemCopy.value !== launderMoney(event.target.value)) {  // prevent dispatch on value not changed
+            if (itemCopy) {
+                itemCopy.value = launderMoney(event.target.value);
+                itemCopy.valueAdjustment = Math.round((itemCopy.value / itemCopy.baseValue) * 100);
+            }
             dispatch(updateItem(itemCopy));
         }
     };
 
+    /**
+     * Event handler for the comment change, sets the comment on the item
+     * @param comment the comment to add
+     * @param id the id of the item to modify
+     */
     const handleCommentChange = (comment: string, id: number) => {
+        console.log('changing comment');
         const itemCopy = {...getItemWithId(items, id)} as Item;
-        if (itemCopy) {
-            itemCopy.comment = comment;
-        }
-        dispatch(updateItem(itemCopy));
+        dispatch(updateItem({...itemCopy, comment: comment}));
     }
 
     const addToLabel = (item: Item) => {
@@ -115,12 +117,13 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
         if (itemCopy.retailStatus?.retailPrice && itemCopy.retailStatus?.availability === Availability.RETAIL) {
             itemCopy.baseValue = itemCopy.retailStatus.retailPrice;
             itemCopy.valueAdjustment = configuration.autoAdjustmentPercentageCertifiedPreOwned;
+            itemCopy.baseValueAdjustment = item.valueAdjustment;
             itemCopy.value = roundToNearestFive(itemCopy.retailStatus.retailPrice * (itemCopy.valueAdjustment / 100));
         } else {
             itemCopy.valueAdjustment = 0;
+            itemCopy.baseValueAdjustment = 0;
             itemCopy.value = 0.00;
         }
-        itemCopy.valueDisplay = formatCurrency(itemCopy.value);
         dispatch(updateItemInStore(itemCopy));
         navigate(RouterPaths.LabelMaker);
     }

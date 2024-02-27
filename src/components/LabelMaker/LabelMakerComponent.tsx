@@ -43,12 +43,11 @@ const LabelMakerComponent: FunctionComponent = () => {
       item.valueAdjustment = 0;
       item.value = 0.00;
     }
-    item.valueDisplay = formatCurrency(item.value);
     dispatch(updateItemInStore(item));
   };
 
   const canPrint = (): boolean => {
-    return !!labelData.item && !!labelData?.label?.validatedBy && !!labelData.label.title && labelData.item.valueDisplay !== '$0.00';
+    return !!labelData.item && !!labelData?.label?.validatedBy && !!labelData.label.title && formatCurrency(labelData.item.value) !== '$0.00';
   }
 
   return (

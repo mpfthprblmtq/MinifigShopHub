@@ -34,7 +34,6 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, label, se
   useEffect(() => {
     if (item) {
       const itemCopy: Item = {...item};
-      itemCopy.valueDisplay = formatCurrency(itemCopy.value);
       setLabel({
         ...label,
         title: itemCopy.setId && label?.title?.startsWith(itemCopy.setId) ? label.title : `${itemCopy.setId} - ${itemCopy.name}`,
@@ -127,12 +126,13 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, label, se
           <Typography sx={{ fontSize: 20, fontFamily: 'Didact Gothic' }}>Value:</Typography>
         </Box>
         <Box sx={{m: 1, position: 'relative'}}>
+          {/* TODO */}
           <CurrencyTextInput
             onChange={(event: any) => setItem({...item, value: event.target.value})}
             onBlur={handleValueBlur}
-            value={item.valueDisplay === '$0.00' ? '' : item.valueDisplay}
-            error={item.valueDisplay?.toString() === '$0.00'}
-            label={item.valueDisplay?.toString() === '$0.00' ? 'Value cannot be $0' : ''}
+            value={formatCurrency(item.value) === '$0.00' ? '' : formatCurrency(item.value)}
+            error={formatCurrency(item.value) === '$0.00'}
+            label={formatCurrency(item.value) === '$0.00' ? 'Value cannot be $0' : ''}
           />
         </Box>
       </Box>

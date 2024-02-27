@@ -2,7 +2,6 @@ import {Item} from "../../model/item/Item";
 import {ChangeType} from "../../model/priceCalculation/ChangeType";
 import {Condition} from "../../model/_shared/Condition";
 import {Availability} from "../../model/retailStatus/Availability";
-import {formatCurrency} from "../../utils/CurrencyUtils";
 import {Source} from "../../model/_shared/Source";
 import {useSelector} from "react-redux";
 
@@ -42,14 +41,12 @@ export const usePriceCalculationEngine = (): PriceCalculationHooks => {
 
                 // then set the value based on the determined valueAdjustment
                 item.value = Math.round(+((item.valueAdjustment / 100) * item.baseValue).toFixed(2));
-                item.valueDisplay = formatCurrency(item.value);
             }
 
         } else if (changeType === ChangeType.ADJUSTMENT) {
 
             // nothing fancy here, just need to set the value to the new adjustment * baseValue
             item.value = Math.round(+((item.valueAdjustment / 100) * item.baseValue).toFixed(2));
-            item.valueDisplay = formatCurrency(item.value);
 
         } else if (changeType === ChangeType.VALUE) {
 

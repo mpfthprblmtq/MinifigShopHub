@@ -10,7 +10,6 @@ import { AllSalesHistory } from "../model/salesHistory/AllSalesHistory";
 import { Source } from "../model/_shared/Source";
 import { Condition } from "../model/_shared/Condition";
 import { Availability } from "../model/retailStatus/Availability";
-import { formatCurrency } from "../utils/CurrencyUtils";
 
 export interface ItemLookupServiceHooks {
     getHydratedItem: (item: Item) => Promise<Item>;
@@ -188,8 +187,8 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
             item.baseValue = item.salesData?.usedSold?.avg_price ? +item.salesData.usedSold.avg_price : 0;
         }
         item.value = +item.value.toFixed(2);
-        item.valueDisplay = formatCurrency(item.value)!.toString().substring(1);
         item.valueAdjustment = configuration.autoAdjustmentPercentageUsed;
+        item.baseValueAdjustment = item.valueAdjustment;
         item.type = determineType(item.setId ?? '');
 
         // set the item in cache

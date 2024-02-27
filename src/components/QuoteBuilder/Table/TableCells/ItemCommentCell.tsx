@@ -15,8 +15,10 @@ const ItemCommentCell: FunctionComponent<ItemCommentParams> = ({item, storeMode,
     const [comment, setComment] = useState<string>(item.comment ?? '');
 
     const submitCommentChanges = () => {
+        if (editing) {
+            handleCommentChange(comment, item.id);
+        }
         setEditing(!editing);
-        handleCommentChange(comment, item.id);
     }
 
     return (

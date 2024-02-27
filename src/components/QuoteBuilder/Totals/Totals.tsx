@@ -79,7 +79,6 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
                 const itemCopy = {...getItemWithId(items, items.at(0)?.id ?? -1)} as Item;
                 if (itemCopy) {
                     itemCopy.value = launderedValue;
-                    itemCopy.valueDisplay = formatCurrency(itemCopy.value);
                     itemCopy.valueAdjustment = calculatedAdjustment;
                 }
                 dispatch(updateItem(itemCopy));
@@ -112,7 +111,6 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({ items, storeMode, tota
         itemsCopy.forEach(item => {
             item.valueAdjustment = event.target.value;
             item.value = Math.round(item.baseValue * (event.target.value / 100));
-            item.valueDisplay = formatCurrency(item.value);
         });
         dispatch(updateItemsInStore(itemsCopy));
     };

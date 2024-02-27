@@ -9,7 +9,6 @@ import ItemSearchCard from "./Cards/ItemSearchCard/ItemSearchCard";
 import CustomItemCard from "./Cards/CustomItemCard/CustomItemCard";
 import Totals from "./Totals/Totals";
 import BrickLinkSearchCard from "./Cards/BrickLinkSearchCard/BrickLinkSearchCard";
-import { formatCurrency } from "../../utils/CurrencyUtils";
 import Version from "../_shared/Version/Version";
 import { Condition } from "../../model/_shared/Condition";
 import SettingsDialog from "./Dialog/SettingsDialog/SettingsDialog";
@@ -66,7 +65,6 @@ const QuoteBuilderComponent: FunctionComponent = () => {
       item.valueAdjustment = item.condition === Condition.USED ?
         configuration.autoAdjustmentPercentageUsed : configuration.autoAdjustmentPercentageNew;
       item.value = Math.round(item.baseValue * (item.valueAdjustment / 100));
-      item.valueDisplay = formatCurrency(item.value).toString().substring(1);
     });
 
     const calculatedValue: number = quote.total.baseValue * (configuration.autoAdjustmentPercentageUsed / 100);

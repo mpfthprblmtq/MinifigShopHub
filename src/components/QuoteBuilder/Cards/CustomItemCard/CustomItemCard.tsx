@@ -1,7 +1,7 @@
 import React, {FunctionComponent, useState} from "react";
 import {Box, Button, FormControl, InputLabel, MenuItem, Select, TextField} from "@mui/material";
 import {SetNameStyledTypography} from "../../QuoteBuilderComponent.styles";
-import {formatCurrency, launderMoney} from "../../../../utils/CurrencyUtils";
+import {launderMoney} from "../../../../utils/CurrencyUtils";
 import {Item} from "../../../../model/item/Item";
 import {StyledCard} from "../Cards.styles";
 import {generateId} from "../../../../utils/ArrayUtils";
@@ -28,8 +28,8 @@ const CustomItemCard: FunctionComponent<CustomItemCardParams> = ({items, setItem
             name: name,
             value: launderMoney(value),
             baseValue: launderMoney(value),
-            valueDisplay: formatCurrency(value)!.toString().substring(1),
             valueAdjustment: 0,
+            baseValueAdjustment: 0,
             sources: [Source.CUSTOM],
             condition: Condition.USED,
             type: type
