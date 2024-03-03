@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import {Item} from "../../../../model/item/Item";
 import CurrencyTextInput from "../../../_shared/CurrencyTextInput/CurrencyTextInput";
 import {StyledTableCell} from "../TableComponent/TableComponent.styles";
@@ -15,6 +15,11 @@ interface ValueCellParams {
 const ValueCell: FunctionComponent<ValueCellParams> = ({item, handleValueBlur, storeMode, editable}) => {
 
   const [valueDisplay, setValueDisplay] = useState(formatCurrency(item.value));
+  const [adjustment, setAdjustment] = useState<number>(item.valueAdjustment);
+  useEffect(() => {
+    setValueDisplay(formatCurrency(Math.round(item.value)));
+    setAdjustment(item.valueAdjustment);
+  }, [item]);
 
     return (
       <StyledTableCell>
@@ -35,7 +40,7 @@ const ValueCell: FunctionComponent<ValueCellParams> = ({item, handleValueBlur, s
                   ) : (
                     // <Box onClick={() => alert('TODO: Add ability to change percentage here')}>
                       <Typography sx={{fontSize: '14px', color: 'gray'}}>
-                        {`${item.valueAdjustment}%`}
+                        {`${adjustment}%`}
                       </Typography>
                     // </Box>
                   )

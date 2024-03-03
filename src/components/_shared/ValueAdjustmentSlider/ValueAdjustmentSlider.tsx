@@ -4,10 +4,11 @@ import { Slider, SliderProps } from "@mui/material";
 interface ValueAdjustmentSliderParams extends SliderProps {
   value: number;
   handleSliderChange: (event: any) => void;
+  handleSliderChangeCommitted?: (event: any) => void;
   disabled?: boolean;
 }
 
-const ValueAdjustmentSlider: FunctionComponent<ValueAdjustmentSliderParams & SliderProps> = ({value, handleSliderChange, disabled, ...sliderProps}) => {
+const ValueAdjustmentSlider: FunctionComponent<ValueAdjustmentSliderParams & SliderProps> = ({value, handleSliderChange, handleSliderChangeCommitted, disabled, ...sliderProps}) => {
 
   const marks = [
     { value: 0, label: "0%" },
@@ -21,6 +22,7 @@ const ValueAdjustmentSlider: FunctionComponent<ValueAdjustmentSliderParams & Sli
     <Slider
       value={value}
       onChange={handleSliderChange}
+      onChangeCommitted={handleSliderChangeCommitted}
       disabled={!!disabled}
       valueLabelFormat={(value: any) => { return value + "%"; }}
       defaultValue={50}

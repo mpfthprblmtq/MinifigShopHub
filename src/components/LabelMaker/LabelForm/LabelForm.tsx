@@ -126,7 +126,6 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, label, se
           <Typography sx={{ fontSize: 20, fontFamily: 'Didact Gothic' }}>Value:</Typography>
         </Box>
         <Box sx={{m: 1, position: 'relative'}}>
-          {/* TODO */}
           <CurrencyTextInput
             onChange={(event: any) => setItem({...item, value: event.target.value})}
             onBlur={handleValueBlur}

@@ -17,7 +17,6 @@ export interface Item {
     minifigCount?: number;
     condition: Condition;
     baseValue: number;
-    baseValueAdjustment: number;
     valueAdjustment: number;
     value: number;
     // valueDisplay?: string;

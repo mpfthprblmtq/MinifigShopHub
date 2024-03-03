@@ -35,7 +35,7 @@ export const quoteSlice = createSlice({
         updateItem: (state, action) => {
             state.quote.items[state.quote.items.findIndex(item =>
                 item.id === action.payload.id
-            )] = action.payload
+            )] = action.payload as Item;
         }
     }
 });
