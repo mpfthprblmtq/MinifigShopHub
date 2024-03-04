@@ -15,8 +15,6 @@ import BrickLinkSalesCells from "../TableCells/BrickLinkSalesCells";
 import ValueCell from "../TableCells/ValueCell";
 import IconsCell from "../TableCells/IconsCell";
 import InformationDialog from "../../../_shared/InformationDialog/InformationDialog";
-import { usePriceCalculationEngine } from "../../../../hooks/priceCalculation/usePriceCalculationEngine";
-import { ChangeType } from "../../../../model/priceCalculation/ChangeType";
 import { updateItem, updateItemsInStore } from "../../../../redux/slices/quoteSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
@@ -39,7 +37,6 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
     const [showMoreInformationDialog, setShowMoreInformationDialog] = useState<boolean>(false);
     const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
 
-    const { calculatePrice } = usePriceCalculationEngine();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -57,31 +54,13 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
             const itemCopy = {...getItemWithId(items, id)} as Item;
             if (itemCopy) {
                 itemCopy.condition = condition;
-                calculatePrice(itemCopy, ChangeType.CONDITION);
+                itemCopy.valueAdjustment = condition === Condition.NEW ?
+                  configuration.autoAdjustmentPercentageNew : configuration.autoAdjustmentPercentageUsed;
+                itemCopy.value = itemCopy.baseValue * (itemCopy.valueAdjustment / 100);
             }
             dispatch(updateItem(itemCopy));
         }
     };
-
-    /**
-     * Event handler for the change event on the value text field, just sets the value
-     * @param event the event to capture
-     * @param id the id of the item to modify
-     */
-    // const handleValueChange = (event: any, id: number) => {
-    //     console.log('value changed')
-    //     const itemCopy = {...getItemWithId(items, id)} as Item;
-    //     if (itemCopy) {
-    //         itemCopy.value = launderMoney(event.target.value);
-    //         itemCopy.valueDisplay = event.target.value;
-    //         calculatePrice(itemCopy, ChangeType.VALUE);
-    //     }
-    //     dispatch(updateItem(itemCopy));
-    //
-    //     if (items.length === 1) {
-    //         dispatch(updateTotalInStore({...quote.total, valueAdjustment: itemCopy.valueAdjustment} as Total))
-    //     }
-    // };
 
     /**
      * Event handler for the blur event on the value text field, just cleans up the value display mostly
