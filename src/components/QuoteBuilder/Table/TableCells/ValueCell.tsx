@@ -9,10 +9,9 @@ interface ValueCellParams {
     item: Item;
     handleValueBlur: (event: any, id: number) => void;
     storeMode: boolean;
-    editable: boolean;
 }
 
-const ValueCell: FunctionComponent<ValueCellParams> = ({item, handleValueBlur, storeMode, editable}) => {
+const ValueCell: FunctionComponent<ValueCellParams> = ({item, handleValueBlur, storeMode}) => {
 
   const [valueDisplay, setValueDisplay] = useState(formatCurrency(item.value));
   const [adjustment, setAdjustment] = useState<number>(item.valueAdjustment);
@@ -33,17 +32,12 @@ const ValueCell: FunctionComponent<ValueCellParams> = ({item, handleValueBlur, s
                   handleValueBlur(event, item.id);
                 }}
                 color={storeMode && item.value > 100 ? '#BD0000' : 'black'}
-                readonly={editable}
                 endAdornment={
-                  editable ? (
-                    <></>
-                  ) : (
-                    // <Box onClick={() => alert('TODO: Add ability to change percentage here')}>
-                      <Typography sx={{fontSize: '14px', color: 'gray'}}>
-                        {`${adjustment}%`}
-                      </Typography>
-                    // </Box>
-                  )
+                  // <Box onClick={() => alert('TODO: Add ability to change percentage here')}>
+                  <Typography sx={{fontSize: '14px', color: 'gray'}}>
+                    {`${adjustment}%`}
+                  </Typography>
+                  // </Box>
                 }
               />
           </div>

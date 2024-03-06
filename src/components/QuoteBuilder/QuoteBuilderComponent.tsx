@@ -40,8 +40,6 @@ const QuoteBuilderComponent: FunctionComponent = () => {
 
   const [storeMode, setStoreMode] = useState<boolean>(true);
   const [compressedView, setCompressedView] = useState<boolean>(false);
-  const [rowAdjustmentsDisabled, setRowAdjustmentsDisabled] = useState<boolean>(false);
-  const [totalAdjustmentDisabled, setTotalAdjustmentDisabled] = useState<boolean>(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState<boolean>(false);
   const [saveQuoteDialogOpen, setSaveQuoteDialogOpen] = useState<boolean>(false);
   const [loadQuoteDialogOpen, setLoadQuoteDialogOpen] = useState<boolean>(false);
@@ -76,8 +74,6 @@ const QuoteBuilderComponent: FunctionComponent = () => {
     };
 
     dispatch(updateQuoteInStore({ items: [...clonedItems], total: total } as Quote));
-    setRowAdjustmentsDisabled(false);
-    setTotalAdjustmentDisabled(false);
 
     setSnackbarState({open: true, severity: "success", message: 'Successfully reset calculations!'} as SnackbarState);
   };
@@ -94,34 +90,6 @@ const QuoteBuilderComponent: FunctionComponent = () => {
   const addQuote = (savedQuote: SavedQuote) => {
     setSavedQuote(savedQuote);
   }
-
-  useEffect(() => {
-    if (items.length > 1) {
-      const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
-      if (adjustmentSet.size === 1 && quote.total.valueAdjustment !== adjustmentSet.values().next().value) {
-        // row adjustments are all the same, and total adjustment is different, enabling total and disabling rows
-        // console.log('row adjustments are all the same, and total adjustment is different, enabling total and disabling rows')
-        setRowAdjustmentsDisabled(true);
-        setTotalAdjustmentDisabled(false);
-        // console.log('total value adjustment: ' + quote.total.valueAdjustment)
-        // console.log('row adjustment: ' + adjustmentSet.values().next().value)
-      } else if (adjustmentSet.size === 1 && quote.total.valueAdjustment === adjustmentSet.values().next().value) {
-        // row adjustments are all the same, and total adjustment matches, enabling both rows and total
-        // console.log('row adjustments are all the same, and total adjustment matches, enabling both rows and total')
-        setRowAdjustmentsDisabled(false);
-        setTotalAdjustmentDisabled(false);
-      } else if (adjustmentSet.size > 1) {
-        // adjustments are different, enabling rows, disabling totals
-        // console.log('adjustments are different, enabling rows, disabling totals')
-        setRowAdjustmentsDisabled(false);
-        setTotalAdjustmentDisabled(true);
-      }
-    } else {
-      setRowAdjustmentsDisabled(false);
-      setTotalAdjustmentDisabled(false);
-    }
-    // eslint-disable-next-line
-  }, [items]);
 
   useEffect(() => {
     const initConfiguration = async () => {
@@ -189,7 +157,6 @@ const QuoteBuilderComponent: FunctionComponent = () => {
           <TableComponent
             storeMode={storeMode}
             compressedView={compressedView}
-            rowAdjustmentsDisabled={rowAdjustmentsDisabled}
           />
         </Box>
         {items.length > 0 && (
@@ -198,10 +165,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
               <ItemStatisticsCard items={items} />
             )}
             <Totals
-              items={items}
               storeMode={storeMode}
-              totalAdjustmentDisabled={totalAdjustmentDisabled}
-              setRowAdjustmentsDisabled={setRowAdjustmentsDisabled}
             />
           </>
         )}

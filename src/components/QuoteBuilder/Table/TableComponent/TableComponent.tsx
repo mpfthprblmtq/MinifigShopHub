@@ -27,10 +27,9 @@ import { Configuration } from "../../../../model/dynamo/Configuration";
 interface TableComponentParams {
     storeMode: boolean;
     compressedView: boolean;
-    rowAdjustmentsDisabled: boolean;
 }
 
-const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, compressedView, rowAdjustmentsDisabled }) => {
+const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, compressedView }) => {
 
     const [focusedItem, setFocusedItem] = useState<Item>();
     const [showImageDialog, setShowImageDialog] = useState<boolean>(false);
@@ -145,9 +144,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
                                 <ValueCell
                                   item={item}
                                   handleValueBlur={handleValueBlur}
-                                  // handleValueChange={handleValueChange}
                                   storeMode={storeMode}
-                                  editable={rowAdjustmentsDisabled}
                                 />
                               ) : (
                                   <StyledTableCell>
