@@ -86,6 +86,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
     };
 
     dispatch(updateQuoteInStore({ items: [...clonedItems], total: total } as Quote));
+    updateItems(clonedItems);
     setSnackbarState({open: true, severity: "success", message: 'Successfully reset calculations!'} as SnackbarState);
   };
 
