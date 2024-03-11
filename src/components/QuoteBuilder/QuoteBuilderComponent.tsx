@@ -1,9 +1,6 @@
 import React, { FunctionComponent, useEffect, useRef, useState } from "react";
 import { Item } from "../../model/item/Item";
-import {
-  Alert,
-  Box, Portal, Snackbar
-} from "@mui/material";
+import { Alert, Box, Portal, Snackbar } from "@mui/material";
 import TableComponent from "./Table/TableComponent/TableComponent";
 import ItemSearchCard from "./Cards/ItemSearchCard/ItemSearchCard";
 import CustomItemCard from "./Cards/CustomItemCard/CustomItemCard";
@@ -12,8 +9,6 @@ import BrickLinkSearchCard from "./Cards/BrickLinkSearchCard/BrickLinkSearchCard
 import Version from "../_shared/Version/Version";
 import { Condition } from "../../model/_shared/Condition";
 import SettingsDialog from "./Dialog/SettingsDialog/SettingsDialog";
-import { usePriceCalculationEngine } from "../../hooks/priceCalculation/usePriceCalculationEngine";
-import { ChangeType } from "../../model/priceCalculation/ChangeType";
 import { useDispatch, useSelector } from "react-redux";
 import { useConfigurationService } from "../../hooks/dynamo/useConfigurationService";
 import { updateStoreConfiguration } from "../../redux/slices/configurationSlice";
@@ -46,9 +41,9 @@ const QuoteBuilderComponent: FunctionComponent = () => {
   const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
   const [savedQuote, setSavedQuote] = useState<SavedQuote>();
 
-  const { calculatePrice } = usePriceCalculationEngine();
   const { initConfig } = useConfigurationService();
 
+  // print stuff
   const componentRef = useRef(null);
   const reactToPrintContent = React.useCallback(() => {
     return componentRef.current;
@@ -56,6 +51,23 @@ const QuoteBuilderComponent: FunctionComponent = () => {
   const handlePrint = useReactToPrint({
     content: reactToPrintContent,
   });
+
+  // forwardRef for the Totals component, allows the updating of the items without state since that causes issues
+  interface TotalsRefType {
+    updateItems: (items: any[]) => void; // Adjust the type of 'items' as needed
+  }
+  const totalsRef = useRef<TotalsRefType | null>(null);
+  const updateItems = (items: Item[]) => {
+    if (totalsRef.current) {
+      totalsRef.current.updateItems(items);
+    }
+  }
+
+  const handleTotalAdjustmentChange = (adjustment: number) => {
+    dispatch(updateItemsInStore(items.map(item => {
+      return {...item, valueAdjustment: adjustment, value: (item.baseValue * (adjustment / 100))} as Item;
+    })))
+  }
 
   const resetCalculations = () => {
     const clonedItems: Item[] = _.cloneDeep(items);
@@ -74,7 +86,6 @@ const QuoteBuilderComponent: FunctionComponent = () => {
     };
 
     dispatch(updateQuoteInStore({ items: [...clonedItems], total: total } as Quote));
-
     setSnackbarState({open: true, severity: "success", message: 'Successfully reset calculations!'} as SnackbarState);
   };
 
@@ -82,9 +93,12 @@ const QuoteBuilderComponent: FunctionComponent = () => {
     const clonedItems: Item[] = _.cloneDeep(items);
     clonedItems.forEach(item => {
       item.condition = condition;
-      calculatePrice(item, ChangeType.CONDITION);
+      item.valueAdjustment = condition === Condition.NEW ?
+        configuration.autoAdjustmentPercentageNew : configuration.autoAdjustmentPercentageUsed;
+      item.value = item.baseValue * (item.valueAdjustment / 100);
     });
     dispatch((updateItemsInStore([...clonedItems])));
+    updateItems(clonedItems);
   };
 
   const addQuote = (savedQuote: SavedQuote) => {
@@ -141,7 +155,10 @@ const QuoteBuilderComponent: FunctionComponent = () => {
         {storeMode && (
           <>
             <Box sx={{ m: 1, position: 'relative' }} className={"hide-in-print-preview"}>
-              <ItemSearchCard items={items} setItems={items => dispatch(updateItemsInStore([...items]))} />
+              <ItemSearchCard items={items} setItems={items => {
+                dispatch(updateItemsInStore(items));
+                updateItems(items);
+              }} />
             </Box>
             <Box sx={{ m: 1, position: 'relative' }} className={"hide-in-print-preview"}>
               <CustomItemCard items={items} setItems={(items) => dispatch(updateItemsInStore([...items]))} />
@@ -157,18 +174,19 @@ const QuoteBuilderComponent: FunctionComponent = () => {
           <TableComponent
             storeMode={storeMode}
             compressedView={compressedView}
+            updateItems={updateItems}
           />
         </Box>
         {items.length > 0 && (
-          <>
-            {storeMode && (
+            storeMode && (
               <ItemStatisticsCard items={items} />
-            )}
-            <Totals
-              storeMode={storeMode}
-            />
-          </>
+            )
         )}
+        <Totals
+          ref={totalsRef}
+          storeMode={storeMode}
+          handleTotalAdjustmentChange={handleTotalAdjustmentChange}
+        />
       </div>
       <SettingsDialog
         open={settingsDialogOpen}

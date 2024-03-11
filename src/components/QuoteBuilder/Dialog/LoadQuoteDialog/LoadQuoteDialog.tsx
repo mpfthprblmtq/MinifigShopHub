@@ -44,7 +44,6 @@ const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClo
   };
 
   useEffect(() => {
-    console.log('loading quotes')
     loadQuoteKeys().then(quoteKeys => {
       setQuoteKeys(quoteKeys);
       setMasterQuoteKeys(quoteKeys);

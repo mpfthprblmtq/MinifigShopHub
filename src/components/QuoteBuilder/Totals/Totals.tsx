@@ -1,5 +1,5 @@
-import React, { FunctionComponent, useEffect, useState } from "react";
-import { Table, TableBody, tableCellClasses, TableContainer, TableRow } from "@mui/material";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import { Table, TableBody, tableCellClasses, TableContainer, TableRow, Tooltip } from "@mui/material";
 import { FixedWidthColumnHeading } from "../Table/TableComponent/TableComponent.styles";
 import { formatCurrency, launderMoney } from "../../../utils/CurrencyUtils";
 import CurrencyTextInput from "../../_shared/CurrencyTextInput/CurrencyTextInput";
@@ -7,17 +7,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { Configuration } from "../../../model/dynamo/Configuration";
 import { Total } from "../../../model/total/Total";
 import { Quote } from "../../../model/quote/Quote";
-import {
-    updateQuoteInStore,
-    updateTotalInStore
-} from "../../../redux/slices/quoteSlice";
+import { updateTotalInStore } from "../../../redux/slices/quoteSlice";
 import ValueAdjustmentSlider from "../../_shared/ValueAdjustmentSlider/ValueAdjustmentSlider";
+import { Item } from "../../../model/item/Item";
 
 interface TotalsSectionParams {
     storeMode: boolean;
+    handleTotalAdjustmentChange: (adjustment: number) => void;
 }
 
-const Totals: FunctionComponent<TotalsSectionParams> = ({  storeMode }) => {
+const Totals = forwardRef(({storeMode, handleTotalAdjustmentChange}: TotalsSectionParams, ref) => {
 
     const configuration: Configuration = useSelector((state: any) => state.configurationStore.configuration);
     const quote: Quote = useSelector((state: any) => state.quoteStore.quote);
@@ -29,57 +28,82 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({  storeMode }) => {
     const [sliderDisabled, setSliderDisabled] = useState<boolean>(false);
     const [sliderValue, setSliderValue] = useState<number>(quote.total.valueAdjustment);
 
+    useImperativeHandle(ref, () => ({
+        updateItems: (updatedItems: Item[]) => {
+            calculateValues(updatedItems);
+        },
+    }));
+
+    const calculateValues = (items: Item[]) => {
+        if (items.length > 0) {
+            // calculate values
+            const calculatedBaseValue: number = Math.round(items.reduce((sum, item) => sum + item.baseValue, 0));
+            let calculatedValue: number = items.length > 1 ?
+              items.reduce((sum, item) => sum + Math.round(item.value), 0) : items[0].value;
+            let calculatedStoreCreditValue: number = Math.round(calculatedValue * (configuration.storeCreditValueAdjustment / 100));
+
+            // calculate adjustment
+            let calculatedAdjustment: number = sliderValue;
+            const adjustmentSet = new Set(items.map(item => item.valueAdjustment));
+            if (adjustmentSet.size > 1) {
+                setSliderDisabled(true);
+            } else {
+                setSliderDisabled(false);
+                calculatedAdjustment = adjustmentSet.values().next().value;
+            }
+
+            // set the display values
+            setValueDisplay(formatCurrency(calculatedValue).toString().substring(1));
+            setBaseValueDisplay(formatCurrency(calculatedBaseValue).toString().substring(1));
+            setStoreCreditValueDisplay(formatCurrency(calculatedStoreCreditValue).toString().substring(1));
+            setSliderValue(calculatedAdjustment);
+
+            // send it to store
+            const updatedTotal = {
+                value: calculatedValue,
+                baseValue: calculatedBaseValue,
+                storeCreditValue: calculatedStoreCreditValue,
+                valueAdjustment: calculatedAdjustment
+            } as Total;
+            dispatch(updateTotalInStore(updatedTotal));
+        }
+    }
+
     useEffect(() => {
-        // calculate adjustment
-        let calculatedAdjustment: number;
-        const adjustmentSet = new Set(quote.items.map(item => item.valueAdjustment));
-        if (adjustmentSet.size > 1) {
-            setSliderDisabled(true);
-            calculatedAdjustment = 0;
-        } else {
-            calculatedAdjustment = adjustmentSet.values().next().value;
+        if (quote.items.length > 0) {
+            const adjustmentSet = new Set(quote.items.map(item => item.valueAdjustment));
+            if (adjustmentSet.size > 1) {
+                setSliderDisabled(true);
+            } else {
+                setSliderDisabled(false);
+            }
         }
-
-        // calculate values
-        const calculatedBaseValue: number = Math.round(quote.items.reduce((sum, item) => sum + item.baseValue, 0));
-        let calculatedValue: number = quote.items.length > 1 ?
-          quote.items.reduce((sum, item) => sum + Math.round(item.value), 0) : quote.items[0].value;
-        let calculatedStoreCreditValue: number = Math.round(calculatedValue * (configuration.storeCreditValueAdjustment / 100));
-        // need to check what state we're in at this point for the value and store credit value
-        if (Math.round(calculatedValue) !== launderMoney(valueDisplay) && launderMoney(valueDisplay) !== 0) {
-            // if the calculated value isn't equal to the value being displayed and the value display isn't 0
-            // then the value being displayed should override the calculated value, since that's probably changed via
-            // typing a total value in manually
-            calculatedValue = launderMoney(valueDisplay);
-            calculatedStoreCreditValue = launderMoney(storeCreditValueDisplay);
-        } else {
-            // else if the calculated value is equal to the display value
-            // then we can recalculate the value
-            calculatedValue = Math.round(calculatedValue !== Math.round(calculatedBaseValue * (calculatedAdjustment / 100)) ?
-              calculatedBaseValue * (calculatedAdjustment / 100) : calculatedValue);
-        }
-
-        // send it to store
-        const updatedTotal = {
-            value: calculatedValue,
-            baseValue: calculatedBaseValue,
-            storeCreditValue: calculatedStoreCreditValue,
-            valueAdjustment: calculatedAdjustment
-        } as Total;
-        dispatch(updateTotalInStore(updatedTotal));
-
-        // set the display values
-        setValueDisplay(formatCurrency(calculatedValue).toString().substring(1));
-        setBaseValueDisplay(formatCurrency(calculatedBaseValue).toString().substring(1));
-        setStoreCreditValueDisplay(formatCurrency(calculatedStoreCreditValue).toString().substring(1));
         // eslint-disable-next-line
-    }, [quote.items]);
+    }, []);
 
     const handleValueBlur = (event: any) => {
-        const adjustment: number = Math.round((+valueDisplay / +baseValueDisplay) * 100);
-        setSliderValue(adjustment);
-        setValueDisplay(formatCurrency(launderMoney(event.target.value)));
-        updateAllValues(adjustment);
+        const calculatedValue: number = launderMoney(event.target.value);
+        const calculatedStoreCreditValue: number = Math.round(launderMoney(valueDisplay) * (configuration.storeCreditValueAdjustment / 100));
+        const calculatedAdjustment: number = Math.round((launderMoney(valueDisplay) / launderMoney(baseValueDisplay)) * 100);
+
+        setValueDisplay(formatCurrency(calculatedValue));
+        setStoreCreditValueDisplay(formatCurrency(calculatedStoreCreditValue));
+        setSliderValue(calculatedAdjustment);
+
+        dispatch(updateTotalInStore({
+            ...quote.total,
+            value: calculatedValue,
+            valueAdjustment: calculatedAdjustment,
+            storeCreditValue: calculatedStoreCreditValue
+        } as Total));
+    }
+
+    const handleStoreCreditValueBlur = (event: any) => {
+        dispatch(updateTotalInStore({
+            ...quote.total,
+            storeCreditValue: launderMoney(event.target.value)
+        } as Total));
+        setStoreCreditValueDisplay(formatCurrency(launderMoney(event.target.value)));
     }
 
     const handleSliderChange = (event: any) => {
@@ -96,39 +120,18 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({  storeMode }) => {
 
     const handleSliderChangeCommitted = async (event: any) => {
         const adjustment: number = +event.target.textContent.replace('%', '');
-        updateAllValues(adjustment);
-    }
-
-    const handleStoreCreditValueBlur = (event: any) => {
+        handleTotalAdjustmentChange(adjustment);
         dispatch(updateTotalInStore({
             ...quote.total,
-            storeCreditValue: launderMoney(event.target.value)
+            valueAdjustment: adjustment,
+            value: launderMoney(valueDisplay),
+            storeCreditValue: launderMoney(storeCreditValueDisplay)
         } as Total));
-        setStoreCreditValueDisplay(formatCurrency(launderMoney(event.target.value)));
     }
 
-    const updateAllValues = (adjustment: number) => {
-        const updatedItems = quote.items.map(item => ({
-            ...item,
-            valueAdjustment: adjustment,
-            value: Math.round(item.baseValue * (adjustment / 100))
-        }));
-        const calculatedStoreCreditValue =
-          launderMoney(valueDisplay) * (configuration.storeCreditValueAdjustment / 100);
-        setStoreCreditValueDisplay(formatCurrency(calculatedStoreCreditValue));
-        dispatch(updateQuoteInStore({
-            items: updatedItems,
-            total: {
-                ...quote.total,
-                value: launderMoney(valueDisplay),
-                valueAdjustment: adjustment,
-                storeCreditValue: calculatedStoreCreditValue
-            }
-        } as Quote))
-    };
-
     return (
-      <TableContainer style={{width: "100%", paddingTop: "20px", marginLeft: '-10px'}}>
+      quote.items.length > 0 ? (
+        <TableContainer style={{width: "100%", paddingTop: "20px", marginLeft: '-10px'}}>
           <Table size="small"
                  sx={{
                      [`& .${tableCellClasses.root}`]: {
@@ -183,19 +186,20 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({  storeMode }) => {
                                 value={valueDisplay}
                                 onChange={(event) => setValueDisplay(event.target.value)}
                                 onBlur={handleValueBlur}
-                                readonly={sliderDisabled} />
+                              />
                           </div>
                       </FixedWidthColumnHeading>
                       {storeMode &&
-                        <FixedWidthColumnHeading>
-                            <ValueAdjustmentSlider
-                              value={sliderValue}
-                              handleSliderChange={handleSliderChange}
-                              handleSliderChangeCommitted={handleSliderChangeCommitted}
-                              disabled={sliderDisabled}
-                              sx={{marginLeft: '8px', marginRight: '10px'}}
-                            />
-                        </FixedWidthColumnHeading>}
+                        <Tooltip title={sliderDisabled ? 'Disabled due to adjustment values not matching in table!' : ''}>
+                            <FixedWidthColumnHeading>
+                                <ValueAdjustmentSlider
+                                  value={sliderValue}
+                                  handleSliderChange={handleSliderChange}
+                                  handleSliderChangeCommitted={handleSliderChangeCommitted}
+                                  disabled={sliderDisabled}
+                                />
+                            </FixedWidthColumnHeading>
+                        </Tooltip>}
                       <FixedWidthColumnHeading>
                           <div style={{width: "120px", minWidth: "120px", maxWidth: "120px", marginLeft: '20px'}}>
                               <CurrencyTextInput
@@ -207,8 +211,9 @@ const Totals: FunctionComponent<TotalsSectionParams> = ({  storeMode }) => {
                   </TableRow>
               </TableBody>
           </Table>
-      </TableContainer>
+        </TableContainer>
+      ) : <></>
     );
-};
+});
 
 export default React.memo(Totals);

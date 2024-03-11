@@ -20,7 +20,12 @@ const ValueAdjustmentSlider: FunctionComponent<ValueAdjustmentSliderParams & Sli
 
   return (
     <Slider
-      value={value}
+      sx={{
+        '& .MuiSlider-thumb': {
+          display: disabled ? 'none' : 'flex',
+        }
+      }}
+      value={!!disabled ? 0 : value}
       onChange={handleSliderChange}
       onChangeCommitted={handleSliderChangeCommitted}
       disabled={!!disabled}

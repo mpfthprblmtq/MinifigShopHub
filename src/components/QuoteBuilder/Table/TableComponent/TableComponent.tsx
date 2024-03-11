@@ -27,9 +27,10 @@ import { Configuration } from "../../../../model/dynamo/Configuration";
 interface TableComponentParams {
     storeMode: boolean;
     compressedView: boolean;
+    updateItems: (items: Item[]) => void;
 }
 
-const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, compressedView }) => {
+const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, compressedView, updateItems }) => {
 
     const [focusedItem, setFocusedItem] = useState<Item>();
     const [showImageDialog, setShowImageDialog] = useState<boolean>(false);
@@ -58,6 +59,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
                 itemCopy.value = itemCopy.baseValue * (itemCopy.valueAdjustment / 100);
             }
             dispatch(updateItem(itemCopy));
+            updateItems(getUpdatedItems(itemCopy));
         }
     };
 
@@ -74,8 +76,17 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
                 itemCopy.valueAdjustment = Math.round((itemCopy.value / itemCopy.baseValue) * 100);
             }
             dispatch(updateItem(itemCopy));
+            updateItems(getUpdatedItems(itemCopy));
         }
     };
+
+    const getUpdatedItems = (item: Item): Item[] => {
+        const updatedItems: Item[] = [...items];
+        updatedItems[updatedItems.findIndex(itemInList =>
+          itemInList.id === item.id
+        )] = item;
+        return updatedItems;
+    }
 
     /**
      * Event handler for the comment change, sets the comment on the item
@@ -83,7 +94,6 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
      * @param id the id of the item to modify
      */
     const handleCommentChange = (comment: string, id: number) => {
-        console.log('changing comment');
         const itemCopy = {...getItemWithId(items, id)} as Item;
         dispatch(updateItem({...itemCopy, comment: comment}));
     }
