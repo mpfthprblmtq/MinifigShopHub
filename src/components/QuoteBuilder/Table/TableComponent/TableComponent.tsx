@@ -56,10 +56,19 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
                 itemCopy.condition = condition;
                 itemCopy.valueAdjustment = condition === Condition.NEW ?
                   configuration.autoAdjustmentPercentageNew : configuration.autoAdjustmentPercentageUsed;
+
+                // new Retail sets use the MSRP as the base value, used Retail sets use BrickLink sales data as the base value
+                if (itemCopy.condition === Condition.USED) {
+                    itemCopy.baseValue = +(itemCopy.salesData?.usedSold?.avg_price ?? 0);
+                } else if (itemCopy.condition === Condition.NEW) {
+                    itemCopy.baseValue = itemCopy.retailStatus?.availability === Availability.RETAIL ?
+                      itemCopy.retailStatus.retailPrice ?? 0 : +(itemCopy.salesData?.newSold?.avg_price ?? 0);
+                }
                 itemCopy.value = itemCopy.baseValue * (itemCopy.valueAdjustment / 100);
+
+                dispatch(updateItem(itemCopy));
+                updateItems(getUpdatedItems(itemCopy));
             }
-            dispatch(updateItem(itemCopy));
-            updateItems(getUpdatedItems(itemCopy));
         }
     };
 

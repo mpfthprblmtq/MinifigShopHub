@@ -9,7 +9,6 @@ import { AxiosError, HttpStatusCode } from "axios";
 import { AllSalesHistory } from "../model/salesHistory/AllSalesHistory";
 import { Source } from "../model/_shared/Source";
 import { Condition } from "../model/_shared/Condition";
-import { Availability } from "../model/retailStatus/Availability";
 
 export interface ItemLookupServiceHooks {
     getHydratedItem: (item: Item) => Promise<Item>;
@@ -172,21 +171,10 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
             }
         }
 
-        // by default, set the condition to used
+        // by default, set the condition to used, base value to BL sales data, value, adjustment and type
         item.condition = Condition.USED;
-
-        // if the item is available at retail, set the value to reflect MSRP, not sales data
-        // set the base value using the same logic as well
-        if (item.retailStatus?.availability === Availability.RETAIL) {
-            item.value = item.retailStatus.retailPrice ?
-              item.retailStatus.retailPrice * (configuration.autoAdjustmentPercentageUsed / 100) : 0;
-            item.baseValue = item.retailStatus.retailPrice ?? 0;
-        } else {
-            item.value = item.salesData?.usedSold?.avg_price ?
-              Math.round(+item.salesData.usedSold.avg_price * (configuration.autoAdjustmentPercentageUsed / 100)) : 0;
-            item.baseValue = item.salesData?.usedSold?.avg_price ? +item.salesData.usedSold.avg_price : 0;
-        }
-        item.value = +Math.round(item.value).toFixed(2);
+        item.baseValue = +(item.salesData?.usedSold?.avg_price ?? 0);
+        item.value = Math.round(item.baseValue * (configuration.autoAdjustmentPercentageUsed / 100));
         item.valueAdjustment = configuration.autoAdjustmentPercentageUsed;
         item.type = determineType(item.setId ?? '');
 
