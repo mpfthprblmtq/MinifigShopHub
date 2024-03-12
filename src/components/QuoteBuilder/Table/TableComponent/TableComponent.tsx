@@ -114,7 +114,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
         if (itemCopy.retailStatus?.retailPrice && itemCopy.retailStatus?.availability === Availability.RETAIL) {
             itemCopy.baseValue = itemCopy.retailStatus.retailPrice;
             itemCopy.valueAdjustment = configuration.autoAdjustmentPercentageCertifiedPreOwned;
-            itemCopy.value = roundToNearestFive(itemCopy.retailStatus.retailPrice * (itemCopy.valueAdjustment / 100));
+            itemCopy.value = roundToNearestFive(itemCopy.retailStatus.retailPrice * (itemCopy.valueAdjustment / 100), 'DOWN');
         } else {
             itemCopy.valueAdjustment = 0;
             itemCopy.value = 0.00;

@@ -23,6 +23,13 @@ export const launderMoney = (s: string): number => {
         .replace("$", "");
 };
 
-export const roundToNearestFive = (n: number): number => {
-    return Math.round(n / 5) * 5;
+export const roundToNearestFive = (n: number, direction?: string): number => {
+    switch (direction) {
+        case 'UP':
+            return Math.ceil(n / 5) * 5;
+        case 'DOWN':
+            return Math.floor(n / 5) * 5;
+        default:
+            return Math.round(n / 5) * 5;
+    }
 }
