@@ -54,8 +54,6 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
             const itemCopy = {...getItemWithId(items, id)} as Item;
             if (itemCopy) {
                 itemCopy.condition = condition;
-                itemCopy.valueAdjustment = condition === Condition.NEW ?
-                  configuration.autoAdjustmentPercentageNew : configuration.autoAdjustmentPercentageUsed;
 
                 // new Retail sets use the MSRP as the base value, used Retail sets use BrickLink sales data as the base value
                 if (itemCopy.condition === Condition.USED) {
@@ -63,6 +61,12 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
                 } else if (itemCopy.condition === Condition.NEW) {
                     itemCopy.baseValue = itemCopy.retailStatus?.availability === Availability.RETAIL ?
                       itemCopy.retailStatus.retailPrice ?? 0 : +(itemCopy.salesData?.newSold?.avg_price ?? 0);
+                }
+                if (itemCopy.baseValue === 0) {
+                    itemCopy.valueAdjustment = 0;
+                } else {
+                    itemCopy.valueAdjustment = condition === Condition.NEW ?
+                      configuration.autoAdjustmentPercentageNew : configuration.autoAdjustmentPercentageUsed;
                 }
                 itemCopy.value = itemCopy.baseValue * (itemCopy.valueAdjustment / 100);
 
@@ -81,8 +85,14 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
         const itemCopy = {...getItemWithId(items, id)} as Item;
         if (itemCopy.value !== launderMoney(event.target.value)) {  // prevent dispatch on value not changed
             if (itemCopy) {
-                itemCopy.value = launderMoney(event.target.value);
-                itemCopy.valueAdjustment = Math.round((itemCopy.value / itemCopy.baseValue) * 100);
+                console.log(itemCopy)
+                if (itemCopy.baseValue !== 0) {
+                    itemCopy.value = launderMoney(event.target.value);
+                    itemCopy.valueAdjustment = Math.round((itemCopy.value / itemCopy.baseValue) * 100);
+                } else {
+                    itemCopy.value = launderMoney(event.target.value);
+                }
+
             }
             dispatch(updateItem(itemCopy));
             updateItems(getUpdatedItems(itemCopy));
@@ -167,7 +177,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
                                 />
                               ) : (
                                   <StyledTableCell>
-                                      {formatCurrency(item.value)}
+                                      {formatCurrency(Math.round(item.value))}
                                   </StyledTableCell>
                             )}
                             <ItemCommentCell item={item} storeMode={storeMode} handleCommentChange={handleCommentChange}/>

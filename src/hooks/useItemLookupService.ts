@@ -175,7 +175,7 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
         item.condition = Condition.USED;
         item.baseValue = +(item.salesData?.usedSold?.avg_price ?? 0);
         item.value = Math.round(item.baseValue * (configuration.autoAdjustmentPercentageUsed / 100));
-        item.valueAdjustment = configuration.autoAdjustmentPercentageUsed;
+        item.valueAdjustment = item.baseValue !== 0 ? configuration.autoAdjustmentPercentageUsed : 0;
         item.type = determineType(item.setId ?? '');
 
         // set the item in cache

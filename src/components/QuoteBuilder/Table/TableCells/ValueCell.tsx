@@ -32,12 +32,14 @@ const ValueCell: FunctionComponent<ValueCellParams> = ({item, handleValueBlur, s
                   handleValueBlur(event, item.id);
                 }}
                 color={storeMode && item.value > 100 ? '#BD0000' : 'black'}
-                endAdornment={
-                  // <Box onClick={() => alert('TODO: Add ability to change percentage here')}>
-                  <Typography sx={{fontSize: '14px', color: 'gray'}}>
-                    {`${adjustment}%`}
-                  </Typography>
-                  // </Box>
+                error={item.value === 0}
+                endAdornment={adjustment !== 0 ? (
+                    // <Box onClick={() => alert('TODO: Add ability to change percentage here')}>
+                    <Typography sx={{fontSize: '14px', color: 'gray'}}>
+                      {`${adjustment}%`}
+                    </Typography>
+                    // </Box>
+                  ) : (<></>)
                 }
               />
           </div>

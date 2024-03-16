@@ -25,6 +25,7 @@ import ItemStatisticsCard from "./Cards/ItemStatisticsCard/ItemStatisticsCard";
 import SaveQuoteDialog from "./Dialog/SaveQuoteDialog/SaveQuoteDialog";
 import LoadQuoteDialog from "./Dialog/LoadQuoteDialog/LoadQuoteDialog";
 import { SavedQuote } from "../../model/dynamo/SavedQuote";
+import { Availability } from "../../model/retailStatus/Availability";
 
 const QuoteBuilderComponent: FunctionComponent = () => {
 
@@ -94,8 +95,17 @@ const QuoteBuilderComponent: FunctionComponent = () => {
     const clonedItems: Item[] = _.cloneDeep(items);
     clonedItems.forEach(item => {
       item.condition = condition;
-      item.valueAdjustment = condition === Condition.NEW ?
-        configuration.autoAdjustmentPercentageNew : configuration.autoAdjustmentPercentageUsed;
+      if (item.condition === Condition.NEW && item.retailStatus?.availability === Availability.RETAIL) {
+        item.baseValue = +(item.retailStatus.retailPrice ?? 0);
+      } else {
+        item.baseValue = +(item.salesData?.usedSold?.avg_price ?? 0);
+      }
+      if (item.baseValue === 0) {
+        item.valueAdjustment = 0;
+      } else {
+        item.valueAdjustment = condition === Condition.NEW ?
+          configuration.autoAdjustmentPercentageNew : configuration.autoAdjustmentPercentageUsed;
+      }
       item.value = item.baseValue * (item.valueAdjustment / 100);
     });
     dispatch((updateItemsInStore([...clonedItems])));
