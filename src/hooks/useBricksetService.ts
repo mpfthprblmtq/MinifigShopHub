@@ -28,6 +28,7 @@ export const useBricksetService = (): BricksetServiceHooks => {
         const id: string = new RegExp(".+-\\d").test(item.setId) ? item.setId : item.setId + '-1';
         const bricksetData = await get(id);
         const set = bricksetData.sets[0];
+        item.sources = item.sources ?? [];
         if (set) {
           return {
             theme: set.theme,
