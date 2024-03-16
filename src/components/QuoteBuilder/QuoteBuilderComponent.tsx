@@ -26,6 +26,7 @@ import SaveQuoteDialog from "./Dialog/SaveQuoteDialog/SaveQuoteDialog";
 import LoadQuoteDialog from "./Dialog/LoadQuoteDialog/LoadQuoteDialog";
 import { SavedQuote } from "../../model/dynamo/SavedQuote";
 import { Availability } from "../../model/retailStatus/Availability";
+import { Source } from "../../model/_shared/Source";
 
 const QuoteBuilderComponent: FunctionComponent = () => {
 
@@ -66,7 +67,8 @@ const QuoteBuilderComponent: FunctionComponent = () => {
 
   const handleTotalAdjustmentChange = (adjustment: number) => {
     dispatch(updateItemsInStore(items.map(item => {
-      return {...item, valueAdjustment: adjustment, value: (item.baseValue * (adjustment / 100))} as Item;
+      return !item.sources.includes(Source.CUSTOM) ?
+        {...item, valueAdjustment: adjustment, value: (item.baseValue * (adjustment / 100))} as Item : item;
     })))
   }
 
@@ -95,18 +97,20 @@ const QuoteBuilderComponent: FunctionComponent = () => {
     const clonedItems: Item[] = _.cloneDeep(items);
     clonedItems.forEach(item => {
       item.condition = condition;
-      if (item.condition === Condition.NEW && item.retailStatus?.availability === Availability.RETAIL) {
-        item.baseValue = +(item.retailStatus.retailPrice ?? 0);
-      } else {
-        item.baseValue = +(item.salesData?.usedSold?.avg_price ?? 0);
+      if (!item.sources.includes(Source.CUSTOM)) {
+        if (item.condition === Condition.NEW && item.retailStatus?.availability === Availability.RETAIL) {
+          item.baseValue = +(item.retailStatus.retailPrice ?? 0);
+        } else {
+          item.baseValue = +(item.salesData?.usedSold?.avg_price ?? 0);
+        }
+        if (item.baseValue === 0) {
+          item.valueAdjustment = 0;
+        } else {
+          item.valueAdjustment = condition === Condition.NEW ?
+            configuration.autoAdjustmentPercentageNew : configuration.autoAdjustmentPercentageUsed;
+        }
+        item.value = item.baseValue * (item.valueAdjustment / 100);
       }
-      if (item.baseValue === 0) {
-        item.valueAdjustment = 0;
-      } else {
-        item.valueAdjustment = condition === Condition.NEW ?
-          configuration.autoAdjustmentPercentageNew : configuration.autoAdjustmentPercentageUsed;
-      }
-      item.value = item.baseValue * (item.valueAdjustment / 100);
     });
     dispatch((updateItemsInStore([...clonedItems])));
     updateItems(clonedItems);
@@ -172,7 +176,10 @@ const QuoteBuilderComponent: FunctionComponent = () => {
               }} />
             </Box>
             <Box sx={{ m: 1, position: 'relative' }} className={"hide-in-print-preview"}>
-              <CustomItemCard items={items} setItems={(items) => dispatch(updateItemsInStore([...items]))} />
+              <CustomItemCard items={items} setItems={(items) => {
+                dispatch(updateItemsInStore([...items]));
+                updateItems(items);
+              }} />
             </Box>
             <Box sx={{ m: 1, position: 'relative' }} className={"hide-in-print-preview"}>
               <BrickLinkSearchCard />

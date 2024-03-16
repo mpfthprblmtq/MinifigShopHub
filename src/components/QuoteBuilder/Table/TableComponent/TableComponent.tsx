@@ -23,6 +23,7 @@ import { useNavigate } from "react-router-dom";
 import { RouterPaths } from "../../../../utils/RouterPaths";
 import { Availability } from "../../../../model/retailStatus/Availability";
 import { Configuration } from "../../../../model/dynamo/Configuration";
+import { Source } from "../../../../model/_shared/Source";
 
 interface TableComponentParams {
     storeMode: boolean;
@@ -54,21 +55,22 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
             const itemCopy = {...getItemWithId(items, id)} as Item;
             if (itemCopy) {
                 itemCopy.condition = condition;
-
-                // new Retail sets use the MSRP as the base value, used Retail sets use BrickLink sales data as the base value
-                if (itemCopy.condition === Condition.USED) {
-                    itemCopy.baseValue = +(itemCopy.salesData?.usedSold?.avg_price ?? 0);
-                } else if (itemCopy.condition === Condition.NEW) {
-                    itemCopy.baseValue = itemCopy.retailStatus?.availability === Availability.RETAIL ?
-                      itemCopy.retailStatus.retailPrice ?? 0 : +(itemCopy.salesData?.newSold?.avg_price ?? 0);
+                if (!itemCopy.sources.includes(Source.CUSTOM)) {
+                    // new Retail sets use the MSRP as the base value, used Retail sets use BrickLink sales data as the base value
+                    if (itemCopy.condition === Condition.USED) {
+                        itemCopy.baseValue = +(itemCopy.salesData?.usedSold?.avg_price ?? 0);
+                    } else if (itemCopy.condition === Condition.NEW) {
+                        itemCopy.baseValue = itemCopy.retailStatus?.availability === Availability.RETAIL ?
+                          itemCopy.retailStatus.retailPrice ?? 0 : +(itemCopy.salesData?.newSold?.avg_price ?? 0);
+                    }
+                    if (itemCopy.baseValue === 0) {
+                        itemCopy.valueAdjustment = 0;
+                    } else {
+                        itemCopy.valueAdjustment = condition === Condition.NEW ?
+                          configuration.autoAdjustmentPercentageNew : configuration.autoAdjustmentPercentageUsed;
+                    }
+                    itemCopy.value = itemCopy.baseValue * (itemCopy.valueAdjustment / 100);
                 }
-                if (itemCopy.baseValue === 0) {
-                    itemCopy.valueAdjustment = 0;
-                } else {
-                    itemCopy.valueAdjustment = condition === Condition.NEW ?
-                      configuration.autoAdjustmentPercentageNew : configuration.autoAdjustmentPercentageUsed;
-                }
-                itemCopy.value = itemCopy.baseValue * (itemCopy.valueAdjustment / 100);
 
                 dispatch(updateItem(itemCopy));
                 updateItems(getUpdatedItems(itemCopy));
@@ -198,7 +200,9 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
                               <IconsCell
                                 item={item}
                                 onDelete={(id: number) => {
-                                    dispatch(updateItemsInStore([...items].filter(item => item.id !== id)));
+                                    const updatedItems: Item[] = [...items].filter(item => item.id !== id);
+                                    dispatch(updateItemsInStore(updatedItems));
+                                    updateItems(updatedItems);
                                     setSnackbarState({open: true, message: `Item ${item.setId ? item.setId : ''} successfully deleted!`, severity: 'success'})
                                 }}
                                 onShowMoreInfo={() => {

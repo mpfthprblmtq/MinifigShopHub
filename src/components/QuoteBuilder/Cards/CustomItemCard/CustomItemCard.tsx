@@ -28,7 +28,7 @@ const CustomItemCard: FunctionComponent<CustomItemCardParams> = ({items, setItem
             name: name,
             value: launderMoney(value),
             baseValue: launderMoney(value),
-            valueAdjustment: 0,
+            valueAdjustment: 100,
             sources: [Source.CUSTOM],
             condition: Condition.USED,
             type: type

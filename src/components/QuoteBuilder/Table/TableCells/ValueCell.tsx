@@ -1,10 +1,11 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
-import {Item} from "../../../../model/item/Item";
+import { Item } from "../../../../model/item/Item";
 import CurrencyTextInput from "../../../_shared/CurrencyTextInput/CurrencyTextInput";
-import {StyledTableCell} from "../TableComponent/TableComponent.styles";
+import { StyledTableCell } from "../TableComponent/TableComponent.styles";
 import { formatCurrency } from "../../../../utils/CurrencyUtils";
 import { Box, Typography } from "@mui/material";
 import RowAdjustmentTooltip from "../../Dialog/RowAdjustmentTooltip/RowAdjustmentTooltip";
+import { Source } from "../../../../model/_shared/Source";
 
 interface ValueCellParams {
     item: Item;
@@ -37,7 +38,7 @@ const ValueCell: FunctionComponent<ValueCellParams> = ({item, handleValueBlur, h
                 }}
                 color={storeMode && item.value > 100 ? '#BD0000' : 'black'}
                 error={item.value === 0}
-                endAdornment={item.baseValue !== 0 ? (
+                endAdornment={item.baseValue !== 0 && !item.sources.includes(Source.CUSTOM) ? (
                   <Box
                     onClick={() => setShowAdjustmentTooltip(true)}
                     sx={{
