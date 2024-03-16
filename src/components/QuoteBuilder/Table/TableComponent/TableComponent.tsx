@@ -83,8 +83,8 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
      */
     const handleValueBlur = (event: any, id: number) => {
         const itemCopy = {...getItemWithId(items, id)} as Item;
-        if (itemCopy.value !== launderMoney(event.target.value)) {  // prevent dispatch on value not changed
-            if (itemCopy) {
+        if (itemCopy) {
+            if (itemCopy.value !== launderMoney(event.target.value)) { // prevent dispatch on value not changed
                 console.log(itemCopy)
                 if (itemCopy.baseValue !== 0) {
                     itemCopy.value = launderMoney(event.target.value);
@@ -92,12 +92,24 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
                 } else {
                     itemCopy.value = launderMoney(event.target.value);
                 }
-
+                dispatch(updateItem(itemCopy));
+                updateItems(getUpdatedItems(itemCopy));
             }
-            dispatch(updateItem(itemCopy));
-            updateItems(getUpdatedItems(itemCopy));
         }
     };
+
+    const handleAdjustmentChange = (adjustment: number, id: number) => {
+        const itemCopy = {...getItemWithId(items, id)} as Item;
+        if (itemCopy) {
+            if (itemCopy.valueAdjustment !== adjustment) { // prevent dispatch on adjustment not changed
+                itemCopy.valueAdjustment = adjustment;
+                itemCopy.value = Math.round(itemCopy.baseValue * (itemCopy.valueAdjustment / 100));
+
+                dispatch(updateItem(itemCopy));
+                updateItems(getUpdatedItems(itemCopy));
+            }
+        }
+    }
 
     const getUpdatedItems = (item: Item): Item[] => {
         const updatedItems: Item[] = [...items];
@@ -173,6 +185,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
                                 <ValueCell
                                   item={item}
                                   handleValueBlur={handleValueBlur}
+                                  handleAdjustmentChange={handleAdjustmentChange}
                                   storeMode={storeMode}
                                 />
                               ) : (
