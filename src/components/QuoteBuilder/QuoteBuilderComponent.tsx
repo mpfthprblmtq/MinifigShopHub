@@ -101,7 +101,8 @@ const QuoteBuilderComponent: FunctionComponent = () => {
         if (item.condition === Condition.NEW && item.retailStatus?.availability === Availability.RETAIL) {
           item.baseValue = +(item.retailStatus.retailPrice ?? 0);
         } else {
-          item.baseValue = +(item.salesData?.usedSold?.avg_price ?? 0);
+          item.baseValue = item.condition === Condition.USED ?
+            +(item.salesData?.usedSold?.avg_price ?? 0) : +(item.salesData?.newSold?.avg_price ?? 0);
         }
         if (item.baseValue === 0) {
           item.valueAdjustment = 0;
