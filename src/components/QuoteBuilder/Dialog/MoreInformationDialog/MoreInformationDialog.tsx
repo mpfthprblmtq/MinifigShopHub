@@ -65,6 +65,9 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
                             <Typography style={{marginTop: 10}}>
                                 <strong>Availability: </strong>{item?.retailStatus?.availability}<br/>
                                 <strong>MSRP: </strong>{formatCurrency(item?.retailStatus?.retailPrice)}<br/>
+                                <a href={`https://www.brickeconomy.com/search?query=${item.setId}`} target='_blank' rel='noreferrer'>
+                                    <strong>BrickEconomy Value: </strong>{formatCurrency(item?.brickEconomyValue)}<br/>
+                                </a>
                             </Typography>
                         )}
                     </Box>

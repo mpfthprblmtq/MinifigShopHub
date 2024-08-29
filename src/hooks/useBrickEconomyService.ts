@@ -3,6 +3,7 @@ import axios from "axios";
 import * as cheerio from 'cheerio';
 import {Availability} from "../model/retailStatus/Availability";
 import {launderMoney} from "../utils/CurrencyUtils";
+import { toNumber } from "lodash";
 
 const corsProxyUrl: string = 'https://corsproxy.io/?';
 const baseUrl: string = 'https://www.brickeconomy.com/search?query=';
@@ -10,6 +11,7 @@ const baseUrl: string = 'https://www.brickeconomy.com/search?query=';
 export interface BrickEconomyHooks {
   getRetailStatus: (id: string) => Promise<RetailStatus>;
   getPieceAndMinifigCount: (id: string) => Promise<number[]>;
+  getBrickEconomyValue: (id: string) => Promise<number>;
 }
 
 export const useBrickEconomyService = (): BrickEconomyHooks => {
@@ -92,6 +94,33 @@ export const useBrickEconomyService = (): BrickEconomyHooks => {
     return '';
   };
 
+  const getBrickEconomyValue = async (id: string): Promise<number> => {
+    let value: number = 0;
+    try {
+      const { data: pageSource } = await brickEconomyAxiosInstance.get(`${corsProxyUrl}${baseUrl}${id}`);
+      await getValue(pageSource).then((result) => {
+        value = toNumber(result.replace('$', '').replace(',', ''));
+      });
+    } catch (error) {
+      console.error(error);
+    }
+    return value;
+  }
+
+  const getValue = async (pageSource: string): Promise<string> => {
+    const $ = cheerio.load(pageSource);
+    const valueElements = $('small.mr-5').filter((_, element) => {
+      return $(element).text().toLowerCase().includes("value");
+    });
+    // using >= 2 because if there's 2 elements, then there's only one result
+    // if there's more than 2 elements, that means there's multiple matches, and we want to use the first one anyway
+    if (valueElements.length >= 2) {
+      const valueElement: any = valueElements[1];
+      return valueElement.next.next.children[0].data.toString().trim();
+    }
+    return '';
+  }
+
   const getPieceAndMinifigString = async (pageSource: string): Promise<string> => {
     const $ = cheerio.load(pageSource);
     const $mb2Div = $('div.mb-2');
@@ -112,5 +141,5 @@ export const useBrickEconomyService = (): BrickEconomyHooks => {
     return '';
   }
 
-  return { getRetailStatus, getPieceAndMinifigCount };
+  return { getRetailStatus, getPieceAndMinifigCount, getBrickEconomyValue };
 }

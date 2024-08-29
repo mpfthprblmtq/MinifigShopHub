@@ -22,7 +22,7 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
 
     const { getBricklinkData, getAllSalesHistory } = useBrickLinkService();
     const { getBricksetData } = useBricksetService();
-    const { getRetailStatus, getPieceAndMinifigCount } = useBrickEconomyService();
+    const { getRetailStatus, getPieceAndMinifigCount, getBrickEconomyValue } = useBrickEconomyService();
     const { getCacheItem, setCacheItem } = useCacheService();
 
     const getItemMatches = async (id: string): Promise<Item[]> => {
@@ -168,6 +168,18 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
                 } catch (e: any) {
                     addBrickEconomyMessage(item);
                 }
+            }
+        }
+
+        // get the BrickEconomy value
+        if (item.setId) {
+            try {
+                const brickEconomyValue: number = await getBrickEconomyValue(item.setId);
+                if (brickEconomyValue > 0) {
+                    item.brickEconomyValue = brickEconomyValue;
+                }
+            } catch (e: any) {
+                addBrickEconomyMessage(item);
             }
         }
 

@@ -19,6 +19,7 @@ export interface Item {
     baseValue: number;
     valueAdjustment: number;
     value: number;
+    brickEconomyValue?: number;
     // valueDisplay?: string;
     comment?: string;
     sources: Source[];
