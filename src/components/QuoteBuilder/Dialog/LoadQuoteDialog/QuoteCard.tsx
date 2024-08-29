@@ -9,15 +9,17 @@ import DriveFileMoveIcon from "@mui/icons-material/DriveFileMove";
 import { useDispatch } from "react-redux";
 import { useQuoteService } from "../../../../hooks/dynamo/useQuoteService";
 import { SavedQuoteKey } from "../../../../model/dynamo/SavedQuoteKey";
+import { Quote } from "../../../../model/quote/Quote";
 
 interface QuoteCardParams {
   quoteKey: SavedQuoteKey;
   removeQuoteFromState: (quoteKey: SavedQuoteKey) => void;
   setSnackbarState: (snackbarState: SnackbarState) => void;
   onClose: () => void;
+  loadQuoteIntoApp: (quote: Quote) => void;
 }
 
-const QuoteCard: FunctionComponent<QuoteCardParams> = ({ quoteKey, removeQuoteFromState, setSnackbarState, onClose }) => {
+const QuoteCard: FunctionComponent<QuoteCardParams> = ({ quoteKey, removeQuoteFromState, setSnackbarState, onClose, loadQuoteIntoApp }) => {
 
   const [confirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState<boolean>(false);
   const dispatch = useDispatch();
@@ -91,6 +93,7 @@ const QuoteCard: FunctionComponent<QuoteCardParams> = ({ quoteKey, removeQuoteFr
             onClick={async () => {
               await loadQuote(quoteKey.id).then(quote => {
                 dispatch(updateQuoteInStore(quote.quote));
+                loadQuoteIntoApp(quote.quote);
                 onClose();
                 setSnackbarState({
                   open: true,

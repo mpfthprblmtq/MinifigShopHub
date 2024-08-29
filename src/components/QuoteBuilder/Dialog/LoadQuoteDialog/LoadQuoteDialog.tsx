@@ -20,14 +20,16 @@ import { Dayjs } from "dayjs";
 import QuoteCard from "./QuoteCard";
 import { SavedQuote } from "../../../../model/dynamo/SavedQuote";
 import { SavedQuoteKey } from "../../../../model/dynamo/SavedQuoteKey";
+import { Quote } from "../../../../model/quote/Quote";
 
 interface LoadQuoteDialogParams {
   open: boolean;
   onClose: () => void;
   quote?: SavedQuote;
+  loadQuote: (quote: Quote) => void;
 }
 
-const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClose, quote }) => {
+const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClose, quote, loadQuote }) => {
 
   const { loadQuoteKeys } = useQuoteService();
 
@@ -133,6 +135,7 @@ const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClo
               .map((quote) => (
                 <QuoteCard
                   quoteKey={quote}
+                  loadQuoteIntoApp={loadQuote}
                   removeQuoteFromState={(quoteKey: SavedQuoteKey) =>
                     setQuoteKeys([...quoteKeys.filter(quoteKeyInList => quoteKey.id !== quoteKeyInList.id)])}
                   setSnackbarState={setSnackbarState}
