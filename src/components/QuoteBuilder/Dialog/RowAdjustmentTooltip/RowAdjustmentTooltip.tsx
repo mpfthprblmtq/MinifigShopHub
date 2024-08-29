@@ -1,4 +1,4 @@
-import { FunctionComponent, ReactElement, useEffect, useState } from "react";
+import { FunctionComponent, ReactElement, useEffect, useRef, useState } from "react";
 import * as React from "react";
 import {
   Box,
@@ -41,6 +41,7 @@ const TooltipConfirmationModal: FunctionComponent<TooltipConfirmationModalParams
     useEffect(() => {
       setValue(adjustment);
     }, [adjustment]);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
       const handleMouseDown = (event: any) => {
@@ -104,6 +105,12 @@ const TooltipConfirmationModal: FunctionComponent<TooltipConfirmationModalParams
                   if (event.key === 'Enter') {
                     onConfirm(value);
                     onClose();
+                  }
+                }}
+                inputRef={inputRef}
+                onFocus={() => {
+                  if (inputRef.current) {
+                    inputRef.current.select();
                   }
                 }}
               />
