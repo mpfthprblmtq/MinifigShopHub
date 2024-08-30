@@ -21,6 +21,7 @@ import { Condition } from "../../../../model/_shared/Condition";
 import { useQuoteService } from "../../../../hooks/dynamo/useQuoteService";
 import { SavedQuote } from "../../../../model/dynamo/SavedQuote";
 import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
+import { Item } from "../../../../model/item/Item";
 
 interface SaveQuoteDialogParams {
   open: boolean;
@@ -40,8 +41,27 @@ const SaveQuoteDialog: FunctionComponent<SaveQuoteDialogParams> = ({open, onClos
   const { saveQuote } = useQuoteService();
 
   const save = async () => {
+    const transformedQuote: Quote = {...quote, items: [...quote.items].map(item => {
+        return {...item, salesData: {
+          usedSold: {
+            item: {no: item.salesData?.usedSold?.item.no},
+            total_quantity: item.salesData?.usedSold?.total_quantity,
+            min_price: item.salesData?.usedSold?.min_price,
+            max_price: item.salesData?.usedSold?.max_price,
+            avg_price: item.salesData?.usedSold?.avg_price
+          },
+          newSold: {
+            item: {no: item.salesData?.usedSold?.item.no},
+            total_quantity: item.salesData?.newSold?.total_quantity,
+            min_price: item.salesData?.newSold?.min_price,
+            max_price: item.salesData?.newSold?.max_price,
+            avg_price: item.salesData?.newSold?.avg_price
+          }
+        }} as Item;
+      })}
+
     const savedQuote = {
-      quote: quote,
+      quote: transformedQuote,
       customerInfo: customerInfo,
       inputtedBy: inputtedBy,
       keyWords: keyWords?.toLowerCase().replace(', ', ',').split(','),
