@@ -1,8 +1,7 @@
-import {Item} from "../item/Item";
 import {PriceDetail} from "./PriceDetail";
 
 export interface SalesHistory {
-    item: Item;
+    item: { no: string, type: string };
     new_or_used: 'U' | 'N';
     currency_code: string;
     min_price: string;
