@@ -81,3 +81,10 @@
 - Fixed the BrickEconomy fallback service for when piece/minifig counts don't exist on Brickset
   - When you had a set without minifigs, and there's no piece data on Brickset, BrickEconomy couldn't find the piece count, since it was looking for "Pieces / Minifigs", when we really should have been looking for "Pieces"
 
+### v3.5.0
+
+- Changed how quotes are saved, only saving base information, and added a refresh button to re-pull that data if needed on the more info dialog
+- Fixed bug on the more info dialog where the title of the graph said "Sales history for undefined," now shows the set number
+- Fixed bug where if you load a quote with a quote already loaded, the Totals wouldn't recalculate
+- Made it so the percentage highlights on focus for the percentage tooltip (for mobile users, mostly)
+- Added BrickEconomy value to the item on load
