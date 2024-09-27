@@ -7,6 +7,7 @@ import { AllSalesHistory } from "../salesHistory/AllSalesHistory";
 export interface Item {
     id: number;
     setId?: string;
+    brickLinkId?: string;
     name: string;
     theme?: string;
     subTheme?: string;
@@ -19,7 +20,7 @@ export interface Item {
     baseValue: number;
     valueAdjustment: number;
     value: number;
-    // valueDisplay?: string;
+    brickEconomyValue?: number;
     comment?: string;
     sources: Source[];
     type: Type;

@@ -214,8 +214,15 @@ const QuoteBuilderComponent: FunctionComponent = () => {
         setBulkCondition={(condition) => { setBulkCondition(condition) }}
         actionsDisabled={items.length === 0}
       />
-      <SaveQuoteDialog open={saveQuoteDialogOpen} onClose={() => setSaveQuoteDialogOpen(false)} addQuote={addQuote} />
-      <LoadQuoteDialog open={loadQuoteDialogOpen} onClose={() => setLoadQuoteDialogOpen(false)} quote={savedQuote}/>
+      <SaveQuoteDialog
+        open={saveQuoteDialogOpen}
+        onClose={() => setSaveQuoteDialogOpen(false)}
+        addQuote={addQuote} />
+      <LoadQuoteDialog
+        open={loadQuoteDialogOpen}
+        onClose={() => setLoadQuoteDialogOpen(false)}
+        quote={savedQuote}
+        loadQuote={(quote: Quote) => updateItems(quote.items)} />
       <Version />
       <Portal>
         <Snackbar

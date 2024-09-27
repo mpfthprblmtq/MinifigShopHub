@@ -1,4 +1,4 @@
-import React, {FunctionComponent} from "react";
+import React, { FunctionComponent, useState } from "react";
 import {Item} from "../../../../model/item/Item";
 import {
     Box,
@@ -10,9 +10,13 @@ import {
     IconButton,
     Typography
 } from "@mui/material";
-import {Close} from "@mui/icons-material";
+import { Close, Refresh } from "@mui/icons-material";
 import SalesHistoryAccordion from "./SalesHistoryAccordion";
 import {formatCurrency} from "../../../../utils/CurrencyUtils";
+import { LoadingButton } from "@mui/lab";
+import { useItemLookupService } from "../../../../hooks/useItemLookupService";
+import { useDispatch } from "react-redux";
+import { updateItem } from "../../../../redux/slices/quoteSlice";
 
 interface MoreInformationDialogParams {
     open: boolean;
@@ -21,6 +25,21 @@ interface MoreInformationDialogParams {
 }
 
 const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({open, onClose, item}) => {
+
+    const [loading, setLoading] = useState<boolean>(false);
+    const { getHydratedItem } = useItemLookupService();
+    const dispatch = useDispatch();
+
+    const refreshItem = async () => {
+        if (item) {
+            setLoading(true);
+            await getHydratedItem(item).then(item => {
+                console.log(item)
+                dispatch(updateItem(item));
+                setLoading(false);
+            });
+        }
+    }
 
     return (
         <Dialog open={open} onClose={onClose} PaperProps={{
@@ -65,6 +84,9 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
                             <Typography style={{marginTop: 10}}>
                                 <strong>Availability: </strong>{item?.retailStatus?.availability}<br/>
                                 <strong>MSRP: </strong>{formatCurrency(item?.retailStatus?.retailPrice)}<br/>
+                                <a href={`https://www.brickeconomy.com/search?query=${item.setId}`} target='_blank' rel='noreferrer'>
+                                    <strong>BrickEconomy Value: </strong>{formatCurrency(item?.brickEconomyValue)}<br/>
+                                </a>
                             </Typography>
                         )}
                     </Box>
@@ -93,7 +115,17 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
                 </Box>
             </DialogContent>
             <DialogActions>
-                <Button variant="contained" onClick={onClose}>
+                <LoadingButton
+                  color="success"
+                  onClick={refreshItem}
+                  loading={loading}
+                  loadingPosition="start"
+                  startIcon={<Refresh />}
+                  variant="contained"
+                  type={'submit'}>
+                    Refresh
+                </LoadingButton>
+                <Button variant='contained' onClick={onClose}>
                     Close
                 </Button>
             </DialogActions>

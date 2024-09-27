@@ -28,7 +28,6 @@ export const useBricksetService = (): BricksetServiceHooks => {
         const id: string = new RegExp(".+-\\d").test(item.setId) ? item.setId : item.setId + '-1';
         const bricksetData = await get(id);
         const set = bricksetData.sets[0];
-        item.sources = item.sources ?? [];
         if (set) {
           return {
             theme: set.theme,
@@ -39,7 +38,7 @@ export const useBricksetService = (): BricksetServiceHooks => {
               retailPrice: set.LEGOCom.US.retailPrice,
               availability: determineAvailability(set.LEGOCom.US.dateFirstAvailable, set.LEGOCom.US.dateLastAvailable),
             } as RetailStatus,
-            sources: [...item.sources, Source.BRICKSET]
+            sources: item.sources ? [...item.sources, Source.BRICKSET] : [Source.BRICKSET]
           } as Item;
         }
         return undefined;

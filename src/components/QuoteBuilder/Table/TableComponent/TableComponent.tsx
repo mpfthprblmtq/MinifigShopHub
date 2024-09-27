@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import { Alert, Portal, Snackbar, Table, TableBody, TableContainer, TableHead, TableRow } from "@mui/material";
 import NewUsedToggleButtonCell from "../TableCells/NewUsedToggleButtonCell";
 import { formatCurrency, launderMoney, roundToNearestFive } from "../../../../utils/CurrencyUtils";
@@ -146,6 +146,14 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
         dispatch(updateItemInStore(itemCopy));
         navigate(RouterPaths.LabelMaker);
     }
+
+    // handles the refresh of the item on the MoreInformationDialog
+    useEffect(() => {
+        if (focusedItem) {
+            setFocusedItem(items.filter(item => item.id === focusedItem.id)[0]);
+        }
+        // eslint-disable-next-line
+    }, [items]);
 
     return (
       <>

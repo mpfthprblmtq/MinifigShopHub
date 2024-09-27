@@ -61,6 +61,7 @@ export const useBrickLinkService = (): BrickLinkHooks => {
       const item = bricklinkData.data;
       return {
         setId: item.no,
+        brickLinkId: item.no,
         name: htmlDecode(item.name),
         type: item.type,
         imageUrl: item.image_url,
@@ -81,11 +82,11 @@ export const useBrickLinkService = (): BrickLinkHooks => {
 
   const getAllSalesHistory = async (item: Item): Promise<AllSalesHistory> => {
     let allSalesHistory: AllSalesHistory = {};
-    if (item.setId) {
+    if (item.brickLinkId) {
       await Promise.all([
-        getSalesHistory(item.setId, item.type, "sold", "U"),
+        getSalesHistory(item.brickLinkId, item.type, "sold", "U"),
         // getSalesHistory(item.setId, item.type, "stock", "U"),
-        getSalesHistory(item.setId, item.type, "sold", "N")
+        getSalesHistory(item.brickLinkId, item.type, "sold", "N")
         // getSalesHistory(item.setId, item.type, "stock", "N")
       ]).then(responses => {
         responses.map((response) => {
