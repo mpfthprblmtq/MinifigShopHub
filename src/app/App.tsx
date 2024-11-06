@@ -1,13 +1,27 @@
-import React, {FunctionComponent} from 'react';
+import React, { FunctionComponent } from "react";
 import './App.css';
 import AppRouter from "./AppRouter";
 import { HashRouter } from "react-router-dom";
+import { Auth0Provider } from "@auth0/auth0-react";
+import AuthWrapper from "./AuthWrapper";
+import { PermissionsProvider } from "./contexts/PermissionsProvider";
+import { determineRedirectURI } from "../utils/AuthUtils";
 
 const App: FunctionComponent = () => {
+
   return (
-      <HashRouter>
-        <AppRouter />
-      </HashRouter>
+    <Auth0Provider
+      domain={ process.env.REACT_APP_AUTH0_DOMAIN! }
+      clientId={ process.env.REACT_APP_AUTH0_CLIENT_ID! }
+      authorizationParams={{ redirect_uri: determineRedirectURI(window.location.href), audience: 'Minifig-Shop-Hub' }}>
+      <AuthWrapper>
+        <PermissionsProvider>
+          <HashRouter>
+            <AppRouter />
+          </HashRouter>
+        </PermissionsProvider>
+      </AuthWrapper>
+    </Auth0Provider>
   )
 }
 

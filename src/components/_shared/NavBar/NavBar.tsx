@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useState } from "react";
 import {
   Divider,
-  IconButton,
+  IconButton, ListItemIcon, ListItemText, Menu, MenuItem,
   Toolbar,
   Typography
 } from "@mui/material";
@@ -18,6 +18,9 @@ import { determineEnvironment } from "../../../utils/UrlUtils";
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import NavBarActionIconButton from "./NavBarButtons/NavBarActionIconButton";
 import { useNavigate } from "react-router-dom";
+import { Logout, ManageAccounts, Person } from "@mui/icons-material";
+import { useAuth0 } from "@auth0/auth0-react";
+import { determineRedirectURI } from "../../../utils/AuthUtils";
 
 interface NavBarParams {
   activeTab: string;
@@ -51,8 +54,12 @@ const NavBar: FunctionComponent<NavBarParams> =
      showAddParts,
      showViewParts}) => {
 
+  const [userAnchorEl, setUserAnchorEl] = React.useState<null | HTMLElement>(null);
+  const userOptionsOpen = Boolean(userAnchorEl);
+
   const [open, setOpen] = useState<boolean>(false);
   const navigate = useNavigate();
+  const { logout, user } = useAuth0();
 
   return (
     <>
@@ -72,8 +79,44 @@ const NavBar: FunctionComponent<NavBarParams> =
           <Typography variant="h4" noWrap component="div" sx={{fontFamily: 'Didact Gothic'}}>
             Minifig Shop Hub - {activeTab}
           </Typography>
-          <Typography noWrap component="div" sx={{ fontFamily: 'Didact Gothic', right: 10, position: 'absolute' }}>
+          <IconButton
+            aria-controls={userOptionsOpen ? 'basic-menu' : undefined}
+            aria-haspopup="true"
+            aria-expanded={userOptionsOpen ? 'true' : undefined}
+            onClick={(event) => setUserAnchorEl(event.currentTarget)}
+            sx={{ color: 'white', right: 10, position: 'absolute' }}
+          >
+            <Person fontSize='large' />
+          </IconButton>
+          <Menu
+            anchorEl={userAnchorEl}
+            open={userOptionsOpen}
+            onClose={() => setUserAnchorEl(null)}
+            MenuListProps={{
+              'aria-labelledby': 'basic-button',
+            }}
+          >
+            <MenuItem onClick={() => setUserAnchorEl(null)}>
+              <ListItemIcon>
+                <ManageAccounts fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Profile</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={() => {
+              setUserAnchorEl(null);
+              logout({ logoutParams: { returnTo: determineRedirectURI(window.location.href) } });
+            }}>
+              <ListItemIcon>
+                <Logout fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Logout</ListItemText>
+            </MenuItem>
+          </Menu>
+          <Typography noWrap component="div" sx={{ fontFamily: 'Didact Gothic', right: 64, position: 'absolute' }}>
             {determineEnvironment()}
+          </Typography>
+          <Typography noWrap component="div" sx={{ fontFamily: 'Didact Gothic', right: 128, position: 'absolute' }}>
+            {user?.name}
           </Typography>
         </Toolbar>
       </AppBar>

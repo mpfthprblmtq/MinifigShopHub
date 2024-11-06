@@ -4,6 +4,7 @@
   "version": "3.5.0",
   "private": true,
   "dependencies": {
+    "@auth0/auth0-react": "^2.2.4",
     "@aws-sdk/util-dynamodb": "^3.429.0",
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",

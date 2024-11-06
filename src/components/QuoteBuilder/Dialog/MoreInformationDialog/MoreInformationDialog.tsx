@@ -34,7 +34,6 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
         if (item) {
             setLoading(true);
             await getHydratedItem(item).then(item => {
-                console.log(item)
                 dispatch(updateItem(item));
                 setLoading(false);
             });

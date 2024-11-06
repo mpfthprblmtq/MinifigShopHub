@@ -8,20 +8,26 @@ interface NavBarAppIconButtonParams {
   route: string;
   icon: ReactNode;
   active: boolean;
+  disabled?: boolean;
 }
 
-const NavBarAppIconButton: FunctionComponent<NavBarAppIconButtonParams> = ({navBarOpen, title, route, icon, active}) => {
+const NavBarAppIconButton: FunctionComponent<NavBarAppIconButtonParams> = ({navBarOpen, title, route, icon, active, disabled}) => {
 
   let navigate = useNavigate();
 
   return (
-    <ListItem disablePadding sx={{ display: 'block'}} onClick={() => navigate(route)}>
+    <ListItem disablePadding sx={{ display: 'block'}} onClick={() => {
+      if (!disabled) {
+        navigate(route);
+      }
+    }}>
       <ListItemButton
         sx={{
           minHeight: 48,
           justifyContent: navBarOpen ? 'initial' : 'center',
           px: 2.5,
-        }}>
+        }}
+        disabled={disabled}>
         <ListItemIcon
           sx={{
             minWidth: 0,

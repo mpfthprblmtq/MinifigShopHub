@@ -87,7 +87,6 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
         const itemCopy = {...getItemWithId(items, id)} as Item;
         if (itemCopy) {
             if (itemCopy.value !== launderMoney(event.target.value)) { // prevent dispatch on value not changed
-                console.log(itemCopy)
                 if (itemCopy.baseValue !== 0) {
                     itemCopy.value = launderMoney(event.target.value);
                     itemCopy.valueAdjustment = Math.round((itemCopy.value / itemCopy.baseValue) * 100);
