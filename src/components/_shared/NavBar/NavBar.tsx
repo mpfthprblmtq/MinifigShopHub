@@ -18,7 +18,7 @@ import { determineEnvironment } from "../../../utils/UrlUtils";
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import NavBarActionIconButton from "./NavBarButtons/NavBarActionIconButton";
 import { useNavigate } from "react-router-dom";
-import { Logout, ManageAccounts, Person } from "@mui/icons-material";
+import { Logout, Person } from "@mui/icons-material";
 import { useAuth0 } from "@auth0/auth0-react";
 import { determineRedirectURI } from "../../../utils/AuthUtils";
 
@@ -59,7 +59,7 @@ const NavBar: FunctionComponent<NavBarParams> =
 
   const [open, setOpen] = useState<boolean>(false);
   const navigate = useNavigate();
-  const { logout, user } = useAuth0();
+  const { logout } = useAuth0();
 
   return (
     <>
@@ -96,12 +96,6 @@ const NavBar: FunctionComponent<NavBarParams> =
               'aria-labelledby': 'basic-button',
             }}
           >
-            <MenuItem onClick={() => setUserAnchorEl(null)}>
-              <ListItemIcon>
-                <ManageAccounts fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Profile</ListItemText>
-            </MenuItem>
             <MenuItem onClick={() => {
               setUserAnchorEl(null);
               logout({ logoutParams: { returnTo: determineRedirectURI(window.location.href) } });
@@ -114,9 +108,6 @@ const NavBar: FunctionComponent<NavBarParams> =
           </Menu>
           <Typography noWrap component="div" sx={{ fontFamily: 'Didact Gothic', right: 64, position: 'absolute' }}>
             {determineEnvironment()}
-          </Typography>
-          <Typography noWrap component="div" sx={{ fontFamily: 'Didact Gothic', right: 128, position: 'absolute' }}>
-            {user?.name}
           </Typography>
         </Toolbar>
       </AppBar>
