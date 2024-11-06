@@ -7,10 +7,11 @@ import AddPartsComponent from "./AddParts/AddPartsComponent";
 import ViewPartsComponent from "./ViewParts/ViewPartsComponent";
 import { useDispatch, useSelector } from "react-redux";
 import { updateCurrentView } from "../../redux/slices/partSlice";
+import { hasAccessToPartCollector } from "../../utils/AuthUtils";
+import { usePermissions } from "../../app/contexts/PermissionsProvider";
+import AccessDenied from "../_shared/AccessDenied/AccessDenied";
 
 const PartCollectorComponent: FunctionComponent = () => {
-
-  // const [currentView, setCurrentView] = useState<CurrentView>(CurrentView.ADD_PARTS);
 
   const dispatch = useDispatch();
   const currentView: CurrentView = useSelector((state: any) => state.partStore.currentView);
@@ -23,12 +24,16 @@ const PartCollectorComponent: FunctionComponent = () => {
       showAddParts={() => dispatch(updateCurrentView(CurrentView.ADD_PARTS))}
       showViewParts={() => dispatch(updateCurrentView(CurrentView.VIEW_PARTS))} />
       <Version />
-      {currentView === CurrentView.ADD_PARTS && (
-        <AddPartsComponent />
-      )}
-      {currentView === CurrentView.VIEW_PARTS && (
-        <ViewPartsComponent />
-      )}
+      {!hasAccessToPartCollector(usePermissions().permissions) ? <AccessDenied activeTab={Tabs.PART_COLLECTOR} /> :
+      <>
+        {currentView === CurrentView.ADD_PARTS && (
+          <AddPartsComponent />
+          )}
+        {currentView === CurrentView.VIEW_PARTS && (
+          <ViewPartsComponent />
+        )}
+      </>
+      }
     </div>
   );
 };

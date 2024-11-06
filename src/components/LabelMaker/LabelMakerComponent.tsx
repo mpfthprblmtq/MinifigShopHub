@@ -15,6 +15,9 @@ import { useDispatch, useSelector } from "react-redux";
 import LabelForm from "./LabelForm/LabelForm";
 import { Availability } from "../../model/retailStatus/Availability";
 import { clearLabelState, LabelState, updateItemInStore, updateLabelInStore } from "../../redux/slices/labelSlice";
+import { hasAccessToLabelMaker } from "../../utils/AuthUtils";
+import { usePermissions } from "../../app/contexts/PermissionsProvider";
+import AccessDenied from "../_shared/AccessDenied/AccessDenied";
 
 const LabelMakerComponent: FunctionComponent = () => {
 
@@ -61,18 +64,22 @@ const LabelMakerComponent: FunctionComponent = () => {
         }}
       />
       <Version />
-      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-        <Box sx={{ m: 1, position: 'relative', width: '360px' }}>
-          <ItemSearchBar processItem={processItem} />
-          {labelData.item && (
-            <LabelForm item={labelData.item} setItem={(item: Item) => dispatch(updateItemInStore(item))} label={labelData.label} setLabel={(label: Label) => dispatch(updateLabelInStore(label))} />
-          )}
-        </Box>
-        <Box sx={{ m: 1, position: 'relative' }}>
-          <LabelContent ref={componentRef} labelData={labelData.label}/>
-        </Box>
-      </Box>
-      <SettingsDialog open={settingsDialogOpen} onClose={() => setSettingsDialogOpen(false)} />
+      {!hasAccessToLabelMaker(usePermissions().permissions) ? <AccessDenied activeTab={Tabs.LABEL_MAKER} /> :
+        <>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Box sx={{ m: 1, position: 'relative', width: '360px' }}>
+              <ItemSearchBar processItem={processItem} />
+              {labelData.item && (
+                <LabelForm item={labelData.item} setItem={(item: Item) => dispatch(updateItemInStore(item))} label={labelData.label} setLabel={(label: Label) => dispatch(updateLabelInStore(label))} />
+              )}
+            </Box>
+            <Box sx={{ m: 1, position: 'relative' }}>
+              <LabelContent ref={componentRef} labelData={labelData.label}/>
+            </Box>
+          </Box>
+          <SettingsDialog open={settingsDialogOpen} onClose={() => setSettingsDialogOpen(false)} />
+        </>
+      }
     </div>
   );
 };

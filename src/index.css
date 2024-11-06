@@ -3,6 +3,6 @@
     src: local('Didact Gothic'), url(../public/assets/fonts/didact-gothic.ttf) format('truetype');
 }
 
-html {
-    font-family: 'Open Sans', sans-serif;
+html, body {
+    font-family: 'Didact Gothic', sans-serif;
 }
