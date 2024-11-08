@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useEffect, useRef, useState } from "react";
 import { Item } from "../../model/item/Item";
-import { Alert, Box, Portal, Snackbar } from "@mui/material";
+import { Box } from "@mui/material";
 import TableComponent from "./Table/TableComponent/TableComponent";
 import ItemSearchCard from "./Cards/ItemSearchCard/ItemSearchCard";
 import CustomItemCard from "./Cards/CustomItemCard/CustomItemCard";
@@ -19,7 +19,6 @@ import { updateItemsInStore, updateQuoteInStore, updateTotalInStore } from "../.
 import _ from "lodash";
 import { Configuration } from "../../model/dynamo/Configuration";
 import { Quote } from "../../model/quote/Quote";
-import { SnackbarState } from "../_shared/Snackbar/SnackbarState";
 import { useReactToPrint } from "react-to-print";
 import ItemStatisticsCard from "./Cards/ItemStatisticsCard/ItemStatisticsCard";
 import SaveQuoteDialog from "./Dialog/SaveQuoteDialog/SaveQuoteDialog";
@@ -27,6 +26,7 @@ import LoadQuoteDialog from "./Dialog/LoadQuoteDialog/LoadQuoteDialog";
 import { SavedQuote } from "../../model/dynamo/SavedQuote";
 import { Availability } from "../../model/retailStatus/Availability";
 import { Source } from "../../model/_shared/Source";
+import { useSnackbar } from "../../app/contexts/SnackbarProvider";
 
 const QuoteBuilderComponent: FunctionComponent = () => {
 
@@ -40,10 +40,10 @@ const QuoteBuilderComponent: FunctionComponent = () => {
   const [settingsDialogOpen, setSettingsDialogOpen] = useState<boolean>(false);
   const [saveQuoteDialogOpen, setSaveQuoteDialogOpen] = useState<boolean>(false);
   const [loadQuoteDialogOpen, setLoadQuoteDialogOpen] = useState<boolean>(false);
-  const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
   const [savedQuote, setSavedQuote] = useState<SavedQuote>();
 
   const { initConfig } = useConfigurationService();
+  const { showSnackbar } = useSnackbar();
 
   // print stuff
   const componentRef = useRef(null);
@@ -90,7 +90,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
 
     dispatch(updateQuoteInStore({ items: [...clonedItems], total: total } as Quote));
     updateItems(clonedItems);
-    setSnackbarState({open: true, severity: "success", message: 'Successfully reset calculations!'} as SnackbarState);
+    showSnackbar('Successfully reset calculations!', 'success');
   };
 
   const setBulkCondition = (condition: Condition) => {
@@ -148,7 +148,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
           clearAll={items.length > 0 ? () => {
             dispatch(updateItemsInStore([]));
             dispatch(updateTotalInStore({value: 0, baseValue: 0, storeCreditValue: 0, valueAdjustment: configuration.autoAdjustmentPercentageUsed} as Total));
-            setSnackbarState({open: true, severity: 'success', message: 'All items cleared!'});
+            showSnackbar('All items cleared!', 'success');
             setStoreMode(true);
           } : undefined}
           print={items.length > 0 ? () => {
@@ -224,17 +224,6 @@ const QuoteBuilderComponent: FunctionComponent = () => {
         quote={savedQuote}
         loadQuote={(quote: Quote) => updateItems(quote.items)} />
       <Version />
-      <Portal>
-        <Snackbar
-          anchorOrigin={{ horizontal: "right", vertical: "top" }}
-          autoHideDuration={5000}
-          onClose={() => setSnackbarState({open: false})}
-          open={snackbarState.open}>
-          <Alert severity={snackbarState.severity} onClose={() => setSnackbarState({open: false})}>
-            {snackbarState.message}
-          </Alert>
-        </Snackbar>
-      </Portal>
     </div>
   );
 };

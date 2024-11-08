@@ -3,11 +3,11 @@ import { Item } from "../../../model/item/Item";
 import { useItemLookupService } from "../../../hooks/useItemLookupService";
 import { AxiosError } from "axios";
 import MultipleItemsFoundDialog from "./MultipleItemsFoundDialog/MultipleItemsFoundDialog";
-import { Alert, Box, Button, Portal, Snackbar, TextField, Tooltip } from "@mui/material";
+import { Box, Button, TextField, Tooltip } from "@mui/material";
 import { PlaylistAdd, Search } from "@mui/icons-material";
 import BulkLoadDialog from "../../QuoteBuilder/Dialog/BulkLoadDialog/BulkLoadDialog";
 import { LoadingButton } from "@mui/lab";
-import { SnackbarState } from "../Snackbar/SnackbarState";
+import { useSnackbar } from "../../../app/contexts/SnackbarProvider";
 
 interface ItemSearchBarParams {
   processItem: (item: Item) => void;
@@ -23,9 +23,9 @@ const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, pro
   const [multipleItemsDialogOpen, setMultipleItemsDialogOpen] = useState<boolean>(false);
   const [multipleItems, setMultipleItems] = useState<Item[]>([]);
   const [bulkLoadModalOpen, setBulkLoadModalOpen] = useState<boolean>(false);
-  const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
 
   const { getHydratedItem, getItemMatches } = useItemLookupService();
+  const { showSnackbar } = useSnackbar();
 
   const searchForSet = async () => {
     setLoading(true);
@@ -43,7 +43,7 @@ const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, pro
 
             // show any messages
             if (item.messages && item.messages.length > 0) {
-              setSnackbarState({open: true, severity: "info", message: item.messages.join('\n')} as SnackbarState);
+              showSnackbar(item.messages.join('\n'), 'info');
             }
           });
       } else {
@@ -53,7 +53,7 @@ const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, pro
       }
     }).catch((error: AxiosError) => {
       setLoading(false);
-      setSnackbarState({open: true, severity: 'error', message: error.message} as SnackbarState);
+      showSnackbar(error.message, 'error');
     });
   };
 
@@ -129,19 +129,6 @@ const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, pro
         processItems={processItems ?? ((_: Item[]) => {})}
         addMultipleMatchItems={addMultipleMatchItems}
       />
-      <Portal>
-        <Snackbar
-          sx={{marginTop: '50px', marginLeft: '75px'}}
-          anchorOrigin={{ horizontal: "left", vertical: "top" }}
-          autoHideDuration={5000}
-          ClickAwayListenerProps={{ onClickAway: () => null }}
-          onClose={() => setSnackbarState({open: false})}
-          open={snackbarState.open}>
-          <Alert sx={{whiteSpace: 'pre'}} severity={snackbarState.severity} onClose={() => setSnackbarState({open: false})}>
-            {snackbarState.message}
-          </Alert>
-        </Snackbar>
-      </Portal>
     </>
   );
 };

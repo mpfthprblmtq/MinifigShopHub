@@ -1,6 +1,5 @@
 import React, {FunctionComponent, useEffect, useState} from "react";
 import {
-    Alert,
     Box,
     Button, CircularProgress,
     Dialog,
@@ -9,7 +8,7 @@ import {
     DialogTitle, Divider,
     IconButton,
     List,
-    ListItem, Portal, Snackbar, TextField, ToggleButton, ToggleButtonGroup, Typography
+    ListItem, TextField, ToggleButton, ToggleButtonGroup, Typography
 } from "@mui/material";
 import {Condition} from "../../../../model/_shared/Condition";
 import {Close, Refresh} from "@mui/icons-material";
@@ -19,7 +18,7 @@ import {updateStoreConfiguration} from "../../../../redux/slices/configurationSl
 import {Configuration} from "../../../../model/dynamo/Configuration";
 import {green} from "@mui/material/colors";
 import TooltipConfirmationModal from "../../../_shared/TooltipConfirmationModal/TooltipConfirmationModal";
-import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
+import { useSnackbar } from "../../../../app/contexts/SnackbarProvider";
 
 interface SettingsDialogParams {
     open: boolean;
@@ -42,10 +41,10 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose,
         useState<number>(configuration.storeCreditValueAdjustment);
     const [condition, setCondition] = useState<Condition>();
     const [updateConfigLoading, setUpdateConfigLoading] = useState<boolean>(false);
-    const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
     const [confirmResetCalculationsModalOpen, setConfirmResetCalculationsModalOpen] = useState<boolean>(false);
 
-    const {updateConfig} = useConfigurationService();
+    const { updateConfig } = useConfigurationService();
+    const { showSnackbar } = useSnackbar();
 
     useEffect(() => {
         setStoreCreditAdjustmentPercentage(configuration.storeCreditValueAdjustment);
@@ -78,9 +77,9 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose,
         } as Configuration).then(updatedConfig => {
             dispatch(updateStoreConfiguration(updatedConfig));
             setUpdateConfigLoading(false);
-            setSnackbarState({open: true, severity: 'success', message: 'Configuration saved successfully!'})
+            showSnackbar('Configuration saved successfully!', 'success', {horizontal: 'center', vertical: 'top'});
         }).catch(() => {
-            setSnackbarState({open: true, severity: 'error', message: 'Couldn\'t save configuration!'});
+            showSnackbar('Couldn\'t save configuration!', 'error', {horizontal: 'center', vertical: 'top'});
             setUpdateConfigLoading(false);
         });
     }
@@ -225,7 +224,7 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose,
                                         disabled={actionsDisabled}
                                         size="small"
                                         onChange={(event, value) => {
-                                            setSnackbarState({open: true, severity: 'success', message: 'Bulk condition set!'})
+                                            showSnackbar('Bulk condition set!', 'success', {horizontal: 'center', vertical: 'top'});
                                             setCondition(value);
                                             setBulkCondition(value);
                                         }}>
@@ -244,18 +243,6 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose,
                     </Button>
                 </DialogActions>
             </Dialog>
-            <Portal>
-                <Snackbar
-                    sx={{marginTop: '7%'}}
-                    anchorOrigin={{ horizontal: "center", vertical: "top" }}
-                    autoHideDuration={5000}
-                    onClose={() => setSnackbarState({open: false})}
-                    open={snackbarState.open}>
-                    <Alert severity={snackbarState.severity} onClose={() => setSnackbarState({open: false})}>
-                        {snackbarState.message}
-                    </Alert>
-                </Snackbar>
-            </Portal>
         </>
     )
 };

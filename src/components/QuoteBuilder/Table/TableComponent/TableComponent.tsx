@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
-import { Alert, Portal, Snackbar, Table, TableBody, TableContainer, TableHead, TableRow } from "@mui/material";
+import { Table, TableBody, TableContainer, TableHead, TableRow } from "@mui/material";
 import NewUsedToggleButtonCell from "../TableCells/NewUsedToggleButtonCell";
 import { formatCurrency, launderMoney, roundToNearestFive } from "../../../../utils/CurrencyUtils";
 import { FixedWidthColumnHeading, StyledTableCell } from "./TableComponent.styles";
@@ -17,13 +17,13 @@ import IconsCell from "../TableCells/IconsCell";
 import InformationDialog from "../../../_shared/InformationDialog/InformationDialog";
 import { updateItem, updateItemsInStore } from "../../../../redux/slices/quoteSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
 import { updateItemInStore } from "../../../../redux/slices/labelSlice";
 import { useNavigate } from "react-router-dom";
 import { RouterPaths } from "../../../../utils/RouterPaths";
 import { Availability } from "../../../../model/retailStatus/Availability";
 import { Configuration } from "../../../../model/dynamo/Configuration";
 import { Source } from "../../../../model/_shared/Source";
+import { useSnackbar } from "../../../../app/contexts/SnackbarProvider";
 
 interface TableComponentParams {
     storeMode: boolean;
@@ -36,10 +36,10 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
     const [focusedItem, setFocusedItem] = useState<Item>();
     const [showImageDialog, setShowImageDialog] = useState<boolean>(false);
     const [showMoreInformationDialog, setShowMoreInformationDialog] = useState<boolean>(false);
-    const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { showSnackbar } = useSnackbar();
 
     const { quote } = useSelector((state: any) => state.quoteStore);
     const configuration: Configuration = useSelector((state: any) => state.configurationStore.configuration);
@@ -210,7 +210,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
                                     const updatedItems: Item[] = [...items].filter(item => item.id !== id);
                                     dispatch(updateItemsInStore(updatedItems));
                                     updateItems(updatedItems);
-                                    setSnackbarState({open: true, message: `Item ${item.setId ? item.setId : ''} successfully deleted!`, severity: 'success'})
+                                    showSnackbar(`Item ${item.setId ? item.setId : ''} successfully deleted!`, 'success');
                                 }}
                                 onShowMoreInfo={() => {
                                     setFocusedItem(item);
@@ -239,17 +239,6 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
                 setShowMoreInformationDialog(false);
             }}
             item={focusedItem} />
-          <Portal>
-              <Snackbar
-                anchorOrigin={{ horizontal: "right", vertical: "top" }}
-                autoHideDuration={5000}
-                onClose={() => setSnackbarState({open: false})}
-                open={snackbarState.open}>
-                  <Alert severity={snackbarState.severity} onClose={() => setSnackbarState({open: false})}>
-                      {snackbarState.message}
-                  </Alert>
-              </Snackbar>
-          </Portal>
       </>
     );
 }

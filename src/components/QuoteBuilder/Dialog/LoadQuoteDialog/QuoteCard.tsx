@@ -2,7 +2,6 @@ import React, { FunctionComponent, useState } from "react";
 import { Box, Button, Card, Tooltip, Typography } from "@mui/material";
 import dayjs from "dayjs";
 import TooltipConfirmationModal from "../../../_shared/TooltipConfirmationModal/TooltipConfirmationModal";
-import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
 import { Delete, Info } from "@mui/icons-material";
 import { updateQuoteInStore } from "../../../../redux/slices/quoteSlice";
 import DriveFileMoveIcon from "@mui/icons-material/DriveFileMove";
@@ -10,21 +9,22 @@ import { useDispatch } from "react-redux";
 import { useQuoteService } from "../../../../hooks/dynamo/useQuoteService";
 import { SavedQuoteKey } from "../../../../model/dynamo/SavedQuoteKey";
 import { Quote } from "../../../../model/quote/Quote";
+import { useSnackbar } from "../../../../app/contexts/SnackbarProvider";
 
 interface QuoteCardParams {
   quoteKey: SavedQuoteKey;
   removeQuoteFromState: (quoteKey: SavedQuoteKey) => void;
-  setSnackbarState: (snackbarState: SnackbarState) => void;
   onClose: () => void;
   loadQuoteIntoApp: (quote: Quote) => void;
 }
 
-const QuoteCard: FunctionComponent<QuoteCardParams> = ({ quoteKey, removeQuoteFromState, setSnackbarState, onClose, loadQuoteIntoApp }) => {
+const QuoteCard: FunctionComponent<QuoteCardParams> = ({ quoteKey, removeQuoteFromState, onClose, loadQuoteIntoApp }) => {
 
   const [confirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState<boolean>(false);
   const dispatch = useDispatch();
   const { deleteQuote } = useQuoteService();
   const { loadQuote } = useQuoteService();
+  const { showSnackbar } = useSnackbar();
 
   return (
     <Card style={{ marginTop: "10px", backgroundColor: "#F5F5F5" }}>
@@ -57,18 +57,10 @@ const QuoteCard: FunctionComponent<QuoteCardParams> = ({ quoteKey, removeQuoteFr
               </Typography>}
             onConfirm={async () => {
               await deleteQuote(quoteKey.id).then(() => {
-                setSnackbarState({
-                  open: true,
-                  severity: 'success',
-                  message: 'Quote deleted successfully!'
-                } as SnackbarState);
+                showSnackbar('Quote deleted successfully!', 'success');
                 removeQuoteFromState(quoteKey);
               }).catch(error => {
-                setSnackbarState({
-                  open: true,
-                  severity: 'error',
-                  message: `Couldn't delete quote: ${error.message}`
-                } as SnackbarState);
+                showSnackbar(`Couldn't delete quote: ${error.message}`, 'error');
               });
               setConfirmDeleteModalOpen(false);
             }}
@@ -95,11 +87,7 @@ const QuoteCard: FunctionComponent<QuoteCardParams> = ({ quoteKey, removeQuoteFr
                 dispatch(updateQuoteInStore(quote.quote));
                 loadQuoteIntoApp(quote.quote);
                 onClose();
-                setSnackbarState({
-                  open: true,
-                  severity: 'success',
-                  message: 'Quote loaded successfully!'
-                } as SnackbarState);
+                showSnackbar('Quote loaded successfully!', 'success');
               })
             }}
             style={{ width: "50px", minWidth: "50px", maxWidth: "50px", height: "50px", marginRight: "5px" }}>

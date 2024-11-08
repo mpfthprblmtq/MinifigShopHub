@@ -1,11 +1,9 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
 import { useConfigurationService } from "../../../../hooks/dynamo/useConfigurationService";
 import { Configuration } from "../../../../model/dynamo/Configuration";
 import { updateStoreConfiguration } from "../../../../redux/slices/configurationSlice";
 import {
-  Alert,
   Box, Button, CircularProgress,
   Dialog, DialogActions,
   DialogContent,
@@ -13,11 +11,12 @@ import {
   Divider,
   IconButton,
   List,
-  ListItem, Portal, Snackbar, TextField,
+  ListItem, TextField,
   Typography
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { green } from "@mui/material/colors";
+import { useSnackbar } from "../../../../app/contexts/SnackbarProvider";
 
 interface SettingsDialogParams {
   open: boolean;
@@ -31,9 +30,9 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose}
   const [autoAdjustmentPercentageCertifiedPreOwned, setAutoAdjustmentPercentageCertifiedPreOwned] =
     useState<number>(configuration.autoAdjustmentPercentageCertifiedPreOwned);
   const [updateConfigLoading, setUpdateConfigLoading] = useState<boolean>(false);
-  const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
 
-  const {updateConfig} = useConfigurationService();
+  const { updateConfig } = useConfigurationService();
+  const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
     setAutoAdjustmentPercentageCertifiedPreOwned(configuration.autoAdjustmentPercentageCertifiedPreOwned);
@@ -60,9 +59,9 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose}
     } as Configuration).then(updatedConfig => {
       dispatch(updateStoreConfiguration(updatedConfig));
       setUpdateConfigLoading(false);
-      setSnackbarState({open: true, severity: 'success', message: 'Configuration saved successfully!'})
+      showSnackbar('Configuration saved successfully!', 'success', {horizontal: 'center', vertical: 'top'});
     }).catch(() => {
-      setSnackbarState({open: true, severity: 'error', message: 'Couldn\'t save configuration!'});
+      showSnackbar('Couldn\'t save configuration!', 'error', {horizontal: 'center', vertical: 'top'});
       setUpdateConfigLoading(false);
     });
   }
@@ -135,18 +134,6 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose}
           </Button>
         </DialogActions>
       </Dialog>
-      <Portal>
-        <Snackbar
-          sx={{marginTop: '7%'}}
-          anchorOrigin={{ horizontal: "center", vertical: "top" }}
-          autoHideDuration={5000}
-          onClose={() => setSnackbarState({open: false})}
-          open={snackbarState.open}>
-          <Alert severity={snackbarState.severity} onClose={() => setSnackbarState({open: false})}>
-            {snackbarState.message}
-          </Alert>
-        </Snackbar>
-      </Portal>
     </>
   )
 };

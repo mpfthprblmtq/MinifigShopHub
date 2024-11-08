@@ -1,18 +1,16 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
 import {
-  Alert,
   Box,
   Button,
   Dialog,
   DialogContent,
   DialogTitle,
   IconButton,
-  Portal, Snackbar, TextField,
+  TextField,
   Typography
 } from "@mui/material";
 import { useQuoteService } from "../../../../hooks/dynamo/useQuoteService";
 import { Clear, Close } from "@mui/icons-material";
-import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -38,7 +36,6 @@ const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClo
 
   const [searchBy, setSearchBy] = useState<string>("");
   const [date, setDate] = useState<Dayjs | null>(null);
-  const [snackbarState, setSnackbarState] = useState<SnackbarState>({ open: false });
 
   const closeAndReset = () => {
     resetFilters();
@@ -138,24 +135,12 @@ const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClo
                   loadQuoteIntoApp={loadQuote}
                   removeQuoteFromState={(quoteKey: SavedQuoteKey) =>
                     setQuoteKeys([...quoteKeys.filter(quoteKeyInList => quoteKey.id !== quoteKeyInList.id)])}
-                  setSnackbarState={setSnackbarState}
                   onClose={closeAndReset}
                   key={quote.id} />
               ))
           )}
         </DialogContent>
       </Dialog>
-      <Portal>
-        <Snackbar
-          anchorOrigin={{ horizontal: "right", vertical: "top" }}
-          autoHideDuration={5000}
-          onClose={() => setSnackbarState({ open: false })}
-          open={snackbarState.open}>
-          <Alert severity={snackbarState.severity} onClose={() => setSnackbarState({ open: false })}>
-            {snackbarState.message}
-          </Alert>
-        </Snackbar>
-      </Portal>
     </>
   );
 };

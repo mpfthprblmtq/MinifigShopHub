@@ -1,12 +1,11 @@
 import React, { FunctionComponent, useState } from "react";
 import {
-  Alert,
   Box, Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  IconButton, Portal, Snackbar,
+  IconButton,
   TextField,
   Typography
 } from "@mui/material";
@@ -20,8 +19,8 @@ import dayjs, { Dayjs } from "dayjs";
 import { Condition } from "../../../../model/_shared/Condition";
 import { useQuoteService } from "../../../../hooks/dynamo/useQuoteService";
 import { SavedQuote } from "../../../../model/dynamo/SavedQuote";
-import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
 import { Item } from "../../../../model/item/Item";
+import { useSnackbar } from "../../../../app/contexts/SnackbarProvider";
 
 interface SaveQuoteDialogParams {
   open: boolean;
@@ -35,10 +34,10 @@ const SaveQuoteDialog: FunctionComponent<SaveQuoteDialogParams> = ({open, onClos
   const [keyWords, setKeyWords] = useState<string>('');
   const [date, setDate] = useState<Dayjs | null>(dayjs());
   const [inputtedBy, setInputtedBy] = useState<string>('');
-  const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
 
   const quote: Quote = useSelector((state: any) => state.quoteStore.quote);
   const { saveQuote } = useQuoteService();
+  const { showSnackbar } = useSnackbar();
 
   const save = async () => {
     const transformedQuote: Quote = {...quote, items: [...quote.items].map(item => {
@@ -69,10 +68,10 @@ const SaveQuoteDialog: FunctionComponent<SaveQuoteDialogParams> = ({open, onClos
     } as SavedQuote;
     await saveQuote(savedQuote).then(() => {
       addQuote(savedQuote);
-      setSnackbarState({open: true, severity: 'success', message: 'Quote saved successfully!'} as SnackbarState);
+      showSnackbar('Quote saved successfully!', 'success');
       closeAndReset();
     }).catch(() => {
-      setSnackbarState({open: true, severity: 'error', message: 'Quote not saved successfully!'} as SnackbarState);
+      showSnackbar('Quote not saved successfully!', 'error');
     });
   }
 
@@ -161,17 +160,6 @@ const SaveQuoteDialog: FunctionComponent<SaveQuoteDialogParams> = ({open, onClos
           <Button disabled={!validateForm()} variant="contained" onClick={save}>Save Quote</Button>
         </DialogActions>
       </Dialog>
-      <Portal>
-        <Snackbar
-          anchorOrigin={{ horizontal: "right", vertical: "top" }}
-          autoHideDuration={5000}
-          onClose={() => setSnackbarState({open: false})}
-          open={snackbarState.open}>
-          <Alert severity={snackbarState.severity} onClose={() => setSnackbarState({open: false})}>
-            {snackbarState.message}
-          </Alert>
-        </Snackbar>
-      </Portal>
     </>
   );
 }

@@ -1,8 +1,7 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { Part } from "../../../../model/partCollector/Part";
 import {
-  Alert, Box, Button, Portal,
-  Snackbar,
+  Box,
   Table,
   TableBody,
   TableContainer,
@@ -14,7 +13,7 @@ import { StyledTableCell } from "../../../QuoteBuilder/Table/TableComponent/Tabl
 import { Item } from "../../../../model/item/Item";
 import PartRow from "./PartRow";
 import { usePartsService } from "../../../../hooks/dynamo/usePartsService";
-import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
+import { useSnackbar } from "../../../../app/contexts/SnackbarProvider";
 
 interface PartsListParams {
   item?: Item;
@@ -24,10 +23,9 @@ interface PartsListParams {
 
 const PartsList: FunctionComponent<PartsListParams> = ({item, parts, setParts}) => {
 
-  const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
-  const [lastAddedPartKey, setLastAddedPartKey] = useState<string>('');
   const [spareParts, setSpareParts] = useState<Part[]>([]);
-  const { addPartToDatabase, deletePartFromDatabase } = usePartsService();
+  const { addPartToDatabase } = usePartsService();
+  const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
     setSpareParts(parts.filter(part => part.isSpare));
@@ -35,24 +33,13 @@ const PartsList: FunctionComponent<PartsListParams> = ({item, parts, setParts}) 
 
   const addPart = async (part: Part, quantityToAdd: number, comment: string) => {
     await addPartToDatabase(part, quantityToAdd, comment, item?.setId ?? '')
-      .then((key) => {
-        setLastAddedPartKey(key);
-        setSnackbarState({open: true, severity: 'success', message: `${part.name} added successfully!`});
+      .then(() => {
+        showSnackbar(`${part.name} added successfully!`, 'success');
         setParts([...parts!].map(toUpdate => toUpdate.id === part.id ? { ...part} : toUpdate));
       }).catch((error) => {
-        setSnackbarState({open: true, severity: 'error', message: `Couldn't add part!\n${error.statusCode} - ${error.message}`});
+        showSnackbar(`Couldn't add part!\n${error.statusCode} - ${error.message}`, 'error');
       });
   };
-
-  const undoAdd = async () => {
-    await deletePartFromDatabase(lastAddedPartKey)
-      .then(() => {
-        setSnackbarState({open: true, severity: 'success', message: 'Part removed successfully!'});
-        setLastAddedPartKey('');
-      }).catch(error => {
-        setSnackbarState({open: true, severity: 'error', message: `Couldn't delete part!\n${error.statusCode} - ${error.message}`});
-      });
-  }
 
   return (
     <>
@@ -133,23 +120,6 @@ const PartsList: FunctionComponent<PartsListParams> = ({item, parts, setParts}) 
           </>
         )}
       </TableContainer>
-      <Portal>
-        <Snackbar
-          sx={{marginTop: '50px'}}
-          anchorOrigin={{ horizontal: "right", vertical: "top" }}
-          autoHideDuration={5000}
-          onClose={() => setSnackbarState({open: false})}
-          open={snackbarState.open}>
-          <Alert severity={snackbarState.severity} onClose={() => setSnackbarState({open: false})}>
-            {snackbarState.message}
-            {lastAddedPartKey && (
-              <Button color="primary" onClick={undoAdd} sx={{height: '20px'}}>
-                <strong>UNDO</strong>
-              </Button>
-            )}
-          </Alert>
-        </Snackbar>
-      </Portal>
     </>
 
   )

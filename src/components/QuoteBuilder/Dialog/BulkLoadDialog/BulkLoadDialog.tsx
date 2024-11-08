@@ -1,6 +1,5 @@
 import React, { FunctionComponent, useState } from "react";
 import {
-    Alert,
     Box,
     Button,
     CircularProgress,
@@ -9,8 +8,6 @@ import {
     DialogContent,
     DialogTitle,
     IconButton,
-    Portal,
-    Snackbar,
     TextareaAutosize,
     Typography
 } from "@mui/material";
@@ -20,7 +17,7 @@ import { Item } from "../../../../model/item/Item";
 import { useItemLookupService } from "../../../../hooks/useItemLookupService";
 import { HttpStatusCode } from "axios";
 import { green } from "@mui/material/colors";
-import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
+import { useSnackbar } from "../../../../app/contexts/SnackbarProvider";
 
 interface BulkLoadDialogParams {
     open: boolean;
@@ -33,8 +30,8 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
 
     const [loading, setLoading] = useState<boolean>(false);
     const [setNumbers, setSetNumbers] = useState<string>('');
-    const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
     const { getItemMatches, getHydratedItem } = useItemLookupService();
+    const { hideSnackbar, showSnackbar } = useSnackbar();
 
     const loadItems = async () => {
         setLoading(true);
@@ -83,7 +80,6 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
             try {
                 await getHydratedItem(item).then(hydratedItem => hydratedItems.push(hydratedItem));
             } catch (error: any) {
-                // setSnackbarState({open: true, severity: 'error', message: error.message} as SnackbarState);
                 hydratedItems.push(item);
             }
 
@@ -95,12 +91,11 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
 
         // close if there are no errors
         if (errorItems.length === 0) {
-            setSnackbarState({open: false});
+            hideSnackbar();
             setSetNumbers('');
             onClose();
         } else {
-            setSnackbarState({open: true, severity: 'warning',
-                message: "These sets weren't found!\nPlease correct them or remove them from the list."});
+            showSnackbar('These sets weren\'t found!\nPlease correct them or remove them from the list.', 'warning');
             setSetNumbers(errorItems.join('\r\n'));
         }
         setLoading(false);
@@ -167,19 +162,6 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
                     )}
                 </Box>
             </DialogActions>
-            <Portal>
-                <Snackbar
-                  sx={{marginTop: '50px'}}
-                  anchorOrigin={{ horizontal: "center", vertical: "top" }}
-                  autoHideDuration={10000}
-                  ClickAwayListenerProps={{ onClickAway: () => null }}
-                  onClose={() => setSnackbarState({open: false})}
-                  open={snackbarState.open}>
-                    <Alert sx={{whiteSpace: 'pre'}} severity={snackbarState.severity} onClose={() => setSnackbarState({open: false})}>
-                        {snackbarState.message}
-                    </Alert>
-                </Snackbar>
-            </Portal>
         </Dialog>
     )
 };

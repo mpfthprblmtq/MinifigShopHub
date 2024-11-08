@@ -1,11 +1,10 @@
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent } from "react";
 import { SetNameStyledTypography } from "../../QuoteBuilderComponent.styles";
 import { Item } from "../../../../model/item/Item";
 import { generateId } from "../../../../utils/ArrayUtils";
 import { StyledCard } from "../Cards.styles";
 import ItemSearchBar from "../../../_shared/ItemSearchBar/ItemSearchBar";
-import { SnackbarState } from "../../../_shared/Snackbar/SnackbarState";
-import { Alert, Portal, Snackbar } from "@mui/material";
+import { useSnackbar } from "../../../../app/contexts/SnackbarProvider";
 
 interface SetSearchCardParams {
     items: Item[];
@@ -14,7 +13,7 @@ interface SetSearchCardParams {
 
 const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems}) => {
 
-    const [snackbarState, setSnackbarState] = useState<SnackbarState>({open: false});
+    const { showSnackbar } = useSnackbar();
 
     const processItem = (item: Item) => {
         let message: string = '';
@@ -25,7 +24,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
         // set the id
         item.id = generateId(items);
         if (!!message) {
-            setSnackbarState({open: true, severity: 'info', message: message});
+            showSnackbar(message, 'info', {vertical: 'top', horizontal: 'right'});
         }
         // add the item with sales data to existing state
         setItems([...items, item]);
@@ -44,7 +43,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
             nextId++;
         });
         if (!!message) {
-            setSnackbarState({open: true, severity: 'info', message: message});
+            showSnackbar(message, 'info', {vertical: 'top', horizontal: 'right'});
         }
         setItems([...items, ...itemsToProcess]);
     }
@@ -53,19 +52,6 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
         <StyledCard variant="outlined" sx={{width: 350}}>
             <SetNameStyledTypography>Add Set</SetNameStyledTypography>
             <ItemSearchBar processItem={processItem} processItems={processItems} enableBulkSearch />
-            <Portal>
-                <Snackbar
-                  sx={{marginTop: '50px', marginLeft: '75px'}}
-                  anchorOrigin={{ horizontal: "left", vertical: "top" }}
-                  autoHideDuration={10000}
-                  ClickAwayListenerProps={{ onClickAway: () => null }}
-                  onClose={() => setSnackbarState({open: false})}
-                  open={snackbarState.open}>
-                    <Alert sx={{whiteSpace: 'pre'}} severity={snackbarState.severity} onClose={() => setSnackbarState({open: false})}>
-                        {snackbarState.message}
-                    </Alert>
-                </Snackbar>
-            </Portal>
         </StyledCard>
     )
 };

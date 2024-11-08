@@ -23,8 +23,8 @@ const AccessDenied: FC<AccessDeniedProps> = ({activeTab}) => {
       <NavBar activeTab={activeTab}/>
       <Version />
       <Dialog open={true} onClose={() => navigate(RouterPaths.QuoteBuilder)} TransitionComponent={Transition}>
-        <DialogTitle>
-          <Typography variant='h3' sx={{color: 'darkred', fontFamily: 'Didact Gothic', textAlign: 'center'}}>Access Denied</Typography>
+        <DialogTitle variant='h3'>
+          <Typography sx={{color: 'darkred', fontFamily: 'Didact Gothic', textAlign: 'center'}}>Access Denied</Typography>
         </DialogTitle>
         <DialogContent>
           <Typography variant='h5' sx={{marginBottom: '20px', fontFamily: 'Didact Gothic', textAlign: 'center'}}>Access denied to the {activeTab} component.</Typography>
