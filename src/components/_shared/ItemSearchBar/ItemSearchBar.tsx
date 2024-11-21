@@ -53,7 +53,7 @@ const ItemSearchBar: FunctionComponent<ItemSearchBarParams> = ({processItem, pro
       }
     }).catch((error: AxiosError) => {
       setLoading(false);
-      showSnackbar(error.message, 'error');
+      showSnackbar(error.message, 'error', {vertical: 'top', horizontal: 'left'});
     });
   };
 

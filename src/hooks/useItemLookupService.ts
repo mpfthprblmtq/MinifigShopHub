@@ -27,65 +27,74 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
 
     const getItemMatches = async (id: string): Promise<Item[]> => {
         // try to get the cached data if it exists
+        const cacheItem = getCachedItem(id);
+        if (cacheItem) {
+            return cacheItem;
+        }
+
+        // item doesn't exist in cache, let's get it from the API
+        const type: Type = determineType(id);
+        const promises = [
+          getBricklinkData(id, type)
+        ];
+        // if the id passed in doesn't match 1234-1, then search for more
+        // else just return that one they're searching for
+        if (!new RegExp(".+-\\d").test(id)) {
+            // if it's a set, then make another call to get the -2 variant
+            if (type === Type.SET) {
+                promises.push(...[getBricklinkData(`${id}-2`, type)]);
+            }
+        }
+        // get the results
+        const results = await Promise.allSettled(promises);
+        if (results.length === 1) {
+            // we only want the one search, so return that item or error handle accordingly
+            if (results[0].status === 'fulfilled') {
+                setCacheItem(`getItemMatches-${id}`, [results[0].value]);
+                return [results[0].value];
+            } else {
+                handleError(results[0].reason);
+            }
+        } else {
+            if (results[0].status === 'fulfilled' && results[1].status === 'rejected'
+              && results[1].reason instanceof AxiosError
+              && results[1].reason.code === HttpStatusCode.NotFound.toString()) {
+                // first result went through, and second failed on 404, which means we have a match on the first
+                // one, and there's no duplicates
+                setCacheItem(`getItemMatches-${id}`, [results[0].value]);
+                return [results[0].value];
+            } else if (results[0].status === 'rejected') {
+                // both calls failed, so handle the error on the first one, since they both probably failed for the same reason
+                handleError(results[0].reason);
+            } else if (results[0].status === 'fulfilled' && results[1].status === 'fulfilled') {
+                // both calls succeeded, which means that there are multiple matches, let's find more
+                const items: Item[] = [results[0].value, results[1].value];
+                let index: number = 3;  // start at 3 since we already have 2 results
+                let matchesFound: boolean = true;   // flag to determine whether to continue or not
+                while (matchesFound) {
+                    try {
+                        const nextId: string = items[0].setId!.split("-")[0] + "-" + index;
+                        const matchedItem: Item = await getBricklinkData(nextId, type);
+                        items.push(matchedItem);
+                        index++;
+                    } catch (error: AxiosError | any) {
+                        matchesFound = false;
+                    }
+                }
+                setCacheItem(`getItemMatches-${id}`, items);
+                return items;
+            }
+        }
+        throw new Error('Unknown error occurred!');
+    };
+
+    const getCachedItem = (id: string): Promise<Item[]> | undefined => {
         const cacheItem = getCacheItem(`getItemMatches-${id}`);
         if (cacheItem) {
             return new Promise<Item[]>(resolve => resolve(cacheItem));
-        } else {
-            const type: Type = determineType(id);
-            const promises = [
-              getBricklinkData(id, type)
-            ];
-            // if the id passed in doesn't match 1234-1, then search for more
-            // else just return that one they're searching for
-            if (!new RegExp(".+-\\d").test(id)) {
-                // if it's a set, then make another call to get the -2 variant
-                if (type === Type.SET) {
-                    promises.push(...[getBricklinkData(`${id}-2`, type)]);
-                }
-            }
-            // get the results
-            const results = await Promise.allSettled(promises);
-            if (results.length === 1) {
-                // we only want the one search, so return that item or error handle accordingly
-                if (results[0].status === 'fulfilled') {
-                    setCacheItem(`getItemMatches-${id}`, [results[0].value]);
-                    return [results[0].value];
-                } else {
-                    handleError(results[0].reason);
-                }
-            } else {
-                if (results[0].status === 'fulfilled' && results[1].status === 'rejected'
-                  && results[1].reason instanceof AxiosError
-                  && results[1].reason.code === HttpStatusCode.NotFound.toString()) {
-                    // first result went through, and second failed on 404, which means we have a match on the first
-                    // one, and there's no duplicates
-                    setCacheItem(`getItemMatches-${id}`, [results[0].value]);
-                    return [results[0].value];
-                } else if (results[0].status === 'rejected') {
-                    // both calls failed, so handle the error on the first one, since they both probably failed for the same reason
-                    handleError(results[0].reason);
-                } else if (results[0].status === 'fulfilled' && results[1].status === 'fulfilled') {
-                    // both calls succeeded, which means that there are multiple matches, let's find more
-                    const items: Item[] = [results[0].value, results[1].value];
-                    let index: number = 3;  // start at 3 since we already have 2 results
-                    let matchesFound: boolean = true;   // flag to determine whether to continue or not
-                    while (matchesFound) {
-                        try {
-                            const nextId: string = items[0].setId!.split("-")[0] + "-" + index;
-                            const matchedItem: Item = await getBricklinkData(nextId, type);
-                            items.push(matchedItem);
-                            index++;
-                        } catch (error: AxiosError | any) {
-                            matchesFound = false;
-                        }
-                    }
-                    setCacheItem(`getItemMatches-${id}`, items);
-                    return items;
-                }
-            }
-            throw new Error('Unknown error occurred!');
         }
-    };
+        return undefined;
+    }
 
     const getHydratedItem = async (item: Item): Promise<Item> => {
         // try to get the cached data if it exists
@@ -209,10 +218,11 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
 
     const determineType = (id: string): Type => {
         // special case for collectable figures, which can look like "col12-12" and similar
-        if (new RegExp("col.+").test(id)) {
+        if (new RegExp("col\\d+-\\d+").test(id)) {
             return Type.SET;
-        }
-        if (new RegExp("[a-zA-Z]+\\d+").test(id)) {
+        } else if (new RegExp("col.+").test(id)) {
+            return Type.MINIFIG;
+        } else if (new RegExp("[a-zA-Z]+\\d+").test(id)) {
             return Type.MINIFIG;
         }
         return Type.SET;
