@@ -5,7 +5,7 @@ import {Availability} from "../model/retailStatus/Availability";
 import {launderMoney} from "../utils/CurrencyUtils";
 import { toNumber } from "lodash";
 
-const corsProxyUrl: string = 'https://corsproxy.io/?';
+const corsProxyUrl: string = 'https://proxy.cors.sh/';
 const baseUrl: string = 'https://www.brickeconomy.com/search?query=';
 
 export interface BrickEconomyHooks {
@@ -20,7 +20,9 @@ export const useBrickEconomyService = (): BrickEconomyHooks => {
   const brickEconomyAxiosInstance = axios.create({
     baseURL: baseUrl,
     timeout: 10000,
-    headers: {}
+    headers: {
+      "x-cors-api-key": "live_6aba39ccdee8ed8b73605d0e20a44856036a469b78fd9fdbb2a0399951e920a1"
+    }
   });
 
   const getRetailStatus = async (id: string): Promise<RetailStatus> => {

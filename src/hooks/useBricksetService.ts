@@ -7,7 +7,8 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { Source } from "../model/_shared/Source";
 
-const baseUrl: string = 'https://corsproxy.io/?https://brickset.com/api/v3.asmx';
+const corsProxyUrl: string = "https://proxy.cors.sh/";
+const baseUrl: string = 'https://brickset.com/api/v3.asmx';
 
 export interface BricksetServiceHooks {
   getBricksetData: (item: Item) => Promise<Item | undefined>;
@@ -19,7 +20,9 @@ export const useBricksetService = (): BricksetServiceHooks => {
   const bricksetAxiosInstance = axios.create({
     baseURL: baseUrl,
     timeout: 10000,
-    headers: {}
+    headers: {
+      "x-cors-api-key": "live_6aba39ccdee8ed8b73605d0e20a44856036a469b78fd9fdbb2a0399951e920a1"
+    }
   });
 
   const getBricksetData = async (item: Item): Promise<Item | undefined> => {
@@ -63,7 +66,7 @@ export const useBricksetService = (): BricksetServiceHooks => {
   }
 
   const buildRequestUrl = (id: string): string => {
-    return `${baseUrl}/getSets?apiKey=${process.env.REACT_APP_BRICKSET_API_KEY}&userHash=&params={"setNumber": "${id}"}`;
+    return `${corsProxyUrl}${baseUrl}/getSets?apiKey=${process.env.REACT_APP_BRICKSET_API_KEY}&userHash=&params=${encodeURI(`{"setNumber":"${id}"}`)}`;
   }
 
   const determineAvailability = (dateFirstAvailable: string, dateLastAvailable: string): Availability | undefined => {
