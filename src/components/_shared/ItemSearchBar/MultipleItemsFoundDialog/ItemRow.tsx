@@ -3,7 +3,7 @@ import { Item } from "../../../../model/item/Item";
 import { Box, Divider, ListItem, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { Launch } from "@mui/icons-material";
-import { useItemLookupService } from "../../../../hooks/useItemLookupService";
+import { useItemLookupService } from "../../../../_hooks/useItemLookupService";
 
 interface ItemRowParams {
   item: Item;

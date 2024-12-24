@@ -10,7 +10,7 @@ import Version from "../_shared/Version/Version";
 import { Condition } from "../../model/_shared/Condition";
 import SettingsDialog from "./Dialog/SettingsDialog/SettingsDialog";
 import { useDispatch, useSelector } from "react-redux";
-import { useConfigurationService } from "../../hooks/dynamo/useConfigurationService";
+import { useConfigurationService } from "../../_hooks/dynamo/useConfigurationService";
 import { updateStoreConfiguration } from "../../redux/slices/configurationSlice";
 import NavBar from "../_shared/NavBar/NavBar";
 import { Tabs } from "../_shared/NavBar/Tabs";

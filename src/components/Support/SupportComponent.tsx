@@ -2,17 +2,17 @@ import React, { FC, memo, useState } from "react";
 import NavBar from "../_shared/NavBar/NavBar";
 import { Tabs } from "../_shared/NavBar/Tabs";
 import { Box, Button, LinearProgress, Typography } from "@mui/material";
-import { useBrickEconomyService } from "../../hooks/useBrickEconomyService";
+import { useBrickEconomyService } from "../../_hooks/useBrickEconomyService";
 import ItemSearchBar from "../_shared/ItemSearchBar/ItemSearchBar";
 import { Item } from "../../model/item/Item";
 import { RetailStatus } from "../../model/retailStatus/RetailStatus";
-import { useRebrickableService } from "../../hooks/useRebrickableService";
+import { useRebrickableService } from "../../_hooks/useRebrickableService";
 import { Part } from "../../model/partCollector/Part";
-import { useBricksetService } from "../../hooks/useBricksetService";
-import { useBrickLinkService } from "../../hooks/useBrickLinkService";
-import { useItemLookupService } from "../../hooks/useItemLookupService";
+import { useBricksetService } from "../../_hooks/useBricksetService";
+import { useBrickLinkService } from "../../_hooks/useBrickLinkService";
+import { useItemLookupService } from "../../_hooks/useItemLookupService";
 import { AllSalesHistory } from "../../model/salesHistory/AllSalesHistory";
-import { useCacheService } from "../../hooks/cache/useCacheService";
+import { useCacheService } from "../../_hooks/cache/useCacheService";
 
 const SupportComponent: FC = () => {
 

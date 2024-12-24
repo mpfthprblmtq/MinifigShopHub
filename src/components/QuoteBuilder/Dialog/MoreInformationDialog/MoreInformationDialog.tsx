@@ -14,7 +14,7 @@ import { Close, Refresh } from "@mui/icons-material";
 import SalesHistoryAccordion from "./SalesHistoryAccordion";
 import {formatCurrency} from "../../../../utils/CurrencyUtils";
 import { LoadingButton } from "@mui/lab";
-import { useItemLookupService } from "../../../../hooks/useItemLookupService";
+import { useItemLookupService } from "../../../../_hooks/useItemLookupService";
 import { useDispatch } from "react-redux";
 import { updateItem } from "../../../../redux/slices/quoteSlice";
 

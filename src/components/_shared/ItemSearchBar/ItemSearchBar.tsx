@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useState } from "react";
 import { Item } from "../../../model/item/Item";
-import { useItemLookupService } from "../../../hooks/useItemLookupService";
+import { useItemLookupService } from "../../../_hooks/useItemLookupService";
 import { AxiosError } from "axios";
 import MultipleItemsFoundDialog from "./MultipleItemsFoundDialog/MultipleItemsFoundDialog";
 import { Box, Button, TextField, Tooltip } from "@mui/material";

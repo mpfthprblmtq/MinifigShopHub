@@ -17,7 +17,7 @@ import PartsList from "./PartsList/PartsList";
 import { FilterAlt, SquareRounded } from "@mui/icons-material";
 import { Part } from "../../../model/partCollector/Part";
 import { Color } from "../../../model/partCollector/Color";
-import { useRebrickableService } from "../../../hooks/useRebrickableService";
+import { useRebrickableService } from "../../../_hooks/useRebrickableService";
 import { useSnackbar } from "../../../app/contexts/SnackbarProvider";
 
 enum SortByFields {
