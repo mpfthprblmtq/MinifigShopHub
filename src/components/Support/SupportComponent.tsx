@@ -12,7 +12,7 @@ import { useBricksetService } from "../../_hooks/useBricksetService";
 import { useBrickLinkService } from "../../_hooks/useBrickLinkService";
 import { useItemLookupService } from "../../_hooks/useItemLookupService";
 import { AllSalesHistory } from "../../model/salesHistory/AllSalesHistory";
-import { useCacheService } from "../../_hooks/cache/useCacheService";
+import { useCacheService } from "../../hooks/cache/useCacheService";
 
 const SupportComponent: FC = () => {
 

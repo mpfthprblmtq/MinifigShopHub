@@ -17,7 +17,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 import { Condition } from "../../../../model/_shared/Condition";
-import { useQuoteService } from "../../../../_hooks/dynamo/useQuoteService";
+import { useQuoteService } from "../../../../hooks/dynamo/useQuoteService";
 import { SavedQuote } from "../../../../model/dynamo/SavedQuote";
 import { Item } from "../../../../model/item/Item";
 import { useSnackbar } from "../../../../app/contexts/SnackbarProvider";

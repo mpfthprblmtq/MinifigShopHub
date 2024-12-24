@@ -12,7 +12,7 @@ import {
 import { StyledTableCell } from "../../../QuoteBuilder/Table/TableComponent/TableComponent.styles";
 import { Item } from "../../../../model/item/Item";
 import PartRow from "./PartRow";
-import { usePartsService } from "../../../../_hooks/dynamo/usePartsService";
+import { usePartsService } from "../../../../hooks/dynamo/usePartsService";
 import { useSnackbar } from "../../../../app/contexts/SnackbarProvider";
 
 interface PartsListParams {

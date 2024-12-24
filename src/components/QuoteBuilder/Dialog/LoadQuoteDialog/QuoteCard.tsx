@@ -6,7 +6,7 @@ import { Delete, Info } from "@mui/icons-material";
 import { updateQuoteInStore } from "../../../../redux/slices/quoteSlice";
 import DriveFileMoveIcon from "@mui/icons-material/DriveFileMove";
 import { useDispatch } from "react-redux";
-import { useQuoteService } from "../../../../_hooks/dynamo/useQuoteService";
+import { useQuoteService } from "../../../../hooks/dynamo/useQuoteService";
 import { SavedQuoteKey } from "../../../../model/dynamo/SavedQuoteKey";
 import { Quote } from "../../../../model/quote/Quote";
 import { useSnackbar } from "../../../../app/contexts/SnackbarProvider";

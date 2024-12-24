@@ -4,7 +4,7 @@ import { useBrickLinkService } from "./useBrickLinkService";
 import { useSelector } from "react-redux";
 import { useBricksetService } from "./useBricksetService";
 import { useBrickEconomyService } from "./useBrickEconomyService";
-import { useCacheService } from "./cache/useCacheService";
+import { useCacheService } from "../hooks/cache/useCacheService";
 import { AxiosError, HttpStatusCode } from "axios";
 import { AllSalesHistory } from "../model/salesHistory/AllSalesHistory";
 import { Source } from "../model/_shared/Source";

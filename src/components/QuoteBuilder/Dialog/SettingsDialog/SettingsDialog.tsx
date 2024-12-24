@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import {Condition} from "../../../../model/_shared/Condition";
 import {Close, Refresh} from "@mui/icons-material";
-import {useConfigurationService} from "../../../../_hooks/dynamo/useConfigurationService";
+import {useConfigurationService} from "../../../../hooks/dynamo/useConfigurationService";
 import {useDispatch, useSelector} from "react-redux";
 import {updateStoreConfiguration} from "../../../../redux/slices/configurationSlice";
 import {Configuration} from "../../../../model/dynamo/Configuration";

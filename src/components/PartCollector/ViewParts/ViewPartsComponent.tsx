@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
-import { usePartsService } from "../../../_hooks/dynamo/usePartsService";
+import { usePartsService } from "../../../hooks/dynamo/usePartsService";
 import { PartDisplay } from "../../../model/partCollector/PartDisplay";
 import PartTile from "./PartTile";
 import { Box, LinearProgress, Stack, TextField, Typography } from "@mui/material";

@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useConfigurationService } from "../../../../_hooks/dynamo/useConfigurationService";
+import { useConfigurationService } from "../../../../hooks/dynamo/useConfigurationService";
 import { Configuration } from "../../../../model/dynamo/Configuration";
 import { updateStoreConfiguration } from "../../../../redux/slices/configurationSlice";
 import {
