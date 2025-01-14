@@ -56,7 +56,7 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
             </Box>
             <DialogContent>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    {item?.imageUrl && item?.thumbnailUrl && (
+                    {item?.imageUrl && (
                         <Box sx={{ m: 1, position: 'relative' }}>
                             <img width="200" alt="bricklink-set-img" src={item.imageUrl}/>
                         </Box>
@@ -65,7 +65,7 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
                         <Typography>
                             <strong>Set ID: </strong>{item?.setId}<br/>
                             <strong>Name: </strong>{item?.name}<br/>
-                            <strong>Year: </strong>{item?.yearReleased}<br/>
+                            <strong>Year: </strong>{item?.year}<br/>
                             {item?.pieceCount && item.minifigCount && (
                               <>
                                   <strong>Pieces / Minifigs: </strong>
@@ -84,32 +84,36 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
                                 <strong>Availability: </strong>{item?.retailStatus?.availability}<br/>
                                 <strong>MSRP: </strong>{formatCurrency(item?.retailStatus?.retailPrice)}<br/>
                                 <a href={`https://www.brickeconomy.com/search?query=${item.setId}`} target='_blank' rel='noreferrer'>
-                                    <strong>BrickEconomy Value: </strong>{formatCurrency(item?.brickEconomyValue)}<br/>
+                                    {/*<strong>BrickEconomy Value: </strong>{formatCurrency(item?.brickEconomyValue)}<br/>*/}
                                 </a>
                             </Typography>
                         )}
                     </Box>
                 </Box>
                 <Box marginTop={'10px'}>
-                    {item?.salesData?.newSold && (
+                    {item?.salesHistory?.newSales && (
                         <SalesHistoryAccordion
                             title={<Typography>Last 6 Months Sales <strong>(New)</strong></Typography>}
-                            salesHistory={item?.salesData?.newSold} />
+                            salesHistory={item?.salesHistory?.newSales}
+                            setId={item?.brickLinkId} />
                     )}
-                    {item?.salesData?.usedSold && (
+                    {item?.salesHistory?.usedSales && (
                         <SalesHistoryAccordion
                             title={<Typography>Last 6 Months Sales <strong>(Used)</strong></Typography>}
-                            salesHistory={item?.salesData?.usedSold} />
+                            salesHistory={item?.salesHistory?.usedSales}
+                            setId={item?.brickLinkId} />
                     )}
-                    {item?.salesData?.newStock && (
+                    {item?.salesHistory?.newStock && (
                         <SalesHistoryAccordion
                             title={<Typography>Current Items For Sale <strong>(New)</strong></Typography>}
-                            salesHistory={item?.salesData?.newStock} />
+                            salesHistory={item?.salesHistory?.newStock}
+                            setId={item?.brickLinkId} />
                     )}
-                    {item?.salesData?.usedStock && (
+                    {item?.salesHistory?.usedStock && (
                         <SalesHistoryAccordion
                             title={<Typography>Current Items For Sale <strong>(Used)</strong></Typography>}
-                            salesHistory={item?.salesData?.usedStock} />
+                            salesHistory={item?.salesHistory?.usedStock}
+                            setId={item?.brickLinkId} />
                     )}
                 </Box>
             </DialogContent>

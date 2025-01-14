@@ -14,7 +14,7 @@ import {
 import { Close } from "@mui/icons-material";
 import { cleanTextAreaList } from "../../../../utils/StringUtils";
 import { Item } from "../../../../model/item/Item";
-import { useItemLookupService } from "../../../../_hooks/useItemLookupService";
+import { useItemLookupService } from "../../../../hooks/useItemLookupService";
 import { HttpStatusCode } from "axios";
 import { green } from "@mui/material/colors";
 import { useSnackbar } from "../../../../app/contexts/SnackbarProvider";
@@ -30,7 +30,7 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
 
     const [loading, setLoading] = useState<boolean>(false);
     const [setNumbers, setSetNumbers] = useState<string>('');
-    const { getItemMatches, getHydratedItem } = useItemLookupService();
+    const { searchItem } = useItemLookupService();
     const { hideSnackbar, showSnackbar } = useSnackbar();
 
     const loadItems = async () => {
@@ -48,7 +48,7 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
                     .splice(0,5)
                     .map(async setNumber => {
                           try {
-                              return await getItemMatches(setNumber);
+                              return await searchItem(setNumber);
                           } catch (e: any) {
                               if (e.code === HttpStatusCode.NotFound.toString()) {
                                   errorItems.push(setNumber);
@@ -73,18 +73,7 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
                     console.error(error);
                 });
         }
-
-        // add the items that worked to the items list
-        const hydratedItems: Item[] = [];
-        for (const item of items) {
-            try {
-                await getHydratedItem(item).then(hydratedItem => hydratedItems.push(hydratedItem));
-            } catch (error: any) {
-                hydratedItems.push(item);
-            }
-
-        }
-        processItems(hydratedItems);
+        processItems(items);
 
         // add the items with multiple matches
         addMultipleMatchItems(itemsWithMultipleMatches);

@@ -54,7 +54,7 @@ const PartsList: FunctionComponent<PartsListParams> = ({item, parts, setParts}) 
             </Typography>
             {item.retailStatus?.availability && (
               <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 16 }}>
-                {item.yearReleased} ({item.retailStatus?.availability})
+                {item.year} ({item.retailStatus?.availability})
               </Typography>
             )}
             {item.pieceCount && (

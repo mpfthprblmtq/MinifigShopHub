@@ -87,28 +87,28 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, label, se
         onChange={(event) => setLabel({...label, title: event.target.value} as Label)} />
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Box sx={{ m: 1, position: 'relative' }}>
-          {item.salesData?.newSold?.price_detail && item.salesData.newSold.price_detail.length > 0 && (
+          {item.salesHistory?.newSales?.sales && item.salesHistory.newSales.sales.length > 0 && (
             <>
               <Typography>New Sales</Typography>
-              <Tooltip title={`Based on ${item.salesData?.newSold?.unit_quantity} ${+item.salesData.newSold?.unit_quantity === 1 ? 'sale' : 'sales'}`} arrow>
-                <Box sx={{color: item.salesData?.newSold?.unit_quantity && item.salesData.newSold?.unit_quantity >= 5 ? '#008000' : '#BD0000' }}>
-                  Min: {formatCurrency(item.salesData?.newSold?.min_price)}<br/>
-                  <strong>Avg: {formatCurrency(item.salesData?.newSold?.avg_price)}</strong><br/>
-                  Max: {formatCurrency(item.salesData?.newSold?.max_price)}
+              <Tooltip title={`Based on ${item.salesHistory?.newSales?.unit_quantity} ${+item.salesHistory.newSales?.unit_quantity === 1 ? 'sale' : 'sales'}`} arrow>
+                <Box sx={{color: item.salesHistory?.newSales?.unit_quantity && item.salesHistory.newSales?.unit_quantity >= 5 ? '#008000' : '#BD0000' }}>
+                  Min: {formatCurrency(item.salesHistory?.newSales?.minimumPrice)}<br/>
+                  <strong>Avg: {formatCurrency(item.salesHistory?.newSales?.averagePrice)}</strong><br/>
+                  Max: {formatCurrency(item.salesHistory?.newSales?.maximumPrice)}
                 </Box>
               </Tooltip>
             </>
           )}
         </Box>
         <Box sx={{ m: 1, position: 'relative' }}>
-          {item.salesData?.usedSold?.price_detail && item.salesData.usedSold.price_detail.length > 0 && (
+          {item.salesHistory?.usedSales?.sales && item.salesHistory.usedSales.sales.length > 0 && (
             <>
               <Typography>Used Sales</Typography>
-              <Tooltip title={`Based on ${item.salesData?.usedSold?.unit_quantity} ${+item.salesData.usedSold?.unit_quantity === 1 ? 'sale' : 'sales'}`} arrow>
-                <Box sx={{color: item.salesData?.usedSold?.unit_quantity && item.salesData?.usedSold?.unit_quantity >= 5 ? '#008000' : '#BD0000' }}>
-                  Min: {formatCurrency(item.salesData?.usedSold?.min_price)}<br/>
-                  <strong>Avg: {formatCurrency(item.salesData?.usedSold?.avg_price)}</strong><br/>
-                  Max: {formatCurrency(item.salesData?.usedSold?.max_price)}
+              <Tooltip title={`Based on ${item.salesHistory?.usedSales?.unit_quantity} ${+item.salesHistory.usedSales?.unit_quantity === 1 ? 'sale' : 'sales'}`} arrow>
+                <Box sx={{color: item.salesHistory?.usedSales?.unit_quantity && item.salesHistory?.usedSales?.unit_quantity >= 5 ? '#008000' : '#BD0000' }}>
+                  Min: {formatCurrency(item.salesHistory?.usedSales?.minimumPrice)}<br/>
+                  <strong>Avg: {formatCurrency(item.salesHistory?.usedSales?.averagePrice)}</strong><br/>
+                  Max: {formatCurrency(item.salesHistory?.usedSales?.maximumPrice)}
                 </Box>
               </Tooltip>
             </>

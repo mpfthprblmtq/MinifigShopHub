@@ -176,7 +176,6 @@ const Totals = forwardRef(({ storeMode, handleTotalAdjustmentChange }: TotalsSec
                 <>
                   <FixedWidthColumnHeading />
                   <FixedWidthColumnHeading>
-
                     <Tooltip title={quote.items.filter(item => item.sources.includes(Source.CUSTOM)).length > 0 ?
                       "Does not include Custom Items" : ""}>
                       <div style={{ width: "140px", minWidth: "140px", maxWidth: "150px" }}>

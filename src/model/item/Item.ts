@@ -13,18 +13,17 @@ export interface Item {
     subTheme?: string;
     imageUrl?: string;
     thumbnailUrl?: string;
-    yearReleased?: number;
+    year?: number;
     pieceCount?: number;
     minifigCount?: number;
+    type: Type;
+    sources: Source[];
+    messages?: string[];
+    retailStatus?: RetailStatus;
+    salesHistory?: AllSalesHistory;
     condition: Condition;
     baseValue: number;
     valueAdjustment: number;
     value: number;
-    brickEconomyValue?: number;
     comment?: string;
-    sources: Source[];
-    type: Type;
-    retailStatus?: RetailStatus;
-    salesData?: AllSalesHistory;
-    messages?: string[];
 }

@@ -102,7 +102,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
           item.baseValue = +(item.retailStatus.retailPrice ?? 0);
         } else {
           item.baseValue = item.condition === Condition.USED ?
-            +(item.salesData?.usedSold?.avg_price ?? 0) : +(item.salesData?.newSold?.avg_price ?? 0);
+            +(item.salesHistory?.usedSales?.averagePrice ?? 0) : +(item.salesHistory?.newSales?.averagePrice ?? 0);
         }
         if (item.baseValue === 0) {
           item.valueAdjustment = 0;

@@ -22,7 +22,7 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
 
     const { getBricklinkData, getAllSalesHistory } = useBrickLinkService();
     const { getBricksetData } = useBricksetService();
-    const { getRetailStatus, getPieceAndMinifigCount, getBrickEconomyValue } = useBrickEconomyService();
+    const { getRetailStatus, getPieceAndMinifigCount } = useBrickEconomyService();
     const { getCacheItem, setCacheItem } = useCacheService();
 
     const getItemMatches = async (id: string): Promise<Item[]> => {
@@ -121,11 +121,11 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
                     const salesHistory: AllSalesHistory = results[0].value as AllSalesHistory;
                     const bricksetData: Item = results[1].value as Item;
                     const messages: string[] = bricksetData ? [] : [`Brickset data unavailable for ${item.setId}!`];
-                    item = {...item, salesData: salesHistory, ...bricksetData, messages: messages};
+                    item = {...item, salesHistory: salesHistory, ...bricksetData, messages: messages};
                 } else if (results[0].status === 'fulfilled' && results[1].status === 'rejected') {
                     // sales history succeeded, brickset failed
                     const salesHistory: AllSalesHistory = results[0].value as AllSalesHistory;
-                    item = {...item, salesData: salesHistory, messages: [`Brickset data unavailable for ${item.setId}!`]};
+                    item = {...item, salesHistory: salesHistory, messages: [`Brickset data unavailable for ${item.setId}!`]};
                 } else {
                     // both sales history and brickset calls failed
                     item = {...item, messages: [`Sales data unavailable for ${item.setId}!`, `Brickset data unavailable for ${item.setId}!`]};
@@ -181,20 +181,20 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
         }
 
         // get the BrickEconomy value
-        if (item.setId) {
-            try {
-                const brickEconomyValue: number = await getBrickEconomyValue(item.setId);
-                if (brickEconomyValue > 0) {
-                    item.brickEconomyValue = brickEconomyValue;
-                }
-            } catch (e: any) {
-                addBrickEconomyMessage(item);
-            }
-        }
+        // if (item.setId) {
+        //     try {
+        //         const brickEconomyValue: number = await getBrickEconomyValue(item.setId);
+        //         if (brickEconomyValue > 0) {
+        //             item.brickEconomyValue = brickEconomyValue;
+        //         }
+        //     } catch (e: any) {
+        //         addBrickEconomyMessage(item);
+        //     }
+        // }
 
         // by default, set the condition to used, base value to BL sales data, value, adjustment and type
         item.condition = Condition.USED;
-        item.baseValue = +(item.salesData?.usedSold?.avg_price ?? 0);
+        item.baseValue = +(item.salesHistory?.usedSales?.averagePrice ?? 0);
         item.value = Math.round(item.baseValue * (configuration.autoAdjustmentPercentageUsed / 100));
         item.valueAdjustment = item.baseValue !== 0 ? configuration.autoAdjustmentPercentageUsed : 0;
         item.type = determineType(item.setId ?? '');

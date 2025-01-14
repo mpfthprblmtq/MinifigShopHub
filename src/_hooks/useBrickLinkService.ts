@@ -66,7 +66,7 @@ export const useBrickLinkService = (): BrickLinkHooks => {
         type: item.type,
         imageUrl: item.image_url,
         thumbnailUrl: item.thumbnail_url,
-        yearReleased: item.year_released,
+        year: item.year_released,
         sources: [Source.BRICKLINK]
       } as Item;
     } catch (error: AxiosError | any) {
@@ -92,9 +92,9 @@ export const useBrickLinkService = (): BrickLinkHooks => {
         responses.map((response) => {
           return filterOutOldDates(response);
         });
-        allSalesHistory.usedSold = validateSalesData(responses[0]);
+        allSalesHistory.usedSales = validateSalesData(responses[0]);
         // allSalesHistory.usedStock = validateSalesData(responses[1]);
-        allSalesHistory.newSold = validateSalesData(responses[1]);
+        allSalesHistory.newSales = validateSalesData(responses[1]);
         // allSalesHistory.newStock = validateSalesData(responses[3]);
       });
     }
@@ -122,13 +122,11 @@ export const useBrickLinkService = (): BrickLinkHooks => {
    * @returns the SalesHistory object if there's valid data, or undefined if there's no valid data
    */
   const validateSalesData = (salesHistory: SalesHistory): SalesHistory | undefined => {
-    if (salesHistory.min_price === "0.0000" &&
-      salesHistory.max_price === "0.0000" &&
-      salesHistory.avg_price === "0.0000" &&
-      salesHistory.qty_avg_price === "0.0000" &&
-      salesHistory.unit_quantity === 0 &&
-      salesHistory.total_quantity === 0 &&
-      salesHistory.price_detail.length === 0) {
+    if (salesHistory.minimumPrice === "0.0000" &&
+      salesHistory.maximumPrice === "0.0000" &&
+      salesHistory.averagePrice === "0.0000" &&
+      salesHistory.numberOfItemsSold === 0 &&
+      salesHistory.sales.length === 0) {
       return undefined;
     }
     return salesHistory;

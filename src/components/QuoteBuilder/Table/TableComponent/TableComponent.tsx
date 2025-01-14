@@ -58,10 +58,10 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
                 if (!itemCopy.sources.includes(Source.CUSTOM)) {
                     // new Retail sets use the MSRP as the base value, used Retail sets use BrickLink sales data as the base value
                     if (itemCopy.condition === Condition.USED) {
-                        itemCopy.baseValue = +(itemCopy.salesData?.usedSold?.avg_price ?? 0);
+                        itemCopy.baseValue = +(itemCopy.salesHistory?.usedSales?.averagePrice ?? 0);
                     } else if (itemCopy.condition === Condition.NEW) {
                         itemCopy.baseValue = itemCopy.retailStatus?.availability === Availability.RETAIL ?
-                          itemCopy.retailStatus.retailPrice ?? 0 : +(itemCopy.salesData?.newSold?.avg_price ?? 0);
+                          itemCopy.retailStatus.retailPrice ?? 0 : +(itemCopy.salesHistory?.newSales?.averagePrice ?? 0);
                     }
                     if (itemCopy.baseValue === 0) {
                         itemCopy.valueAdjustment = 0;

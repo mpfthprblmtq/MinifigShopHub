@@ -41,20 +41,18 @@ const SaveQuoteDialog: FunctionComponent<SaveQuoteDialogParams> = ({open, onClos
 
   const save = async () => {
     const transformedQuote: Quote = {...quote, items: [...quote.items].map(item => {
-        return {...item, salesData: {
-          usedSold: {
-            item: {no: item.salesData?.usedSold?.item.no},
-            total_quantity: item.salesData?.usedSold?.total_quantity,
-            min_price: item.salesData?.usedSold?.min_price,
-            max_price: item.salesData?.usedSold?.max_price,
-            avg_price: item.salesData?.usedSold?.avg_price
+        return {...item, salesHistory: {
+          usedSales: {
+            numberOfItemsSold: item.salesHistory?.usedSales?.numberOfItemsSold,
+            minimumPrice: item.salesHistory?.usedSales?.minimumPrice,
+            maximumPrice: item.salesHistory?.usedSales?.maximumPrice,
+            averagePrice: item.salesHistory?.usedSales?.averagePrice
           },
-          newSold: {
-            item: {no: item.salesData?.usedSold?.item.no},
-            total_quantity: item.salesData?.newSold?.total_quantity,
-            min_price: item.salesData?.newSold?.min_price,
-            max_price: item.salesData?.newSold?.max_price,
-            avg_price: item.salesData?.newSold?.avg_price
+          newSales: {
+            numberOfItemsSold: item.salesHistory?.newSales?.numberOfItemsSold,
+            minimumPrice: item.salesHistory?.newSales?.minimumPrice,
+            maximumPrice: item.salesHistory?.newSales?.maximumPrice,
+            averagePrice: item.salesHistory?.newSales?.averagePrice
           }
         }} as Item;
       })}

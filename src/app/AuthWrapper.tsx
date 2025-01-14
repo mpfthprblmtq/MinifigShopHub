@@ -9,12 +9,15 @@ interface AuthWrapperProps {
 
 const AuthWrapper: FC<AuthWrapperProps> = ({children}) => {
 
-  const { loginWithRedirect, isAuthenticated, isLoading } = useAuth0();
+  const { loginWithRedirect, isAuthenticated, isLoading, user, getAccessTokenSilently } = useAuth0();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const invitation = params.get("invitation");
     const organization = params.get("organization");
+
+    console.log(user)
+    getToken().then(token => console.log(token));
 
     if (!isAuthenticated && !isLoading && invitation && organization) {
       loginWithRedirect({
@@ -27,7 +30,12 @@ const AuthWrapper: FC<AuthWrapperProps> = ({children}) => {
     } else if (!isLoading && !isAuthenticated) {
       loginWithRedirect();
     }
-  }, [isAuthenticated, isLoading, loginWithRedirect]);
+    // eslint-disable-next-line
+  }, [isAuthenticated, isLoading, loginWithRedirect, user]);
+
+  const getToken = async (): Promise<string> => {
+    return getAccessTokenSilently();
+  }
 
   return isAuthenticated ? children : <LoadingSpinner />;
 };
