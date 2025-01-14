@@ -1,10 +1,7 @@
 import { Item } from "./Item";
+import { Meta } from "../_shared/Meta";
 
 export interface ItemResponse {
-  meta: {
-    description?: string;
-    code?: number;
-    message?: string;
-  };
+  meta: Meta;
   items: Item[];
 }
