@@ -27,6 +27,7 @@ import { SavedQuote } from "../../model/dynamo/SavedQuote";
 import { Availability } from "../../model/retailStatus/Availability";
 import { Source } from "../../model/_shared/Source";
 import { useSnackbar } from "../../app/contexts/SnackbarProvider";
+import { useBackendService } from "../../hooks/useBackendService";
 
 const QuoteBuilderComponent: FunctionComponent = () => {
 
@@ -44,6 +45,15 @@ const QuoteBuilderComponent: FunctionComponent = () => {
 
   const { initConfig } = useConfigurationService();
   const { showSnackbar } = useSnackbar();
+
+  const { getHealth } = useBackendService();
+  useEffect(() => {
+    const getStatus = async (): Promise<{ version: string, status: string }> => {
+      return await getHealth();
+    }
+    getStatus().then(() => {});
+    // eslint-disable-next-line
+  }, []);
 
   // print stuff
   const componentRef = useRef(null);

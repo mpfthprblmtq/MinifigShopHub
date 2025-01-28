@@ -1,17 +1,8 @@
-import {SalesHistory} from "../model/salesHistory/SalesHistory";
+import dayjs, { Dayjs } from "dayjs";
 
-export const formatDate = (dateString: string | undefined): string => {
-    if (dateString) {
-        return new Date(dateString).toLocaleDateString();
+export const formatDate = (date: Dayjs | undefined): string => {
+    if (date) {
+        return dayjs(date).format('MM/DD/YYYY');
     }
     return '';
-};
-
-export const filterOutOldDates = (salesHistory: SalesHistory): SalesHistory => {
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-    salesHistory.sales = salesHistory.sales
-        .filter(sale =>
-            (sale.date ? new Date(sale.date) : new Date()) >= sixMonthsAgo);
-    return salesHistory;
-};
+}

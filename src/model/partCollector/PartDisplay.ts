@@ -1,4 +1,4 @@
-import { Part } from "./Part";
+import { Part } from "../rebrickable/RebrickableResponse";
 
 export interface PartDisplay {
   key: string;

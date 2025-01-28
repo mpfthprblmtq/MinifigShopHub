@@ -1,5 +1,4 @@
 import { Item } from "../model/item/Item";
-import { Type } from "../model/_shared/Type";
 import { useSelector } from "react-redux";
 import { useCacheService } from "./cache/useCacheService";
 import { useBackendService } from "./useBackendService";
@@ -8,7 +7,7 @@ import { ItemResponse } from "../model/item/ItemResponse";
 
 export interface ItemLookupServiceHooks {
   searchItem: (id: string) => Promise<Item[]>;
-  determineType: (id: string) => Type;
+  populateItem: (item: Item) => Item;
 }
 
 export const useItemLookupService = (): ItemLookupServiceHooks => {
@@ -25,9 +24,8 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
     }
 
     // item doesn't exist in cache, let's get it from the API
-    const type: Type = determineType(id);
     try {
-      const response: ItemResponse = await getItem(id, type);
+      const response: ItemResponse = await getItem(id);
       const results: Item[] = response.items;
       if (results.length === 1) {
         results[0] = populateItem(results[0]);
@@ -53,33 +51,17 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
     item.baseValue = +(item.salesHistory?.usedSales?.averagePrice ?? 0);
     item.value = Math.round(item.baseValue * (configuration.autoAdjustmentPercentageUsed / 100));
     item.valueAdjustment = item.baseValue !== 0 ? configuration.autoAdjustmentPercentageUsed : 0;
-    item.type = determineType(item.setId ?? '');
     if (!item.sources) {
       item.sources = [];
     }
 
-    // TODO find out if I need this still
     // remove the "-1" for display purposes if we should
-    if (new RegExp("\\D+.*-\\d+").test(item.setId ?? '')) {
-      // don't do anything
-    } else if (new RegExp(".+-\\d+").test(item.setId ?? '')) {
+    if (new RegExp(".+-\\d+").test(item.setId ?? '')) {
       item.setId = item.setId?.split("-")[0];
     }
 
     return item;
   }
 
-  const determineType = (id: string): Type => {
-    // special case for collectable figures, which can look like "col12-12" and similar
-    if (new RegExp("col\\d+-\\d+").test(id)) {
-      return Type.SET;
-    } else if (new RegExp("col.+").test(id)) {
-      return Type.MINIFIG;
-    } else if (new RegExp("[a-zA-Z]+\\d+").test(id)) {
-      return Type.MINIFIG;
-    }
-    return Type.SET;
-  };
-
-  return { searchItem, determineType };
+  return { searchItem, populateItem };
 };

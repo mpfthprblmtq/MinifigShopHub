@@ -1,10 +1,10 @@
 import React, { FunctionComponent, useState } from "react";
-import { Part } from "../../../../model/partCollector/Part";
 import { StyledTableCell } from "../../../QuoteBuilder/Table/TableComponent/TableComponent.styles";
 import { Box, TableRow, TextField, Typography } from "@mui/material";
 import { Add, SquareRounded } from "@mui/icons-material";
 import InformationDialog from "../../../_shared/InformationDialog/InformationDialog";
 import { LoadingButton } from "@mui/lab";
+import { Part } from "../../../../model/rebrickable/RebrickableResponse";
 
 interface PartRowParams {
   part: Part;
@@ -27,12 +27,12 @@ const PartRow: FunctionComponent<PartRowParams> = ({part, addPart}) => {
     <>
       <TableRow hover>
         <StyledTableCell width={75} className={'clickable'}>
-          <img src={part.imageUrl} width={75} alt={'part-img'} onClick={() => setFocusedImage(part.imageUrl)}/>
+          <img style={{maxHeight: 75, maxWidth: 75}} src={part.imageUrl} alt={'part-img'} onClick={() => setFocusedImage(part.imageUrl)}/>
         </StyledTableCell>
         <StyledTableCell width={120} sx={{textAlign: 'center'}}>
           <a target={'_blank'} rel={'noreferrer'}
-             href={`https://www.bricklink.com/v2/catalog/catalogitem.page?P=${part.bricklinkId}&C=${part.color.id}`}>
-            {part.bricklinkId}
+             href={`https://www.bricklink.com/v2/catalog/catalogitem.page?P=${part.id}&C=${part.color.id}`}>
+            {part.id}
           </a>
         </StyledTableCell>
         <StyledTableCell>
@@ -42,12 +42,12 @@ const PartRow: FunctionComponent<PartRowParams> = ({part, addPart}) => {
               <SquareRounded sx={{ color: `#${part.color.rgb}` }} />
             </Box>
             <Box sx={{ m: 1, position: 'relative', margin: 0, marginTop: '3px' }}>
-              {part.color.description}
+              {part.color.name}
             </Box>
           </Box>
         </StyledTableCell>
         <StyledTableCell>
-          <Typography sx={{ textAlign: 'center', fontSize: 20, color: part.isSpare ? 'red' : 'inherit' }}>
+          <Typography sx={{ textAlign: 'center', fontSize: 20, color: part.spare ? 'red' : 'inherit' }}>
             {part.quantity}
           </Typography>
         </StyledTableCell>

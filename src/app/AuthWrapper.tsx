@@ -16,9 +16,8 @@ const AuthWrapper: FC<AuthWrapperProps> = ({children}) => {
     const invitation = params.get("invitation");
     const organization = params.get("organization");
 
-    console.log(user)
-    getToken().then(token => console.log(token));
-
+    // if we have an invitation parameter, that means that this is a new user with an invite code, so redirect them
+    // to the create profile page
     if (!isAuthenticated && !isLoading && invitation && organization) {
       loginWithRedirect({
         authorizationParams: {
@@ -30,12 +29,9 @@ const AuthWrapper: FC<AuthWrapperProps> = ({children}) => {
     } else if (!isLoading && !isAuthenticated) {
       loginWithRedirect();
     }
+    getAccessTokenSilently().then((token) => console.log(token));
     // eslint-disable-next-line
   }, [isAuthenticated, isLoading, loginWithRedirect, user]);
-
-  const getToken = async (): Promise<string> => {
-    return getAccessTokenSilently();
-  }
 
   return isAuthenticated ? children : <LoadingSpinner />;
 };

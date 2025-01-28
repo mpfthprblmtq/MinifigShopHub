@@ -38,7 +38,7 @@ const SalesSummary: FunctionComponent<SalesSummaryParams> = ({salesHistory, isSa
                                     <strong>{isSalesData ? 'Sales:' : 'Listings:'}</strong>
                                 </Typography>
                             </td>
-                            <td><Typography>{salesHistory?.unit_quantity}</Typography></td>
+                            <td><Typography>{salesHistory?.numberOfSales}</Typography></td>
                         </tr>
                         <tr>
                             <td>

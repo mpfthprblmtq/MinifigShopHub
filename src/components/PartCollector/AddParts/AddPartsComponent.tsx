@@ -15,10 +15,9 @@ import { Item } from "../../../model/item/Item";
 import { green } from "@mui/material/colors";
 import PartsList from "./PartsList/PartsList";
 import { FilterAlt, SquareRounded } from "@mui/icons-material";
-import { Part } from "../../../model/partCollector/Part";
-import { Color } from "../../../model/partCollector/Color";
-import { useRebrickableService } from "../../../_hooks/useRebrickableService";
 import { useSnackbar } from "../../../app/contexts/SnackbarProvider";
+import { useBackendService } from "../../../hooks/useBackendService";
+import { Color, Part } from "../../../model/rebrickable/RebrickableResponse";
 
 enum SortByFields {
   All = 'All',
@@ -42,14 +41,15 @@ const AddPartsComponent: FunctionComponent = () => {
   const [filterByColors, setFilterByColors] = useState<Color[]>([]);
   const [filterByColor, setFilterByColor] = useState<string>(SortByFields.All);
 
-  const { getPartsList } = useRebrickableService();
+  const { getPartsList } = useBackendService();
   const { showSnackbar } = useSnackbar();
 
   const getParts = () => {
     setLoading(true);
-    if (item?.setId) {
-      getPartsList(item.setId).then(parts => {
+    if (item && item.bricklinkId) {
+      getPartsList(item.bricklinkId).then(partsResponse => {
         setLoading(false);
+        const parts = partsResponse.parts;
 
         if (parts && parts.length === 0) {
           showSnackbar('Item not found in Rebrickable!', 'error');
@@ -59,18 +59,20 @@ const AddPartsComponent: FunctionComponent = () => {
           buildColorFilterList(parts);
           buildResultString(parts);
         }
-      })
+      }).catch(error => {
+        showSnackbar(error.message, 'error');
+      });
     }
   }
 
   const buildColorFilterList = (parts: Part[]) => {
     const colors: Color[] = [];
     parts.forEach(part => {
-      if (!colors.some(color => color.description === part.color.description)) {
+      if (!colors.some(color => color.name === part.color.name)) {
         colors.push(part.color);
       }
     });
-    setFilterByColors(colors.sort((a, b) => a.description.localeCompare(b.description)));
+    setFilterByColors(colors.sort((a, b) => a.name.localeCompare(b.name)));
   }
 
   const buildResultString = (parts: Part[]) => {
@@ -82,7 +84,7 @@ const AddPartsComponent: FunctionComponent = () => {
     let sortedFilteredParts: Part[];
 
     if (filterByColor !== SortByFields.All) {
-      sortedFilteredParts = [...parts].filter(part => part.color.description === filterByColor);
+      sortedFilteredParts = [...parts].filter(part => part.color.name === filterByColor);
     } else {
       sortedFilteredParts = [...masterParts];
     }
@@ -91,8 +93,8 @@ const AddPartsComponent: FunctionComponent = () => {
       case SortByFields.ColorItemName: {
         sortedFilteredParts = [...sortedFilteredParts].sort((a, b) => {
           return order === SortByFields.Ascending ?
-            (a.color.description + a.name).localeCompare(b.color.description + b.name)
-            : (b.color.description + b.name).localeCompare(a.color.description + a.name);
+            (a.color.name + a.name).localeCompare(b.color.name + b.name)
+            : (b.color.name + b.name).localeCompare(a.color.name + a.name);
         });
         break;
       }
@@ -188,13 +190,13 @@ const AddPartsComponent: FunctionComponent = () => {
                   onChange={(event) => setFilterByColor(event.target.value as string)}>
                   <MenuItem value={SortByFields.All}>{SortByFields.All}</MenuItem>
                   {filterByColors.map((color, index) => (
-                    <MenuItem key={index} value={color.description}>
+                    <MenuItem key={index} value={color.name}>
                       <Box sx={{ display: 'flex', alignItems: 'center', margin: 0 }}>
                         <Box sx={{ m: 1, position: 'relative', margin: 0, marginTop: '5px' }}>
                           <SquareRounded sx={{ color: `#${color.rgb}` }} />
                         </Box>
                         <Box sx={{ m: 1, position: 'relative', margin: 0, marginTop: '3px' }}>
-                          {color.description}
+                          {color.name}
                         </Box>
                       </Box>
                     </MenuItem>

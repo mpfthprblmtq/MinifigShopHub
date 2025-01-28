@@ -5,16 +5,19 @@ export interface RebrickableResponse {
   parts: Part[];
 }
 
-interface Part {
+export interface Part {
   name: string;
   id: string;
   quantity: number;
-  isSpare: boolean;
+  spare: boolean;
   inSets: number;
-  color: {
-    id: number;
-    name: string;
-    rgb: string;
-    isTrans: boolean;
-  }
+  color: Color;
+  imageUrl: string;
+}
+
+export interface Color {
+  id: number;
+  name: string;
+  rgb: string;
+  isTrans: boolean;
 }

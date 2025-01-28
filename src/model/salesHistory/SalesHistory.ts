@@ -4,7 +4,7 @@ export interface SalesHistory {
     minimumPrice: string;
     maximumPrice: string;
     averagePrice: string;
-    unit_quantity: number;
+    numberOfSales: number;
     numberOfItemsSold: number;
     sales: Sale[];
 }

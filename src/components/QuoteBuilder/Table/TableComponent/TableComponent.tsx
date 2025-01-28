@@ -238,7 +238,7 @@ const TableComponent: FunctionComponent<TableComponentParams> = ({ storeMode, co
                 setFocusedItem(undefined);
                 setShowMoreInformationDialog(false);
             }}
-            item={focusedItem} />
+            item={focusedItem ?? {} as Item} />
       </>
     );
 }

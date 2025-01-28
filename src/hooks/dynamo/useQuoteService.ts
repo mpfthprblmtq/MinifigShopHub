@@ -24,7 +24,7 @@ export const useQuoteService = (): UseQuoteServiceHooks => {
       inputtedBy: quote.inputtedBy,
       keyWords: quote.keyWords,
       date: quote.date,
-      sets: quote.quote.items.map(item => `${item.setId} - ${item.name}`)
+      sets: quote.quote.items.map(item => item.setId ? `${item.setId} - ${item.name}` : item.name)
     } as SavedQuoteKey;
 
     // params for the quote key

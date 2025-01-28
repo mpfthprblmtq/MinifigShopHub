@@ -7,7 +7,7 @@ import { AllSalesHistory } from "../salesHistory/AllSalesHistory";
 export interface Item {
     id: number;
     setId?: string;
-    brickLinkId?: string;
+    bricklinkId?: string;
     name: string;
     theme?: string;
     subTheme?: string;

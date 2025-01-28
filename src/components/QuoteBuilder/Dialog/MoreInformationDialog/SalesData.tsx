@@ -2,9 +2,9 @@ import React, {FunctionComponent, useState} from "react";
 import {Sale} from "../../../../model/salesHistory/Sale";
 import {Box, Button, Card, Tooltip, Typography} from "@mui/material";
 import {formatCurrency} from "../../../../utils/CurrencyUtils";
-import {formatDate} from "../../../../utils/DateUtils";
 import {getCountryFromIso2Code} from "../../../../utils/CountryUtils";
 import {htmlDecode} from "../../../../utils/StringUtils";
+import { formatDate } from "../../../../utils/DateUtils";
 
 interface SalesDataParams {
     sales?: Sale[];

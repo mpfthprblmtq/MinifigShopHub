@@ -14,27 +14,27 @@ import { Close, Refresh } from "@mui/icons-material";
 import SalesHistoryAccordion from "./SalesHistoryAccordion";
 import {formatCurrency} from "../../../../utils/CurrencyUtils";
 import { LoadingButton } from "@mui/lab";
-import { useItemLookupService } from "../../../../_hooks/useItemLookupService";
 import { useDispatch } from "react-redux";
 import { updateItem } from "../../../../redux/slices/quoteSlice";
+import { useBackendService } from "../../../../hooks/useBackendService";
 
 interface MoreInformationDialogParams {
     open: boolean;
     onClose: () => void;
-    item?: Item;
+    item: Item;
 }
 
 const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({open, onClose, item}) => {
 
     const [loading, setLoading] = useState<boolean>(false);
-    const { getHydratedItem } = useItemLookupService();
+    const { getItem } = useBackendService();
     const dispatch = useDispatch();
 
     const refreshItem = async () => {
-        if (item) {
+        if (item && item.bricklinkId) {
             setLoading(true);
-            await getHydratedItem(item).then(item => {
-                dispatch(updateItem(item));
+            await getItem(item.bricklinkId).then(itemResponse => {
+                dispatch(updateItem({ ...itemResponse.items[0], id: item.id }));
                 setLoading(false);
             });
         }
@@ -95,25 +95,25 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
                         <SalesHistoryAccordion
                             title={<Typography>Last 6 Months Sales <strong>(New)</strong></Typography>}
                             salesHistory={item?.salesHistory?.newSales}
-                            setId={item?.brickLinkId} />
+                            setId={item?.bricklinkId} />
                     )}
                     {item?.salesHistory?.usedSales && (
                         <SalesHistoryAccordion
                             title={<Typography>Last 6 Months Sales <strong>(Used)</strong></Typography>}
                             salesHistory={item?.salesHistory?.usedSales}
-                            setId={item?.brickLinkId} />
+                            setId={item?.bricklinkId} />
                     )}
                     {item?.salesHistory?.newStock && (
                         <SalesHistoryAccordion
                             title={<Typography>Current Items For Sale <strong>(New)</strong></Typography>}
                             salesHistory={item?.salesHistory?.newStock}
-                            setId={item?.brickLinkId} />
+                            setId={item?.bricklinkId} />
                     )}
                     {item?.salesHistory?.usedStock && (
                         <SalesHistoryAccordion
                             title={<Typography>Current Items For Sale <strong>(Used)</strong></Typography>}
                             salesHistory={item?.salesHistory?.usedStock}
-                            setId={item?.brickLinkId} />
+                            setId={item?.bricklinkId} />
                     )}
                 </Box>
             </DialogContent>

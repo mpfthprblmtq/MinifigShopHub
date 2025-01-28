@@ -5,10 +5,11 @@ import {ExpandMore} from "@mui/icons-material";
 import SalesSummary from "./SalesSummary";
 import SalesData from "./SalesData";
 import Chart from 'react-apexcharts';
-import {formatDate} from "../../../../utils/DateUtils";
 import {formatCurrency} from "../../../../utils/CurrencyUtils";
 import {ApexOptions} from "apexcharts";
 import { Sale } from "../../../../model/salesHistory/Sale";
+import { formatDate } from "../../../../utils/DateUtils";
+import dayjs from "dayjs";
 
 interface SalesHistoryAccordionParams {
     title: ReactNode;
@@ -36,9 +37,11 @@ const SalesHistoryAccordion: FunctionComponent<SalesHistoryAccordionParams> = ({
             setIsSalesData(true);
 
             const data: any[] = [];
-            // sort it by date first since sometimes it doesn't come back sorted
-            const salesHistoryList: Sale[] = [...salesHistory.sales]
-              .sort((a, b) => a.date!.localeCompare(b.date!));
+            // convert and sort it by date first since sometimes it doesn't come back sorted
+            const salesHistoryList: Sale[] = [...salesHistory.sales].map(sale => ({
+                ...sale,
+                date: dayjs(sale.date)
+            })).sort((a, b) => a.date.valueOf() - b.date.valueOf());
             // then populate the chart data in its x/y format
             salesHistoryList.forEach((sale) => {
                 data.push({x: formatDate(sale.date), y: sale.salePrice});
