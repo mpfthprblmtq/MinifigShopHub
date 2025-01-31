@@ -17,6 +17,7 @@ import { LoadingButton } from "@mui/lab";
 import { useDispatch } from "react-redux";
 import { updateItem } from "../../../../redux/slices/quoteSlice";
 import { useBackendService } from "../../../../hooks/useBackendService";
+import { Type } from "../../../../model/_shared/Type";
 
 interface MoreInformationDialogParams {
     open: boolean;
@@ -64,6 +65,13 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
                     <Box sx={{ m: 1, position: 'relative' }}>
                         <Typography>
                             <strong>Set ID: </strong>{item?.setId}<br/>
+                            <strong>Bricklink ID: </strong>
+                            <a
+                              href={`https://www.bricklink.com/v2/catalog/catalogitem.page?${
+                                item.type === Type.SET ? 'S' : 'M'
+                              }=${item.bricklinkId}#T=P`}
+                              target="_blank" rel="noreferrer">{item.bricklinkId}
+                            </a><br/>
                             <strong>Name: </strong>{item?.name}<br/>
                             <strong>Year: </strong>{item?.year}<br/>
                             {item?.pieceCount && item.minifigCount && (
