@@ -33,7 +33,7 @@ const ItemRow: FC<ItemRowParams> = ({item, addItem}) => {
             <img src={item.imageUrl} width={100} alt={'bricklink-img'} />
           </Box>
           <Box sx={{ m: 1, position: 'relative', flexGrow: 4 }}>
-            <Typography>{item.setId}</Typography>
+            <Typography>{item.bricklinkId}</Typography>
             <Typography>{item.name}</Typography>
           </Box>
           <Box sx={{ m: 1, position: 'relative' }}>

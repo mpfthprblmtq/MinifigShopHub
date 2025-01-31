@@ -4,17 +4,34 @@ import { useCacheService } from "./cache/useCacheService";
 import { useBackendService } from "./useBackendService";
 import { Condition } from "../model/_shared/Condition";
 import { ItemResponse } from "../model/item/ItemResponse";
+import { MultipleItemResponse } from "../model/item/MultipleItemResponse";
 
 export interface ItemLookupServiceHooks {
   searchItem: (id: string) => Promise<Item[]>;
+  searchItems: (ids: string[]) => Promise<Map<string, Item[]>>;
   populateItem: (item: Item) => Item;
 }
 
 export const useItemLookupService = (): ItemLookupServiceHooks => {
 
   const {configuration} = useSelector((state: any) => state.configurationStore);
-  const { getItem } = useBackendService();
+  const { getItem, getItems } = useBackendService();
   const { getCacheItem, setCacheItem } = useCacheService();
+
+  const searchItems = async (ids: string[]): Promise<Map<string, Item[]>> => {
+    try {
+      const response: MultipleItemResponse = await getItems(ids);
+      response.items = new Map(Object.entries(response.items));
+      for (const [key, value] of response.items.entries()) {
+        if (value.length === 1) {
+          response.items.set(key, [populateItem(value[0])]);
+        }
+      }
+      return response.items;
+    } catch (error) {
+      throw error;
+    }
+  }
 
   const searchItem = async (id: string): Promise<Item[]> => {
     // try to get the cached data if it exists
@@ -63,5 +80,5 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
     return item;
   }
 
-  return { searchItem, populateItem };
+  return { searchItem, searchItems, populateItem };
 };

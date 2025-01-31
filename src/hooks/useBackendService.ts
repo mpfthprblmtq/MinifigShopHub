@@ -6,6 +6,7 @@ import { RebrickableResponse } from "../model/rebrickable/RebrickableResponse";
 import { MultipleItemResponse } from "../model/item/MultipleItemResponse";
 
 const baseUrl: string = 'https://gblo076h16.execute-api.us-east-2.amazonaws.com/prod';
+// const baseUrl: string = 'http://localhost:8080';
 
 export interface BackendServiceHooks {
   getHealth:() => Promise<{ version: string, status: string }>;
@@ -39,6 +40,10 @@ export const useBackendService = (): BackendServiceHooks => {
     )).data;
   }
 
+  const getWithoutHeaders = async <T,>(endpoint: string): Promise<T> => {
+    return (await axiosInstance.get<T>(`${baseUrl}${endpoint}`)).data;
+  }
+
   const generateTraceId = (): string => {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
@@ -49,7 +54,7 @@ export const useBackendService = (): BackendServiceHooks => {
   }
 
   const getHealth = async (): Promise<{ version: string, status: string }> => {
-    return await get('/health');
+    return await getWithoutHeaders('/health');
   }
 
   const getItem = async (id: string): Promise<ItemResponse> => {
@@ -57,7 +62,7 @@ export const useBackendService = (): BackendServiceHooks => {
   };
 
   const getItems = async (ids: string[]): Promise<MultipleItemResponse> => {
-    return await get(`get-items/${ids.join(',')}`);
+    return await get(`/get-items?ids=${ids.join(',')}`);
   }
 
   const getBrickEconomyData = async (id: string): Promise<BrickEconomyResponse> => {

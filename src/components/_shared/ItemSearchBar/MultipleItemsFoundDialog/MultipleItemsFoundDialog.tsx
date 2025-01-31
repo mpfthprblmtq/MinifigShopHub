@@ -24,11 +24,11 @@ const MultipleItemsFoundDialog: FunctionComponent<MultipleItemsFoundDialogParams
 
     useEffect(() => {
         if (items.length === 1) {
-            setMultipleMatchItemsHeader(items[0].setId?.replace("-1", "") ?? '');
+            setMultipleMatchItemsHeader(items[0].bricklinkId?.replace("-1", "") ?? '');
         } else if (items.length > 1) {
             const setNumbers: string[] = [];
             for (const item of items) {
-                setNumbers.push(item.setId?.split('-')[0] ?? '');
+                setNumbers.push(item.bricklinkId?.split('-')[0] ?? '');
             }
             setMultipleMatchItemsHeader(
                 setNumbers
