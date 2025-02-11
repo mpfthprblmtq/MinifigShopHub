@@ -21,7 +21,6 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
   const searchItems = async (ids: string[]): Promise<Map<string, Item[]>> => {
     try {
       const response: MultipleItemResponse = await getItems(ids);
-      response.items = new Map(Object.entries(response.items));
       for (const [key, value] of response.items.entries()) {
         if (value.length === 1) {
           response.items.set(key, [populateItem(value[0])]);

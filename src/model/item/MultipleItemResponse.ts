@@ -3,5 +3,5 @@ import { Item } from "./Item";
 
 export interface MultipleItemResponse {
   meta: Meta;
-  items: Map<string, Item[]>
+  items: Map<string, Item[]>;
 }

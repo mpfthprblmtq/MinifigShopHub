@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import {
   Alert,
   Box,
@@ -29,13 +29,12 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
 
     const [loading, setLoading] = useState<boolean>(false);
     const [setNumbers, setSetNumbers] = useState<string>('');
+    const [setNumberList, setSetNumberList] = useState<string[]>([])
     const [error, setError] = useState<string>('');
     const { searchItems } = useItemLookupService();
 
     const loadItems = async () => {
         setLoading(true);
-        const setNumberList: string[] =
-            cleanTextAreaList(setNumbers).split(',').filter(setNumber => setNumber);
         const items: Item[] = [];
         const itemsWithMultipleMatches: Item[] = [];
         const errorItems: string[] = [];
@@ -70,6 +69,10 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
         setLoading(false);
     }
 
+  useEffect(() => {
+    setSetNumberList(cleanTextAreaList(setNumbers).split(',').filter(setNumber => setNumber));
+  }, [setNumbers]);
+
     return (
         <Dialog open={open} onClose={() => {
           setError('');
@@ -83,10 +86,13 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
                         height: '50vh'
                     }
                 }}>
-            <DialogTitle>
+            <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Typography style={{fontFamily: 'Didact Gothic', fontSize: '20px', marginBottom: '-20px'}}>
                     Bulk Load Items
                 </Typography>
+              <Typography sx={{float: 'right', fontFamily: 'Didact Gothic', marginBottom: '-20px', marginRight: '20px'}}>
+                {setNumberList.length} {setNumberList.length === 1 ? 'Item' : 'Items'}
+              </Typography>
             </DialogTitle>
             <Box position="absolute" top={0} right={0} onClick={onClose}>
                 <IconButton>
@@ -97,7 +103,7 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
                 <TextareaAutosize
                     value={setNumbers}
                     minRows={5}
-                    placeholder={'Enter set numbers, separated by either new lines or commas'}
+                    placeholder={'Enter set numbers, separated by either new lines or commas (Max 20)'}
                     onChange={(event) => setSetNumbers(event.target.value)}
                     style={{fontFamily: 'Didact Gothic', fontSize: '18px', height: '80%', width: '100%', resize: 'none'}}
                 />

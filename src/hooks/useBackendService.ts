@@ -4,6 +4,7 @@ import { ItemResponse } from "../model/item/ItemResponse";
 import { BrickEconomyResponse } from "../model/brickEconomy/BrickEconomyResponse";
 import { RebrickableResponse } from "../model/rebrickable/RebrickableResponse";
 import { MultipleItemResponse } from "../model/item/MultipleItemResponse";
+import { Item } from "../model/item/Item";
 
 const baseUrl: string = 'https://gblo076h16.execute-api.us-east-2.amazonaws.com/prod';
 // const baseUrl: string = 'http://localhost:8080';
@@ -23,10 +24,10 @@ export const useBackendService = (): BackendServiceHooks => {
   // create our axios instance
   const axiosInstance = axios.create({
     baseURL: baseUrl,
-    timeout: 10000
+    timeout: 30000
   });
 
-  const get = async <T,>(endpoint: string): Promise<T> => {
+  const get = async <T>(endpoint: string): Promise<T> => {
     const token = await getAccessTokenSilently();
     return (await axiosInstance.get<T>(
       `${baseUrl}${endpoint}`,
@@ -62,8 +63,39 @@ export const useBackendService = (): BackendServiceHooks => {
   };
 
   const getItems = async (ids: string[]): Promise<MultipleItemResponse> => {
-    return await get(`/get-items?ids=${ids.join(',')}`);
-  }
+    const BATCH_SIZE = 20;
+
+    // split IDs into batches
+    const batches = [];
+    for (let i = 0; i < ids.length; i += BATCH_SIZE) {
+      batches.push(ids.slice(i, i + BATCH_SIZE));
+    }
+
+    // fetch all batches in parallel
+    const responses = await Promise.all(
+      batches.map(batch => get(`/get-items?ids=${batch.join(',')}`))
+    ) as MultipleItemResponse[];
+
+    // validate responses, makes sure each response was a 200
+    for (const res of responses) {
+      if (res.meta.message !== "success" && res.meta.code !== 200) {
+        throw new Error(`API call failed: ${JSON.stringify(res.meta)}`);
+      }
+    }
+
+    // put all of the items in a merged map
+    const allItems = new Map<string, Item[]>();
+    responses.forEach(response => {
+      const itemsMap = new Map(Object.entries(response.items));
+      itemsMap.forEach((items, key) => {
+        allItems.set(key, items);
+      });
+    });
+
+    // return everything with a success
+    return { meta: { message: 'success', code: 200 }, items: allItems } as MultipleItemResponse;
+  };
+
 
   const getBrickEconomyData = async (id: string): Promise<BrickEconomyResponse> => {
     return await get(`/get-brickeconomy-data/${id}`);
