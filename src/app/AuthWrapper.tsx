@@ -9,7 +9,7 @@ interface AuthWrapperProps {
 
 const AuthWrapper: FC<AuthWrapperProps> = ({children}) => {
 
-  const { loginWithRedirect, isAuthenticated, isLoading, user, getAccessTokenSilently } = useAuth0();
+  const { loginWithRedirect, isAuthenticated, isLoading, user } = useAuth0();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -29,7 +29,6 @@ const AuthWrapper: FC<AuthWrapperProps> = ({children}) => {
     } else if (!isLoading && !isAuthenticated) {
       loginWithRedirect();
     }
-    getAccessTokenSilently().then((token) => console.log(token));
     // eslint-disable-next-line
   }, [isAuthenticated, isLoading, loginWithRedirect, user]);
 

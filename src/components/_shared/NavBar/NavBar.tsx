@@ -18,9 +18,11 @@ import { determineEnvironment } from "../../../utils/UrlUtils";
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import NavBarActionIconButton from "./NavBarButtons/NavBarActionIconButton";
 import { useNavigate } from "react-router-dom";
-import { Logout, Person } from "@mui/icons-material";
+import { DataObject, Logout, Person } from "@mui/icons-material";
 import { useAuth0 } from "@auth0/auth0-react";
 import { determineRedirectURI } from "../../../utils/AuthUtils";
+import { usePermissions } from "../../../app/contexts/PermissionsProvider";
+import { Permissions } from "../../../model/permissions/Permissions";
 
 interface NavBarParams {
   activeTab: string;
@@ -59,7 +61,8 @@ const NavBar: FunctionComponent<NavBarParams> =
 
   const [open, setOpen] = useState<boolean>(false);
   const navigate = useNavigate();
-  const { logout } = useAuth0();
+  const { logout, getAccessTokenSilently } = useAuth0();
+  const { permissions } = usePermissions();
 
   return (
     <>
@@ -105,6 +108,21 @@ const NavBar: FunctionComponent<NavBarParams> =
               </ListItemIcon>
               <ListItemText>Logout</ListItemText>
             </MenuItem>
+            {permissions.includes(Permissions.ADMIN) && (
+              <MenuItem onClick={async () => {
+                setUserAnchorEl(null);
+                const jwt = await getAccessTokenSilently();
+                const input = prompt("Here is your JWT, press OK to copy to clipboard", jwt);
+                if (input !== null) {
+                  navigator.clipboard.writeText(jwt).then(() => {})
+                }
+              }}>
+                <ListItemIcon>
+                  <DataObject fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Show JWT</ListItemText>
+              </MenuItem>
+            )}
           </Menu>
           <Typography noWrap component="div" sx={{ fontFamily: 'Didact Gothic', right: 64, position: 'absolute' }}>
             {determineEnvironment()}
