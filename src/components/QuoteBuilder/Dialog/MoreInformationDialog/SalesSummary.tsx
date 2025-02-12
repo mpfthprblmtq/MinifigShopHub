@@ -16,15 +16,15 @@ const SalesSummary: FunctionComponent<SalesSummaryParams> = ({salesHistory, isSa
                     <tbody>
                         <tr>
                             <td><Typography><strong>Minimum Price: </strong></Typography></td>
-                            <td><Typography>{formatCurrency(salesHistory?.min_price)}</Typography></td>
+                            <td><Typography>{formatCurrency(salesHistory?.minimumPrice)}</Typography></td>
                         </tr>
                         <tr>
                             <td><Typography><strong>Average Price: </strong></Typography></td>
-                            <td><Typography>{formatCurrency(salesHistory?.avg_price)}</Typography></td>
+                            <td><Typography>{formatCurrency(salesHistory?.averagePrice)}</Typography></td>
                         </tr>
                         <tr>
                             <td><Typography><strong>Maximum Price: </strong></Typography></td>
-                            <td><Typography>{formatCurrency(salesHistory?.max_price)}</Typography></td>
+                            <td><Typography>{formatCurrency(salesHistory?.maximumPrice)}</Typography></td>
                         </tr>
                     </tbody>
                 </table>
@@ -38,7 +38,7 @@ const SalesSummary: FunctionComponent<SalesSummaryParams> = ({salesHistory, isSa
                                     <strong>{isSalesData ? 'Sales:' : 'Listings:'}</strong>
                                 </Typography>
                             </td>
-                            <td><Typography>{salesHistory?.unit_quantity}</Typography></td>
+                            <td><Typography>{salesHistory?.numberOfSales}</Typography></td>
                         </tr>
                         <tr>
                             <td>
@@ -46,7 +46,7 @@ const SalesSummary: FunctionComponent<SalesSummaryParams> = ({salesHistory, isSa
                                     <strong>{isSalesData ? 'Total Sold:' : 'Total Listed:'}</strong>
                                 </Typography>
                             </td>
-                            <td><Typography>{salesHistory?.total_quantity}</Typography></td>
+                            <td><Typography>{salesHistory?.numberOfItemsSold}</Typography></td>
                         </tr>
                     </tbody>
                 </table>

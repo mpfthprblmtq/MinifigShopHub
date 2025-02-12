@@ -14,27 +14,28 @@ import { Close, Refresh } from "@mui/icons-material";
 import SalesHistoryAccordion from "./SalesHistoryAccordion";
 import {formatCurrency} from "../../../../utils/CurrencyUtils";
 import { LoadingButton } from "@mui/lab";
-import { useItemLookupService } from "../../../../hooks/useItemLookupService";
 import { useDispatch } from "react-redux";
 import { updateItem } from "../../../../redux/slices/quoteSlice";
+import { useBackendService } from "../../../../hooks/useBackendService";
+import { Type } from "../../../../model/_shared/Type";
 
 interface MoreInformationDialogParams {
     open: boolean;
     onClose: () => void;
-    item?: Item;
+    item: Item;
 }
 
 const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({open, onClose, item}) => {
 
     const [loading, setLoading] = useState<boolean>(false);
-    const { getHydratedItem } = useItemLookupService();
+    const { getItem } = useBackendService();
     const dispatch = useDispatch();
 
     const refreshItem = async () => {
-        if (item) {
+        if (item && item.bricklinkId) {
             setLoading(true);
-            await getHydratedItem(item).then(item => {
-                dispatch(updateItem(item));
+            await getItem(item.bricklinkId).then(itemResponse => {
+                dispatch(updateItem({ ...itemResponse.items[0], id: item.id }));
                 setLoading(false);
             });
         }
@@ -56,7 +57,7 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
             </Box>
             <DialogContent>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    {item?.imageUrl && item?.thumbnailUrl && (
+                    {item?.imageUrl && (
                         <Box sx={{ m: 1, position: 'relative' }}>
                             <img width="200" alt="bricklink-set-img" src={item.imageUrl}/>
                         </Box>
@@ -64,8 +65,15 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
                     <Box sx={{ m: 1, position: 'relative' }}>
                         <Typography>
                             <strong>Set ID: </strong>{item?.setId}<br/>
+                            <strong>Bricklink ID: </strong>
+                            <a
+                              href={`https://www.bricklink.com/v2/catalog/catalogitem.page?${
+                                item.type === Type.SET ? 'S' : 'M'
+                              }=${item.bricklinkId}#T=P`}
+                              target="_blank" rel="noreferrer">{item.bricklinkId}
+                            </a><br/>
                             <strong>Name: </strong>{item?.name}<br/>
-                            <strong>Year: </strong>{item?.yearReleased}<br/>
+                            <strong>Year: </strong>{item?.year}<br/>
                             {item?.pieceCount && item.minifigCount && (
                               <>
                                   <strong>Pieces / Minifigs: </strong>
@@ -84,32 +92,36 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
                                 <strong>Availability: </strong>{item?.retailStatus?.availability}<br/>
                                 <strong>MSRP: </strong>{formatCurrency(item?.retailStatus?.retailPrice)}<br/>
                                 <a href={`https://www.brickeconomy.com/search?query=${item.setId}`} target='_blank' rel='noreferrer'>
-                                    <strong>BrickEconomy Value: </strong>{formatCurrency(item?.brickEconomyValue)}<br/>
+                                    {/*<strong>BrickEconomy Value: </strong>{formatCurrency(item?.brickEconomyValue)}<br/>*/}
                                 </a>
                             </Typography>
                         )}
                     </Box>
                 </Box>
                 <Box marginTop={'10px'}>
-                    {item?.salesData?.newSold && (
+                    {item?.salesHistory?.newSales && (
                         <SalesHistoryAccordion
                             title={<Typography>Last 6 Months Sales <strong>(New)</strong></Typography>}
-                            salesHistory={item?.salesData?.newSold} />
+                            salesHistory={item?.salesHistory?.newSales}
+                            setId={item?.bricklinkId} />
                     )}
-                    {item?.salesData?.usedSold && (
+                    {item?.salesHistory?.usedSales && (
                         <SalesHistoryAccordion
                             title={<Typography>Last 6 Months Sales <strong>(Used)</strong></Typography>}
-                            salesHistory={item?.salesData?.usedSold} />
+                            salesHistory={item?.salesHistory?.usedSales}
+                            setId={item?.bricklinkId} />
                     )}
-                    {item?.salesData?.newStock && (
+                    {item?.salesHistory?.newStock && (
                         <SalesHistoryAccordion
                             title={<Typography>Current Items For Sale <strong>(New)</strong></Typography>}
-                            salesHistory={item?.salesData?.newStock} />
+                            salesHistory={item?.salesHistory?.newStock}
+                            setId={item?.bricklinkId} />
                     )}
-                    {item?.salesData?.usedStock && (
+                    {item?.salesHistory?.usedStock && (
                         <SalesHistoryAccordion
                             title={<Typography>Current Items For Sale <strong>(Used)</strong></Typography>}
-                            salesHistory={item?.salesData?.usedStock} />
+                            salesHistory={item?.salesHistory?.usedStock}
+                            setId={item?.bricklinkId} />
                     )}
                 </Box>
             </DialogContent>

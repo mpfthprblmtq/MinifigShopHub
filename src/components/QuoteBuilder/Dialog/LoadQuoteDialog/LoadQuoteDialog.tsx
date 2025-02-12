@@ -133,8 +133,11 @@ const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClo
                 <QuoteCard
                   quoteKey={quote}
                   loadQuoteIntoApp={loadQuote}
-                  removeQuoteFromState={(quoteKey: SavedQuoteKey) =>
-                    setQuoteKeys([...quoteKeys.filter(quoteKeyInList => quoteKey.id !== quoteKeyInList.id)])}
+                  removeQuoteFromState={(quoteKey: SavedQuoteKey) => {
+                    const updatedQuotes: SavedQuoteKey[] = [...quoteKeys.filter(quoteKeyInList => quoteKey.id !== quoteKeyInList.id)];
+                    setQuoteKeys(updatedQuotes);
+                    setMasterQuoteKeys(updatedQuotes);
+                  }}
                   onClose={closeAndReset}
                   key={quote.id} />
               ))

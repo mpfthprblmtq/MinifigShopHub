@@ -1,8 +1,8 @@
 import { PartDisplay } from "../../model/partCollector/PartDisplay";
 import { db, PartsTable } from "../../db.config";
 import { DocumentClient } from "aws-sdk/clients/dynamodb";
-import { Part } from "../../model/partCollector/Part";
 import { v4 as uuidv4 } from 'uuid';
+import { Part } from "../../model/rebrickable/RebrickableResponse";
 
 export interface PartsServiceHooks {
   getAllParts: () => Promise<PartDisplay[]>;

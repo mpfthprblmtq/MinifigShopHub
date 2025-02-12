@@ -69,7 +69,7 @@ export const SnackbarProvider: React.FC<SnackbarProviderProps> = ({ children }) 
         onClose={hideSnackbar}
         anchorOrigin={snackbarState.position}
       >
-        <Alert onClose={hideSnackbar} severity={snackbarState.severity} sx={{ width: '100%', marginTop: '50px' }}>
+        <Alert onClose={hideSnackbar} severity={snackbarState.severity} sx={{ width: '100%', marginTop: '50px', marginLeft: '50px' }}>
           {snackbarState.message}
           {customAlertChildren ?? <></>}
         </Alert>

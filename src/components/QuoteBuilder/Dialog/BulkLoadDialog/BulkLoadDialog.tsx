@@ -1,23 +1,22 @@
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import {
-    Box,
-    Button,
-    CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    IconButton,
-    TextareaAutosize,
-    Typography
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  TextareaAutosize,
+  Typography
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { cleanTextAreaList } from "../../../../utils/StringUtils";
 import { Item } from "../../../../model/item/Item";
 import { useItemLookupService } from "../../../../hooks/useItemLookupService";
-import { HttpStatusCode } from "axios";
 import { green } from "@mui/material/colors";
-import { useSnackbar } from "../../../../app/contexts/SnackbarProvider";
 
 interface BulkLoadDialogParams {
     open: boolean;
@@ -30,104 +29,87 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
 
     const [loading, setLoading] = useState<boolean>(false);
     const [setNumbers, setSetNumbers] = useState<string>('');
-    const { getItemMatches, getHydratedItem } = useItemLookupService();
-    const { hideSnackbar, showSnackbar } = useSnackbar();
+    const [setNumberList, setSetNumberList] = useState<string[]>([])
+    const [error, setError] = useState<string>('');
+    const { searchItems } = useItemLookupService();
 
     const loadItems = async () => {
         setLoading(true);
-        const setNumberList: string[] =
-            cleanTextAreaList(setNumbers).split(',').filter(setNumber => setNumber);
         const items: Item[] = [];
         const itemsWithMultipleMatches: Item[] = [];
         const errorItems: string[] = [];
 
-        while(setNumberList.length) {
-            // 5 at a time
-            await Promise.all(
-                setNumberList
-                    .splice(0,5)
-                    .map(async setNumber => {
-                          try {
-                              return await getItemMatches(setNumber);
-                          } catch (e: any) {
-                              if (e.code === HttpStatusCode.NotFound.toString()) {
-                                  errorItems.push(setNumber);
-                              }
-                              return undefined;
-                          }
-                      }
-
-                    )
-                    .map(p => p?.catch(e => e)))
-                .then(responses => {
-                    responses.forEach(response => {
-                        if (response) {
-                            if (response.length === 1) {
-                                items.push(response[0]);
-                            } else {
-                                itemsWithMultipleMatches.push(...response);
-                            }
-                        }
-                    });
-                }).catch(error => {
-                    console.error(error);
-                });
-        }
-
-        // add the items that worked to the items list
-        const hydratedItems: Item[] = [];
-        for (const item of items) {
-            try {
-                await getHydratedItem(item).then(hydratedItem => hydratedItems.push(hydratedItem));
-            } catch (error: any) {
-                hydratedItems.push(item);
+        await searchItems(setNumberList).then(map => {
+          for (const [key, value] of map.entries()) {
+            if (value.length > 1) {
+              itemsWithMultipleMatches.push(...value)
+            } else if (value.length === 1) {
+              items.push(value[0]);
+            } else {
+              errorItems.push(key);
             }
-
-        }
-        processItems(hydratedItems);
+          }
+        }).catch(error => {
+          console.error(error);
+        });
+        processItems(items);
 
         // add the items with multiple matches
         addMultipleMatchItems(itemsWithMultipleMatches);
 
         // close if there are no errors
         if (errorItems.length === 0) {
-            hideSnackbar();
-            setSetNumbers('');
-            onClose();
+          setError('');
+          setSetNumbers('');
+          onClose();
         } else {
-            showSnackbar('These sets weren\'t found!\nPlease correct them or remove them from the list.', 'warning');
-            setSetNumbers(errorItems.join('\r\n'));
+          setError('These sets weren\'t found!  Please correct them or remove them from the list.');
+          setSetNumbers(errorItems.join('\r\n'));
         }
         setLoading(false);
     }
 
+  useEffect(() => {
+    setSetNumberList(cleanTextAreaList(setNumbers).split(',').filter(setNumber => setNumber));
+  }, [setNumbers]);
+
     return (
-        <Dialog open={open} onClose={onClose} disableScrollLock={true}
+        <Dialog open={open} onClose={() => {
+          setError('');
+          setSetNumbers('')
+          onClose();
+        }} disableScrollLock={true}
                 PaperProps={{
                     sx: {
-                        width: "50vh",
+                        width: "400px",
                         maxHeight: '50vh',
                         height: '50vh'
                     }
                 }}>
-            <DialogTitle>
+            <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Typography style={{fontFamily: 'Didact Gothic', fontSize: '20px', marginBottom: '-20px'}}>
                     Bulk Load Items
                 </Typography>
+              <Typography sx={{float: 'right', fontFamily: 'Didact Gothic', marginBottom: '-20px', marginRight: '20px'}}>
+                {setNumberList.length} {setNumberList.length === 1 ? 'Item' : 'Items'}
+              </Typography>
             </DialogTitle>
             <Box position="absolute" top={0} right={0} onClick={onClose}>
                 <IconButton>
                     <Close />
                 </IconButton>
             </Box>
-            <DialogContent>
+            <DialogContent sx={{overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
                 <TextareaAutosize
                     value={setNumbers}
                     minRows={5}
-                    placeholder={'Enter set numbers, separated by either new lines or commas'}
+                    placeholder={'Enter set numbers, separated by either new lines or commas (Max 20)'}
                     onChange={(event) => setSetNumbers(event.target.value)}
-                    style={{fontFamily: 'Didact Gothic', fontSize: '18px', height: '100%', width: '100%', resize: 'none'}}
+                    style={{fontFamily: 'Didact Gothic', fontSize: '18px', height: '80%', width: '100%', resize: 'none'}}
                 />
+              {error && (
+                <Alert severity={'error'}>{error}</Alert>
+              )}
             </DialogContent>
             <DialogActions style={{marginBottom: 10}}>
                 <Button

@@ -33,15 +33,14 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, label, se
 
   useEffect(() => {
     if (item) {
-      const itemCopy: Item = {...item};
       setLabel({
         ...label,
-        title: itemCopy.setId && label?.title?.startsWith(itemCopy.setId) ? label.title : `${itemCopy.setId} - ${itemCopy.name}`,
-        image_url: itemCopy.imageUrl,
-        value: itemCopy.value,
-        pieces: itemCopy.pieceCount,
-        minifigs: itemCopy.minifigCount,
-        minifigsIndicator: itemCopy.minifigCount !== undefined,
+        title: item.setId && label?.title?.startsWith(item.setId) ? label.title : `${item.setId} - ${item.name}`,
+        image_url: item.imageUrl,
+        value: item.value,
+        pieces: item.pieceCount,
+        minifigs: item.minifigCount,
+        minifigsIndicator: item.minifigCount !== undefined,
         partsIndicator: true,
         manualIndicator: true,
         status: Status.PRE_OWNED
@@ -87,28 +86,28 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, label, se
         onChange={(event) => setLabel({...label, title: event.target.value} as Label)} />
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Box sx={{ m: 1, position: 'relative' }}>
-          {item.salesData?.newSold?.price_detail && item.salesData.newSold.price_detail.length > 0 && (
+          {item.salesHistory?.newSales?.sales && item.salesHistory.newSales.sales.length > 0 && (
             <>
               <Typography>New Sales</Typography>
-              <Tooltip title={`Based on ${item.salesData?.newSold?.unit_quantity} ${+item.salesData.newSold?.unit_quantity === 1 ? 'sale' : 'sales'}`} arrow>
-                <Box sx={{color: item.salesData?.newSold?.unit_quantity && item.salesData.newSold?.unit_quantity >= 5 ? '#008000' : '#BD0000' }}>
-                  Min: {formatCurrency(item.salesData?.newSold?.min_price)}<br/>
-                  <strong>Avg: {formatCurrency(item.salesData?.newSold?.avg_price)}</strong><br/>
-                  Max: {formatCurrency(item.salesData?.newSold?.max_price)}
+              <Tooltip title={`Based on ${item.salesHistory?.newSales?.numberOfSales} ${+item.salesHistory.newSales?.numberOfSales === 1 ? 'sale' : 'sales'}`} arrow>
+                <Box sx={{color: item.salesHistory?.newSales?.numberOfSales && item.salesHistory.newSales?.numberOfSales >= 5 ? '#008000' : '#BD0000' }}>
+                  Min: {formatCurrency(item.salesHistory?.newSales?.minimumPrice)}<br/>
+                  <strong>Avg: {formatCurrency(item.salesHistory?.newSales?.averagePrice)}</strong><br/>
+                  Max: {formatCurrency(item.salesHistory?.newSales?.maximumPrice)}
                 </Box>
               </Tooltip>
             </>
           )}
         </Box>
         <Box sx={{ m: 1, position: 'relative' }}>
-          {item.salesData?.usedSold?.price_detail && item.salesData.usedSold.price_detail.length > 0 && (
+          {item.salesHistory?.usedSales?.sales && item.salesHistory.usedSales.sales.length > 0 && (
             <>
               <Typography>Used Sales</Typography>
-              <Tooltip title={`Based on ${item.salesData?.usedSold?.unit_quantity} ${+item.salesData.usedSold?.unit_quantity === 1 ? 'sale' : 'sales'}`} arrow>
-                <Box sx={{color: item.salesData?.usedSold?.unit_quantity && item.salesData?.usedSold?.unit_quantity >= 5 ? '#008000' : '#BD0000' }}>
-                  Min: {formatCurrency(item.salesData?.usedSold?.min_price)}<br/>
-                  <strong>Avg: {formatCurrency(item.salesData?.usedSold?.avg_price)}</strong><br/>
-                  Max: {formatCurrency(item.salesData?.usedSold?.max_price)}
+              <Tooltip title={`Based on ${item.salesHistory?.usedSales?.numberOfSales} ${+item.salesHistory.usedSales?.numberOfSales === 1 ? 'sale' : 'sales'}`} arrow>
+                <Box sx={{color: item.salesHistory?.usedSales?.numberOfSales && item.salesHistory?.usedSales?.numberOfSales >= 5 ? '#008000' : '#BD0000' }}>
+                  Min: {formatCurrency(item.salesHistory?.usedSales?.minimumPrice)}<br/>
+                  <strong>Avg: {formatCurrency(item.salesHistory?.usedSales?.averagePrice)}</strong><br/>
+                  Max: {formatCurrency(item.salesHistory?.usedSales?.maximumPrice)}
                 </Box>
               </Tooltip>
             </>
@@ -170,9 +169,9 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, label, se
         <Box sx={{m: 1, position: 'relative'}}>
           <TextField
             error={!label?.validatedBy}
-            label={!label?.validatedBy ? 'Required *' : ''}
+            label={!label?.validatedBy ? 'Validated By (Initials)' : ''}
             value={label?.validatedBy ?? ''}
-            placeholder={'Validated By (Initials)'}
+            placeholder={'Required *'}
             onChange={(event) => {
               if (event.target.value.length < 20) {
                 setLabel({ ...label, validatedBy: event.target.value } as Label);
@@ -199,7 +198,6 @@ const LabelForm: FunctionComponent<LabelFormParams> = ({item, setItem, label, se
           fullWidth
           label={'Comment'}
           value={label?.comment ?? ''}
-          placeholder={'Comment'}
           onChange={(event: any) => {
             if (event.target.value.length < 150) {
               setLabel({ ...label, comment: event.target.value } as Label);

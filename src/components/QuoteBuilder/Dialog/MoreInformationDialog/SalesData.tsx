@@ -1,32 +1,32 @@
 import React, {FunctionComponent, useState} from "react";
-import {PriceDetail} from "../../../../model/salesHistory/PriceDetail";
+import {Sale} from "../../../../model/salesHistory/Sale";
 import {Box, Button, Card, Tooltip, Typography} from "@mui/material";
 import {formatCurrency} from "../../../../utils/CurrencyUtils";
-import {formatDate} from "../../../../utils/DateUtils";
 import {getCountryFromIso2Code} from "../../../../utils/CountryUtils";
 import {htmlDecode} from "../../../../utils/StringUtils";
+import { formatDate } from "../../../../utils/DateUtils";
 
 interface SalesDataParams {
-    priceDetails?: PriceDetail[];
+    sales?: Sale[];
     isSalesData: boolean;
 }
 
-const SalesData: FunctionComponent<SalesDataParams> = ({priceDetails, isSalesData}) => {
+const SalesData: FunctionComponent<SalesDataParams> = ({sales, isSalesData}) => {
 
-    const [listToShow, setListToShow] = useState<PriceDetail[]>(
-        priceDetails ? priceDetails.slice().reverse().slice(0, 10) : []);
+    const [listToShow, setListToShow] = useState<Sale[]>(
+      sales ? sales.slice().reverse().slice(0, 10) : []);
 
-    const showAllPriceDetails = () => {
-        if (priceDetails) {
-            setListToShow(priceDetails.slice().reverse());
+    const showAllSales = () => {
+        if (sales) {
+            setListToShow(sales.slice().reverse());
         }
     };
 
     return (
         <Box>
-            {priceDetails && priceDetails.length > 0 && (
+            {sales && sales.length > 0 && (
                 <>
-                    {listToShow.map((priceDetail, index) => (
+                    {listToShow.map((sale, index) => (
                         <Card style={{marginTop: "10px", backgroundColor: "#F5F5F5"}} key={index}>
                             <Box sx={{ display: 'flex' }}>
                                 <Box sx={{ m: 1, position: 'relative' }}>
@@ -38,7 +38,7 @@ const SalesData: FunctionComponent<SalesDataParams> = ({priceDetails, isSalesDat
                                                         <strong>{isSalesData ? 'Unit Price:' : 'Listing Price:'}</strong>
                                                     </Typography>
                                                 </td>
-                                                <td><Typography>{formatCurrency(priceDetail.unit_price)}</Typography></td>
+                                                <td><Typography>{formatCurrency(sale.salePrice)}</Typography></td>
                                             </tr>
                                             <tr>
                                                 <td>
@@ -46,7 +46,7 @@ const SalesData: FunctionComponent<SalesDataParams> = ({priceDetails, isSalesDat
                                                         <strong>{isSalesData ? 'Quantity Sold:' : 'Quantity Listed:'}</strong>
                                                     </Typography>
                                                 </td>
-                                                <td><Typography>{priceDetail.quantity}</Typography></td>
+                                                <td><Typography>{sale.quantity}</Typography></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -57,12 +57,12 @@ const SalesData: FunctionComponent<SalesDataParams> = ({priceDetails, isSalesDat
                                             <tbody>
                                                 <tr>
                                                     <td><Typography><strong>Date Ordered:</strong></Typography></td>
-                                                    <td><Typography>{formatDate(priceDetail.date_ordered)}</Typography></td>
+                                                    <td><Typography>{formatDate(sale.date)}</Typography></td>
                                                 </tr>
                                                 <tr>
                                                     <td><Typography><strong>Sale Location:</strong></Typography></td>
-                                                    <Tooltip title={getCountryFromIso2Code(priceDetail.seller_country_code) + ' ' + htmlDecode('&rarr;') + ' ' + getCountryFromIso2Code(priceDetail.buyer_country_code)}>
-                                                        <td><Typography>{priceDetail.seller_country_code} &rarr; {priceDetail.buyer_country_code}</Typography></td>
+                                                    <Tooltip title={getCountryFromIso2Code(sale.sellerCountry) + ' ' + htmlDecode('&rarr;') + ' ' + getCountryFromIso2Code(sale.buyerCountry)}>
+                                                        <td><Typography>{sale.sellerCountry} &rarr; {sale.buyerCountry}</Typography></td>
                                                     </Tooltip>
                                                 </tr>
                                             </tbody>
@@ -72,9 +72,9 @@ const SalesData: FunctionComponent<SalesDataParams> = ({priceDetails, isSalesDat
                             </Box>
                         </Card>
                     ))}
-                    {listToShow.length !== priceDetails.length && (
+                    {listToShow.length !== sales.length && (
                         <Box style={{textAlign: 'center', marginTop: 10}}>
-                            <Button size='large' onClick={showAllPriceDetails}>Show All ({priceDetails.length})</Button>
+                            <Button size='large' onClick={showAllSales}>Show All ({sales.length})</Button>
                         </Box>
                     )}
                 </>

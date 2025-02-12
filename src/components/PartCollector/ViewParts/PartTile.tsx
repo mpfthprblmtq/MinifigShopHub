@@ -20,7 +20,7 @@ const PartTile: FunctionComponent<PartTileParams> = ({partDisplay, deletePart}) 
   return (
     <Card sx={{ width: '200px', padding: '5px', margin: '5px' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Tooltip title={partDisplay.part.color.description}>
+        <Tooltip title={partDisplay.part.color.name}>
           <img src={partDisplay.part.imageUrl} width={75} alt={'part-img'} onClick={() => setFocusedImage(partDisplay.part.imageUrl)}/>
         </Tooltip>
         <Box sx={{ m: 1, position: 'relative' }}>

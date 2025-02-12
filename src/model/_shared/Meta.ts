@@ -1,5 +1,5 @@
 export interface Meta {
-    description: string;
-    message: string;
-    code: number;
+    description?: string;
+    message?: string;
+    code?: number;
 }

@@ -5,6 +5,7 @@ import { generateId } from "../../../../utils/ArrayUtils";
 import { StyledCard } from "../Cards.styles";
 import ItemSearchBar from "../../../_shared/ItemSearchBar/ItemSearchBar";
 import { useSnackbar } from "../../../../app/contexts/SnackbarProvider";
+import { useItemLookupService } from "../../../../hooks/useItemLookupService";
 
 interface SetSearchCardParams {
     items: Item[];
@@ -14,6 +15,7 @@ interface SetSearchCardParams {
 const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems}) => {
 
     const { showSnackbar } = useSnackbar();
+    const { populateItem } = useItemLookupService();
 
     const processItem = (item: Item) => {
         let message: string = '';
@@ -23,6 +25,7 @@ const ItemSearchCard: FunctionComponent<SetSearchCardParams> = ({items, setItems
         }
         // set the id
         item.id = generateId(items);
+        populateItem(item);
         if (!!message) {
             showSnackbar(message, 'info', {vertical: 'top', horizontal: 'right'});
         }

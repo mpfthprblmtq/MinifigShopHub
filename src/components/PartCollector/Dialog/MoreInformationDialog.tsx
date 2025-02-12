@@ -45,14 +45,14 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
                 <SquareRounded sx={{ color: `#${part.part.color.rgb}` }} />
               </Box>
               <Box sx={{ m: 1, position: 'relative', margin: 0 }}>
-                {part.part.color.description}
+                {part.part.color.name}
               </Box>
             </Box>
             <Typography>
               <strong>Bricklink ID: </strong>
                 <a target={'_blank'} rel={'noreferrer'}
-                   href={`https://www.bricklink.com/v2/catalog/catalogitem.page?P=${part.part.bricklinkId}&C=${part.part.color.id}`}>
-                  {part.part.bricklinkId}
+                   href={`https://www.bricklink.com/v2/catalog/catalogitem.page?P=${part.part.id}&C=${part.part.color.id}`}>
+                  {part.part.id}
                 </a>
             </Typography>
             <Typography>

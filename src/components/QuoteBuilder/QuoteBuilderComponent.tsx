@@ -27,6 +27,7 @@ import { SavedQuote } from "../../model/dynamo/SavedQuote";
 import { Availability } from "../../model/retailStatus/Availability";
 import { Source } from "../../model/_shared/Source";
 import { useSnackbar } from "../../app/contexts/SnackbarProvider";
+import { useBackendService } from "../../hooks/useBackendService";
 
 const QuoteBuilderComponent: FunctionComponent = () => {
 
@@ -44,6 +45,15 @@ const QuoteBuilderComponent: FunctionComponent = () => {
 
   const { initConfig } = useConfigurationService();
   const { showSnackbar } = useSnackbar();
+
+  const { getHealth } = useBackendService();
+  useEffect(() => {
+    const getStatus = async (): Promise<{ version: string, status: string }> => {
+      return await getHealth();
+    }
+    getStatus().then(() => {});
+    // eslint-disable-next-line
+  }, []);
 
   // print stuff
   const componentRef = useRef(null);
@@ -102,7 +112,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
           item.baseValue = +(item.retailStatus.retailPrice ?? 0);
         } else {
           item.baseValue = item.condition === Condition.USED ?
-            +(item.salesData?.usedSold?.avg_price ?? 0) : +(item.salesData?.newSold?.avg_price ?? 0);
+            +(item.salesHistory?.usedSales?.averagePrice ?? 0) : +(item.salesHistory?.newSales?.averagePrice ?? 0);
         }
         if (item.baseValue === 0) {
           item.valueAdjustment = 0;

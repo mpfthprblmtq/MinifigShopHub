@@ -1,5 +1,4 @@
 import React, { FunctionComponent, useEffect, useState } from "react";
-import { Part } from "../../../../model/partCollector/Part";
 import {
   Box,
   Table,
@@ -14,6 +13,7 @@ import { Item } from "../../../../model/item/Item";
 import PartRow from "./PartRow";
 import { usePartsService } from "../../../../hooks/dynamo/usePartsService";
 import { useSnackbar } from "../../../../app/contexts/SnackbarProvider";
+import { Part } from "../../../../model/rebrickable/RebrickableResponse";
 
 interface PartsListParams {
   item?: Item;
@@ -28,7 +28,7 @@ const PartsList: FunctionComponent<PartsListParams> = ({item, parts, setParts}) 
   const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
-    setSpareParts(parts.filter(part => part.isSpare));
+    setSpareParts(parts.filter(part => part.spare));
   }, [parts]);
 
   const addPart = async (part: Part, quantityToAdd: number, comment: string) => {
@@ -54,7 +54,7 @@ const PartsList: FunctionComponent<PartsListParams> = ({item, parts, setParts}) 
             </Typography>
             {item.retailStatus?.availability && (
               <Typography sx={{ fontFamily: 'Didact Gothic', fontSize: 16 }}>
-                {item.yearReleased} ({item.retailStatus?.availability})
+                {item.year} ({item.retailStatus?.availability})
               </Typography>
             )}
             {item.pieceCount && (
@@ -86,7 +86,7 @@ const PartsList: FunctionComponent<PartsListParams> = ({item, parts, setParts}) 
           </TableHead>
           {parts && parts.length > 0 && (
             <TableBody>
-              {parts.filter(part => !part.isSpare).map((part, index) => (
+              {parts.filter(part => !part.spare).map((part, index) => (
                 <PartRow key={index} part={part} addPart={addPart} />
               ))}
             </TableBody>

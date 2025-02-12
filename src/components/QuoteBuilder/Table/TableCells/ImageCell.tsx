@@ -15,8 +15,8 @@ const ImageCell: FunctionComponent<ImageCellParams> = ({item, compressedView, on
     return (
         <StyledTableCell className={"clickable"}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                {item.thumbnailUrl && item.imageUrl && (
-                    <img alt="bricklink-set-img" src={item.thumbnailUrl} onClick={() => onClick(item)} height={compressedView ? 35 : 'auto'} />
+                {item.imageUrl && (
+                    <img alt="bricklink-set-img" src={item.imageUrl} onClick={() => onClick(item)} height={compressedView ? 35 : 60} />
                 )}
                 {item.sources?.includes(Source.CUSTOM) && item.type !== Type.OTHER && (
                     <img src={`assets/images/${item.type}.svg`} alt={item.type} width={55}/>

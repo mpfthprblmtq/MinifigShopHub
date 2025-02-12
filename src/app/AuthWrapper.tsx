@@ -9,13 +9,15 @@ interface AuthWrapperProps {
 
 const AuthWrapper: FC<AuthWrapperProps> = ({children}) => {
 
-  const { loginWithRedirect, isAuthenticated, isLoading } = useAuth0();
+  const { loginWithRedirect, isAuthenticated, isLoading, user } = useAuth0();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const invitation = params.get("invitation");
     const organization = params.get("organization");
 
+    // if we have an invitation parameter, that means that this is a new user with an invite code, so redirect them
+    // to the create profile page
     if (!isAuthenticated && !isLoading && invitation && organization) {
       loginWithRedirect({
         authorizationParams: {
@@ -27,7 +29,8 @@ const AuthWrapper: FC<AuthWrapperProps> = ({children}) => {
     } else if (!isLoading && !isAuthenticated) {
       loginWithRedirect();
     }
-  }, [isAuthenticated, isLoading, loginWithRedirect]);
+    // eslint-disable-next-line
+  }, [isAuthenticated, isLoading, loginWithRedirect, user]);
 
   return isAuthenticated ? children : <LoadingSpinner />;
 };
