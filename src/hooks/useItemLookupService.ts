@@ -23,7 +23,9 @@ export const useItemLookupService = (): ItemLookupServiceHooks => {
       const response: MultipleItemResponse = await getItems(ids);
       for (const [key, value] of response.items.entries()) {
         if (value.length === 1) {
-          response.items.set(key, [populateItem(value[0])]);
+          const item: Item = populateItem(value[0]);
+          setCacheItem(`getItem-${item.setId}`, [item]);
+          response.items.set(key, [item]);
         }
       }
       return response.items;
