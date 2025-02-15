@@ -103,7 +103,7 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
                 <TextareaAutosize
                     value={setNumbers}
                     minRows={5}
-                    placeholder={'Enter set numbers, separated by either new lines or commas (Max 20)'}
+                    placeholder={'Enter set numbers, separated by either new lines or commas'}
                     onChange={(event) => setSetNumbers(event.target.value)}
                     style={{fontFamily: 'Didact Gothic', fontSize: '18px', height: '80%', width: '100%', resize: 'none'}}
                 />
