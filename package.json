@@ -1,7 +1,7 @@
 {
   "homepage": ".",
   "name": "minifig-shop-hub",
-  "version": "3.7.0",
+  "version": "3.7.1",
   "private": true,
   "dependencies": {
     "@auth0/auth0-react": "^2.2.4",
