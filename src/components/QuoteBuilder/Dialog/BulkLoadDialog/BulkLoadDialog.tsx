@@ -13,10 +13,11 @@ import {
   Typography
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
-import { cleanTextAreaList } from "../../../../utils/StringUtils";
+import {cleanTextAreaList} from "../../../../utils/StringUtils";
 import { Item } from "../../../../model/item/Item";
 import { useItemLookupService } from "../../../../hooks/useItemLookupService";
 import { green } from "@mui/material/colors";
+import {retainOriginalOrder} from "../../../../utils/ArrayUtils";
 
 interface BulkLoadDialogParams {
     open: boolean;
@@ -39,19 +40,26 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
         const itemsWithMultipleMatches: Item[] = [];
         const errorItems: string[] = [];
 
-        await searchItems(setNumberList).then(map => {
-          for (const [key, value] of map.entries()) {
-            if (value.length > 1) {
-              itemsWithMultipleMatches.push(...value)
-            } else if (value.length === 1) {
-              items.push(value[0]);
-            } else {
-              errorItems.push(key);
+        const uniqueIds = [...new Set(setNumberList)]
+
+        await searchItems(uniqueIds).then(map => {
+            const resultMap = new Map<string, Item[]>(map);
+
+            const orderedResults = retainOriginalOrder(setNumberList, resultMap);
+
+            for (const { id, results } of orderedResults) {
+                if (results.length > 1) {
+                    itemsWithMultipleMatches.push(...results);
+                } else if (results.length === 1) {
+                    items.push(results[0]);
+                } else {
+                    errorItems.push(id);
+                }
             }
-          }
         }).catch(error => {
-          console.error(error);
+            console.error(error);
         });
+
         processItems(items);
 
         // add the items with multiple matches
