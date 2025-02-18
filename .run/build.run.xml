@@ -5,7 +5,8 @@
     <scripts>
       <script value="build" />
     </scripts>
-    <node-interpreter value="$USER_HOME$/.nvm/versions/node/v20.18.1/bin/node" />
+    <node-interpreter value="node" />
+    <package-manager value="npm" />
     <envs />
     <method v="2" />
   </configuration>

@@ -11,14 +11,6 @@ export const cleanTextAreaList = (s: string): string => {
         .replace(/,,/g, ',');
 }
 
-export const getNumberFromResponseUrl = (url: string): string => {
-    if (url.endsWith("-1")) {
-        url = url.substring(0, url.length - 2);
-    }
-    const arr: string[] = url.split("/");
-    return arr.at(arr.length - 1) ?? '';
-}
-
 export const truncateString = (s: string, truncateAfter: number): string => {
     if (s.length <= truncateAfter) {
         return s;
