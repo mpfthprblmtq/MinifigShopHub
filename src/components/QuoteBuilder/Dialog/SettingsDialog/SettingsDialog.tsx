@@ -19,6 +19,7 @@ import {Configuration} from "../../../../model/dynamo/Configuration";
 import {green} from "@mui/material/colors";
 import TooltipConfirmationModal from "../../../_shared/TooltipConfirmationModal/TooltipConfirmationModal";
 import { useSnackbar } from "../../../../app/contexts/SnackbarProvider";
+import {useAuth0} from "@auth0/auth0-react";
 
 interface SettingsDialogParams {
     open: boolean;
@@ -45,6 +46,7 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose,
 
     const { updateConfig } = useConfigurationService();
     const { showSnackbar } = useSnackbar();
+    const { user } = useAuth0();
 
     useEffect(() => {
         setStoreCreditAdjustmentPercentage(configuration.storeCreditValueAdjustment);
@@ -69,7 +71,7 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose,
      */
     const updateConfiguration = async () => {
         setUpdateConfigLoading(true);
-        await updateConfig(configuration, {
+        await updateConfig(user?.org_id, {
             ...configuration,
             storeCreditValueAdjustment: storeCreditAdjustmentPercentage,
             autoAdjustmentPercentageNew: newAutoAdjustmentPercentage,

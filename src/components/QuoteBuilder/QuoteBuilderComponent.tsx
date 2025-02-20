@@ -28,6 +28,7 @@ import { Availability } from "../../model/retailStatus/Availability";
 import { Source } from "../../model/_shared/Source";
 import { useSnackbar } from "../../app/contexts/SnackbarProvider";
 import { useBackendService } from "../../hooks/useBackendService";
+import {useAuth0} from "@auth0/auth0-react";
 
 const QuoteBuilderComponent: FunctionComponent = () => {
 
@@ -45,6 +46,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
 
   const { initConfig } = useConfigurationService();
   const { showSnackbar } = useSnackbar();
+  const { user } = useAuth0();
 
   const { getHealth } = useBackendService();
   useEffect(() => {
@@ -133,7 +135,7 @@ const QuoteBuilderComponent: FunctionComponent = () => {
 
   useEffect(() => {
     const initConfiguration = async () => {
-      await initConfig().then(config => {
+      await initConfig(user?.org_id).then(config => {
         dispatch(updateStoreConfiguration(config));
       }).catch(error => {
         console.error(error);

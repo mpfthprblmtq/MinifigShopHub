@@ -17,6 +17,7 @@ import {
 import { Close } from "@mui/icons-material";
 import { green } from "@mui/material/colors";
 import { useSnackbar } from "../../../../app/contexts/SnackbarProvider";
+import {useAuth0} from "@auth0/auth0-react";
 
 interface SettingsDialogParams {
   open: boolean;
@@ -33,6 +34,7 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose}
 
   const { updateConfig } = useConfigurationService();
   const { showSnackbar } = useSnackbar();
+  const { user } = useAuth0();
 
   useEffect(() => {
     setAutoAdjustmentPercentageCertifiedPreOwned(configuration.autoAdjustmentPercentageCertifiedPreOwned);
@@ -47,19 +49,23 @@ const SettingsDialog: FunctionComponent<SettingsDialogParams> = ({open, onClose}
   };
 
   /**
-   * Main driver method for updating the configuration.  Takes the three values in state and attempts to update
-   * all values.  Uses snackbar for showing success/error.  Stores the new configuration in redux on success.
+   * Main driver method for updating the configuration.
+   * Uses snackbar for showing success/error.  Stores the new configuration in redux on success.
    */
   const updateConfiguration = async () => {
     setUpdateConfigLoading(true);
 
-    await updateConfig(configuration, {
+    await updateConfig(user?.org_id, {
       ...configuration,
       autoAdjustmentPercentageCertifiedPreOwned: autoAdjustmentPercentageCertifiedPreOwned
     } as Configuration).then(updatedConfig => {
-      dispatch(updateStoreConfiguration(updatedConfig));
+      if (Object.keys(configuration).length !== 0) {
+        dispatch(updateStoreConfiguration(updatedConfig));
+        showSnackbar('Configuration saved successfully!', 'success', {horizontal: 'center', vertical: 'top'});
+      } else {
+        showSnackbar('Couldn\'t save configuration!', 'error', {horizontal: 'center', vertical: 'top'});
+      }
       setUpdateConfigLoading(false);
-      showSnackbar('Configuration saved successfully!', 'success', {horizontal: 'center', vertical: 'top'});
     }).catch(() => {
       showSnackbar('Couldn\'t save configuration!', 'error', {horizontal: 'center', vertical: 'top'});
       setUpdateConfigLoading(false);

@@ -1,108 +1,97 @@
 import {Configuration} from "../../model/dynamo/Configuration";
-import {db, ConfigurationTable} from "../../db.config";
-import {DocumentClient} from "aws-sdk/clients/dynamodb";
+import {ConfigurationTable, db} from "../../db.config";
 
 export interface ConfigurationServiceHooks {
-    initConfig: () => Promise<Configuration>;
-    updateConfig: (config: Configuration, updatedConfig: Configuration) => Promise<Configuration>;
+    initConfig: (organization: string) => Promise<Configuration>;
+    updateConfig: (organization: string, updatedConfig: Configuration) => Promise<Configuration>;
 }
-
-export const STORE_CREDIT_VALUE_ADJUSTMENT: string = 'STORE_CREDIT_VALUE_ADJUSTMENT';
-export const AUTO_ADJUSTMENT_PERCENTAGE_NEW: string = 'AUTO_ADJUSTMENT_PERCENTAGE_NEW';
-export const AUTO_ADJUSTMENT_PERCENTAGE_USED: string = 'AUTO_ADJUSTMENT_PERCENTAGE_USED';
-export const AUTO_ADJUSTMENT_PERCENTAGE_CERTIFIED_PREOWNED: string = 'AUTO_ADJUSTMENT_PERCENTAGE_CERTIFIED_PREOWNED';
 
 export const useConfigurationService = (): ConfigurationServiceHooks => {
 
-    const initConfig = async (): Promise<Configuration> => {
-        const params = { TableName: ConfigurationTable };
+    const initConfig = async (organization: string): Promise<Configuration> => {
+
+        // addAttributeToAllRecords();
         try {
-            const data: DocumentClient.ScanOutput = await db.scan(params).promise();
-            const items = data.Items;
-            if (items) {
-                return {
-                    storeCreditValueAdjustment: items?.find(
-                      e => e.key === STORE_CREDIT_VALUE_ADJUSTMENT)!.value,
-                    autoAdjustmentPercentageNew: items?.find(
-                      e => e.key === AUTO_ADJUSTMENT_PERCENTAGE_NEW)!.value,
-                    autoAdjustmentPercentageUsed: items?.find(
-                      e => e.key === AUTO_ADJUSTMENT_PERCENTAGE_USED)!.value,
-                    autoAdjustmentPercentageCertifiedPreOwned: items?.find(
-                      e => e.key === AUTO_ADJUSTMENT_PERCENTAGE_CERTIFIED_PREOWNED)!.value
-                } as Configuration;
-            } else {
-                return {
-                    storeCreditValueAdjustment: 0,
-                    autoAdjustmentPercentageNew: 0,
-                    autoAdjustmentPercentageUsed: 0,
-                    autoAdjustmentPercentageCertifiedPreOwned: 0,
-                };
+            const params = { TableName: ConfigurationTable, Key: { organization: organization } };
+            const response = await db.get(params).promise();
+
+            if (!response.Item) {
+                console.error("No record found");
+                return {} as Configuration;
             }
+
+            return JSON.parse(response.Item.value);
         } catch (error) {
-            console.error(error);
-            throw error;
+            console.error("Error fetching record:", error);
+            return {} as Configuration;
         }
     };
 
     const updateConfig = async (
-        config: Configuration, updatedConfig: Configuration): Promise<Configuration> => {
+        organization: string, updatedConfig: Configuration): Promise<Configuration> => {
 
-        const paramsList: DocumentClient.PutItemInput[] = [];
-
-        if (config.storeCreditValueAdjustment !== updatedConfig.storeCreditValueAdjustment) {
-            paramsList.push({
-                TableName: ConfigurationTable,
-                Item: {
-                    key: STORE_CREDIT_VALUE_ADJUSTMENT,
-                    value: updatedConfig.storeCreditValueAdjustment
-                }
-            });
+        const params = {
+            TableName: ConfigurationTable,
+            Item: {
+                organization: organization,
+                value: JSON.stringify(updatedConfig)
+            }
+        };
+        const response = await db.put(params).promise();
+        if (response.$response.httpResponse.statusCode === 200) {
+            return updatedConfig;
         }
-        if (config.autoAdjustmentPercentageNew !== updatedConfig.autoAdjustmentPercentageNew) {
-            paramsList.push({
-                TableName: ConfigurationTable,
-                Item: {
-                    key: AUTO_ADJUSTMENT_PERCENTAGE_NEW,
-                    value: updatedConfig.autoAdjustmentPercentageNew
-                }
-            });
-        }
-        if (config.autoAdjustmentPercentageUsed !== updatedConfig.autoAdjustmentPercentageUsed) {
-            paramsList.push({
-                TableName: ConfigurationTable,
-                Item: {
-                    key: AUTO_ADJUSTMENT_PERCENTAGE_USED,
-                    value: updatedConfig.autoAdjustmentPercentageUsed
-                }
-            });
-        }
-        if (config.autoAdjustmentPercentageCertifiedPreOwned !==
-          updatedConfig.autoAdjustmentPercentageCertifiedPreOwned) {
-            paramsList.push({
-                TableName: ConfigurationTable,
-                Item: {
-                    key: AUTO_ADJUSTMENT_PERCENTAGE_CERTIFIED_PREOWNED,
-                    value: updatedConfig.autoAdjustmentPercentageCertifiedPreOwned
-                }
-            });
-        }
-
-        paramsList.forEach((params) => {
-            db.put(params, (err) => {
-                if (err) {
-                    console.error(err);
-                    throw err;
-                }
-            })
-        });
-
-        return {
-            storeCreditValueAdjustment: updatedConfig.storeCreditValueAdjustment,
-            autoAdjustmentPercentageNew: updatedConfig.autoAdjustmentPercentageNew,
-            autoAdjustmentPercentageUsed: updatedConfig.autoAdjustmentPercentageUsed,
-            autoAdjustmentPercentageCertifiedPreOwned: updatedConfig.autoAdjustmentPercentageCertifiedPreOwned
-        } as Configuration;
+        return {} as Configuration;
     }
+
+//     async function addAttributeToAllRecords() {
+//         try {
+//             // Step 1: Scan to get all items
+//             let lastEvaluatedKey: AWS.DynamoDB.DocumentClient.Key | undefined = undefined;
+//
+//             do {
+//                 const scanParams: AWS.DynamoDB.DocumentClient.ScanInput = {
+//                     TableName: 'parts',
+//                     ExclusiveStartKey: lastEvaluatedKey, // For pagination
+//                 };
+//
+//                 const scanResult = await db.scan(scanParams).promise();
+//
+//                 if (!scanResult.Items) {
+//                     console.log("No records found in the table.");
+//                     return;
+//                 }
+//
+//                 // Step 2: Iterate over each item and update it
+//                 for (const item of scanResult.Items) {
+//                     await updateRecord(item.id); // Replace 'key' with your actual partition key name
+//                 }
+//
+//                 // Step 3: Continue scanning if there are more records
+//                 lastEvaluatedKey = scanResult.LastEvaluatedKey;
+//
+//             } while (lastEvaluatedKey);
+//
+//             console.log("Successfully added the attribute to all records.");
+//         } catch (error) {
+//             console.error("Error adding attribute:", error);
+//         }
+//     }
+//
+// // Function to update a single record
+//     async function updateRecord(id: string) {
+//         const updateParams: AWS.DynamoDB.DocumentClient.UpdateItemInput = {
+//             TableName: 'parts',
+//             Key: { id }, // Make sure this matches your partition key name
+//             UpdateExpression: "SET comment = :value",
+//             ExpressionAttributeValues: {
+//                 ":value": "", // Change this to your desired default value
+//             },
+//         };
+//
+//         await db.update(updateParams).promise();
+//         console.log(`Updated record with id: ${id}`);
+//     }
 
     return {initConfig, updateConfig};
 };

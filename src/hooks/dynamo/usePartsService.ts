@@ -3,14 +3,18 @@ import { db, PartsTable } from "../../db.config";
 import { DocumentClient } from "aws-sdk/clients/dynamodb";
 import { v4 as uuidv4 } from 'uuid';
 import { Part } from "../../model/rebrickable/RebrickableResponse";
+import dayjs from "dayjs";
+import {useAuth0} from "@auth0/auth0-react";
 
 export interface PartsServiceHooks {
   getAllParts: () => Promise<PartDisplay[]>;
-  addPartToDatabase: (part: Part, quantity: number, comment: string, set: string, key?: string) => Promise<string>;
+  addPartToDatabase: (part: Part, quantity: number, comment: string, set: string, id?: string) => Promise<string>;
   deletePartFromDatabase: (key: string) => Promise<void>;
 }
 
 export const usePartsService = (): PartsServiceHooks => {
+
+  const { user } = useAuth0();
 
   const getAllParts = async (): Promise<PartDisplay[]> => {
     const parts: PartDisplay[] = [];
@@ -21,7 +25,7 @@ export const usePartsService = (): PartsServiceHooks => {
       if (items) {
         items.forEach(item => {
           parts.push({
-            key: item.key,
+            id: item.id,
             quantity: item.quantity,
             comment: item.comment,
             set: item.set,
@@ -38,31 +42,33 @@ export const usePartsService = (): PartsServiceHooks => {
     }
   };
 
-  const addPartToDatabase = async (part: Part, quantity: number, comment: string, set: string, key?: string): Promise<string> => {
-    key = key ? key : uuidv4();
+  const addPartToDatabase = async (part: Part, quantity: number, comment: string, set: string, id?: string): Promise<string> => {
+    id = id ? id : uuidv4();
     const params = {
       Item: {
-        'key': key,
+        'id': id,
         'part': JSON.stringify(part),
         'quantity': quantity,
         'comment': comment,
-        'set': set
+        'set': set,
+        'date': dayjs().format('YYYY-MM-DD'),
+        'organization': user?.org_id
       },
       TableName: PartsTable
     };
     try {
       await db.put(params).promise();
-      return key;
+      return id;
     } catch (error: any) {
       console.error(error);
       throw error;
     }
   };
 
-  const deletePartFromDatabase = async (key: string) => {
+  const deletePartFromDatabase = async (id: string) => {
     const params = {
       Key: {
-        'key': key
+        'id': id
       },
       TableName: PartsTable
     };

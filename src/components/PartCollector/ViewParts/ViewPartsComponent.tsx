@@ -55,10 +55,10 @@ const ViewPartsComponent: FunctionComponent = () => {
   }
 
   const deletePart = async (part: PartDisplay) => {
-    await deletePartFromDatabase(part.key)
+    await deletePartFromDatabase(part.id)
       .then(() => {
         showSnackbar('Part removed successfully', 'success');
-        const updatedParts: PartDisplay[] = [...parts].filter(removedPart => removedPart.key !== part.key);
+        const updatedParts: PartDisplay[] = [...parts].filter(removedPart => removedPart.id !== part.id);
         setParts(updatedParts);
         buildStatisticString(updatedParts);
       }).catch(error => {
