@@ -44,7 +44,6 @@ const BulkLoadDialog: FunctionComponent<BulkLoadDialogParams> = ({open, onClose,
 
         await searchItems(uniqueIds).then(map => {
             const resultMap = new Map<string, Item[]>(map);
-
             const orderedResults = retainOriginalOrder(setNumberList, resultMap);
 
             for (const { id, results } of orderedResults) {
