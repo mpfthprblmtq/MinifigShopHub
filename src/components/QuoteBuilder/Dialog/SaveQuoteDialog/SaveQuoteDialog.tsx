@@ -21,6 +21,7 @@ import { useQuoteService } from "../../../../hooks/dynamo/useQuoteService";
 import { SavedQuote } from "../../../../model/dynamo/SavedQuote";
 import { Item } from "../../../../model/item/Item";
 import { useSnackbar } from "../../../../app/contexts/SnackbarProvider";
+import {useAuth0} from "@auth0/auth0-react";
 
 interface SaveQuoteDialogParams {
   open: boolean;
@@ -38,6 +39,7 @@ const SaveQuoteDialog: FunctionComponent<SaveQuoteDialogParams> = ({open, onClos
   const quote: Quote = useSelector((state: any) => state.quoteStore.quote);
   const { saveQuote } = useQuoteService();
   const { showSnackbar } = useSnackbar();
+  const { user } = useAuth0();
 
   const save = async () => {
     const transformedQuote: Quote = {...quote, items: [...quote.items].map(item => {
@@ -64,7 +66,7 @@ const SaveQuoteDialog: FunctionComponent<SaveQuoteDialogParams> = ({open, onClos
       keyWords: keyWords?.toLowerCase().replace(', ', ',').split(','),
       date: date?.format('YYYY-MM-DD'),
     } as SavedQuote;
-    await saveQuote(savedQuote).then(() => {
+    await saveQuote(savedQuote, user?.org_id).then(() => {
       addQuote(savedQuote);
       showSnackbar('Quote saved successfully!', 'success');
       closeAndReset();

@@ -19,6 +19,7 @@ import QuoteCard from "./QuoteCard";
 import { SavedQuote } from "../../../../model/dynamo/SavedQuote";
 import { SavedQuoteKey } from "../../../../model/dynamo/SavedQuoteKey";
 import { Quote } from "../../../../model/quote/Quote";
+import {useAuth0} from "@auth0/auth0-react";
 
 interface LoadQuoteDialogParams {
   open: boolean;
@@ -37,13 +38,15 @@ const LoadQuoteDialog: FunctionComponent<LoadQuoteDialogParams> = ({ open, onClo
   const [searchBy, setSearchBy] = useState<string>("");
   const [date, setDate] = useState<Dayjs | null>(null);
 
+  const { user } = useAuth0();
+
   const closeAndReset = () => {
     resetFilters();
     onClose();
   };
 
   useEffect(() => {
-    loadQuoteKeys().then(quoteKeys => {
+    loadQuoteKeys(user?.org_id).then((quoteKeys) => {
       setQuoteKeys(quoteKeys);
       setMasterQuoteKeys(quoteKeys);
     });
