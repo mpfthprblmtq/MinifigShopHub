@@ -35,7 +35,14 @@ const MoreInformationDialog: FunctionComponent<MoreInformationDialogParams> = ({
         if (item && item.bricklinkId) {
             setLoading(true);
             await getItem(item.bricklinkId).then(itemResponse => {
-                dispatch(updateItem({ ...itemResponse.items[0], id: item.id }));
+                dispatch(updateItem({
+                    ...itemResponse.items[0],
+                    id: item.id,
+                    baseValue: item.baseValue,
+                    value: item.value,
+                    valueAdjustment: item.valueAdjustment,
+                    condition: item.condition,
+                } as Item));
                 setLoading(false);
             });
         }
