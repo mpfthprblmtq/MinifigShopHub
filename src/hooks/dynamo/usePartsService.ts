@@ -1,13 +1,12 @@
 import { PartDisplay } from "../../model/partCollector/PartDisplay";
-import { db, PartsTable } from "../../db.config";
-import { DocumentClient } from "aws-sdk/clients/dynamodb";
+import {db, PartsTable} from "../../db.config";
 import { v4 as uuidv4 } from 'uuid';
 import { Part } from "../../model/rebrickable/RebrickableResponse";
 import dayjs from "dayjs";
 import {useAuth0} from "@auth0/auth0-react";
 
 export interface PartsServiceHooks {
-  getAllParts: () => Promise<PartDisplay[]>;
+  getAllParts: (organization: string) => Promise<PartDisplay[]>;
   addPartToDatabase: (part: Part, quantity: number, comment: string, set: string, id?: string) => Promise<string>;
   deletePartFromDatabase: (key: string) => Promise<void>;
 }
@@ -16,11 +15,17 @@ export const usePartsService = (): PartsServiceHooks => {
 
   const { user } = useAuth0();
 
-  const getAllParts = async (): Promise<PartDisplay[]> => {
+  const getAllParts = async (organization: string): Promise<PartDisplay[]> => {
     const parts: PartDisplay[] = [];
-    const params = { TableName: PartsTable };
+    const params = {
+      TableName: PartsTable,
+      IndexName: "organization-index",
+      KeyConditionExpression: "organization = :orgValue",
+      ExpressionAttributeValues: { ":orgValue": organization }
+    };
+
     try {
-      const data: DocumentClient.ScanOutput = await db.scan(params).promise();
+      const data = await db.query(params).promise();
       const items = data.Items;
       if (items) {
         items.forEach(item => {

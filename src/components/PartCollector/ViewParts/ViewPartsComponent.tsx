@@ -5,6 +5,7 @@ import PartTile from "./PartTile";
 import { Box, LinearProgress, Stack, TextField, Typography } from "@mui/material";
 import { StyledCard } from "../../QuoteBuilder/Cards/Cards.styles";
 import { useSnackbar } from "../../../app/contexts/SnackbarProvider";
+import {useAuth0} from "@auth0/auth0-react";
 
 const ViewPartsComponent: FunctionComponent = () => {
 
@@ -17,9 +18,10 @@ const ViewPartsComponent: FunctionComponent = () => {
 
   const { getAllParts, deletePartFromDatabase } = usePartsService();
   const { showSnackbar } = useSnackbar();
+  const { user } = useAuth0();
 
   useEffect(() => {
-    getAllParts().then(parts => {
+    getAllParts(user?.org_id).then(parts => {
       setParts(parts);
       setMasterParts(parts);
       buildStatisticString(parts);
